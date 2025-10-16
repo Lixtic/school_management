@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2 class="mb-4">Teacher Dashboard</h2>
+
+<div class="row g-3">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body text-center">
+                <i class="bi bi-pencil-square" style="font-size: 3rem; color: #ffc107;"></i>
+                <h5 class="mt-3">Enter Grades</h5>
+                <a href="{% url 'teachers:enter_grades' %}" class="btn btn-warning mt-2">Enter Grades</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body text-center">
+                <i class="bi bi-book" style="font-size: 3rem; color: #667eea;"></i>
+                <h5 class="mt-3">My Classes</h5>
+                <a href="{% url 'teachers:my_classes' %}" class="btn btn-primary mt-2">View Classes</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

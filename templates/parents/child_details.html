@@ -1,0 +1,257 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="bi bi-person-circle"></i> {{ student.user.get_full_name }}</h2>
+        <div>
+            <a href="{% url 'parents:my_children' %}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Back to Children
+            </a>
+            <a href="{% url 'students:report_card' student.id %}" class="btn btn-success" target="_blank">
+                <i class="bi bi-file-text"></i> Report Card
+            </a>
+        </div>
+    </div>
+
+    <!-- Student Info Card -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h6 class="mb-0"><i class="bi bi-info-circle"></i> Student Information</h6>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless table-sm">
+                        <tr>
+                            <th>Admission No:</th>
+                            <td>{{ student.admission_number }}</td>
+                        </tr>
+                        <tr>
+                            <th>Class:</th>
+                            <td>{{ student.current_class }}</td>
+                        </tr>
+                        <tr>
+                            <th>Roll Number:</th>
+                            <td>{{ student.roll_number|default:"-" }}</td>
+                        </tr>
+                        <tr>
+                            <th>Date of Birth:</th>
+                            <td>{{ student.date_of_birth|date:"F d, Y" }}</td>
+                        </tr>
+                        <tr>
+                            <th>Blood Group:</th>
+                            <td>{{ student.blood_group|default:"N/A" }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="card bg-success text-white">
+                        <div class="card-body">
+                            <h6><i class="bi bi-calendar-check"></i> Attendance Summary</h6>
+                            <div class="row text-center mt-3">
+                                <div class="col-4">
+                                    <h3>{{ attendance_stats.present }}</h3>
+                                    <small>Present</small>
+                                </div>
+                                <div class="col-4">
+                                    <h3>{{ attendance_stats.absent }}</h3>
+                                    <small>Absent</small>
+                                </div>
+                                <div class="col-4">
+                                    <h3>{{ attendance_stats.percentage }}%</h3>
+                                    <small>Rate</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="card bg-warning text-dark">
+                        <div class="card-body">
+                            <h6><i class="bi bi-graph-up"></i> Academic Performance</h6>
+                            <div class="mt-3">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Total Grades:</span>
+                                    <strong>{{ grades.count }}</strong>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Average:</span>
+                                    <strong>{{ average_percentage|floatformat:2 }}%</strong>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span>Overall Grade:</span>
+                                    <strong class="fs-4">{{ overall_grade }}</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabs for Different Sections -->
+    <ul class="nav nav-tabs mb-3" id="childTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="grades-tab" data-bs-toggle="tab" 
+                    data-bs-target="#grades" type="button">
+                <i class="bi bi-trophy"></i> Grades
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="attendance-tab" data-bs-toggle="tab" 
+                    data-bs-target="#attendance" type="button">
+                <i class="bi bi-calendar-check"></i> Attendance
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="homework-tab" data-bs-toggle="tab" 
+                    data-bs-target="#homework" type="button">
+                <i class="bi bi-journal-text"></i> Homework
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="childTabsContent">
+        <!-- Grades Tab -->
+        <div class="tab-pane fade show active" id="grades" role="tabpanel">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Academic Grades</h5>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Subject</th>
+                                    <th>Exam Type</th>
+                                    <th>Marks Obtained</th>
+                                    <th>Total Marks</th>
+                                    <th>Percentage</th>
+                                    <th>Grade</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for grade in grades %}
+                                <tr>
+                                    <td><strong>{{ grade.subject }}</strong></td>
+                                    <td>{{ grade.exam_type }}</td>
+                                    <td>{{ grade.marks_obtained }}</td>
+                                    <td>{{ grade.total_marks }}</td>
+                                    <td>{{ grade.percentage|floatformat:2 }}%</td>
+                                    <td>
+                                        <span class="badge 
+                                            {% if grade.grade == 'A+' or grade.grade == 'A' %}bg-success
+                                            {% elif grade.grade == 'B+' or grade.grade == 'B' %}bg-primary
+                                            {% elif grade.grade == 'C' %}bg-warning
+                                            {% else %}bg-danger{% endif %}">
+                                            {{ grade.grade }}
+                                        </span>
+                                    </td>
+                                    <td>{{ grade.created_at|date:"M d, Y" }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="7" class="text-center text-muted py-4">
+                                        No grades available yet
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Attendance Tab -->
+        <div class="tab-pane fade" id="attendance" role="tabpanel">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Attendance Records</h5>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th>Remarks</th>
+                                    <th>Marked By</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for att in attendances %}
+                                <tr>
+                                    <td>{{ att.date|date:"F d, Y" }}</td>
+                                    <td>
+                                        {% if att.status == 'present' %}
+                                            <span class="badge bg-success">Present</span>
+                                        {% elif att.status == 'absent' %}
+                                            <span class="badge bg-danger">Absent</span>
+                                        {% elif att.status == 'late' %}
+                                            <span class="badge bg-warning">Late</span>
+                                        {% else %}
+                                            <span class="badge bg-info">Excused</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ att.remarks|default:"-" }}</td>
+                                    <td>{{ att.marked_by.get_full_name|default:"N/A" }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted py-4">
+                                        No attendance records yet
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Homework Tab -->
+        <div class="tab-pane fade" id="homework" role="tabpanel">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Assignments & Homework</h5>
+                    {% if homework %}
+                        <div class="list-group">
+                            {% for hw in homework %}
+                            <div class="list-group-item">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">{{ hw.title }}</h6>
+                                    <small>{{ hw.assigned_date|date:"M d, Y" }}</small>
+                                </div>
+                                <p class="mb-1">{{ hw.description }}</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">
+                                        <strong>Subject:</strong> {{ hw.subject }} | 
+                                        <strong>Due:</strong> {{ hw.due_date|date:"F d, Y" }}
+                                    </small>
+                                    {% if hw.attachment %}
+                                        <a href="{{ hw.attachment.url }}" class="btn btn-sm btn-outline-primary" download>
+                                            <i class="bi bi-download"></i> Download
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-center text-muted py-4">No homework assigned yet</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

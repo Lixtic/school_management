@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block login_content %}
+<div class="min-vh-100 d-flex align-items-center justify-content-center bg-primary">
+    <div class="card shadow-lg" style="width: 400px;">
+        <div class="card-body p-5">
+            <h3 class="text-center mb-4">School Login</h3>
+            
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label">Username</label>
+                    <input type="text" name="username" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Password</label>
+                    <input type="password" name="password" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Login</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

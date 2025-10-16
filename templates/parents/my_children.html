@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <h2 class="mb-4"><i class="bi bi-person-hearts"></i> My Children</h2>
+
+    {% if children %}
+    <div class="row g-4">
+        {% for child in children %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <div class="text-center mb-3">
+                        {% if child.user.profile_picture %}
+                            <img src="{{ child.user.profile_picture.url }}" 
+                                 class="rounded-circle mb-2" 
+                                 width="80" height="80">
+                        {% else %}
+                            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-2" 
+                                 style="width: 80px; height: 80px; font-size: 2rem;">
+                                {{ child.user.first_name.0 }}{{ child.user.last_name.0 }}
+                            </div>
+                        {% endif %}
+                        <h5 class="card-title mb-1">{{ child.user.get_full_name }}</h5>
+                        <p class="text-muted mb-0">{{ child.admission_number }}</p>
+                    </div>
+
+                    <hr>
+
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span><i class="bi bi-book"></i> Class:</span>
+                            <strong>{{ child.current_class|default:"Not Assigned" }}</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span><i class="bi bi-hash"></i> Roll Number:</span>
+                            <strong>{{ child.roll_number|default:"-" }}</strong>
+                        </div>
+                    </div>
+
+                    <div class="row text-center mb-3">
+                        <div class="col-6">
+                            <div class="border rounded p-2">
+                                <h4 class="text-primary mb-0">{{ child.attendance_percentage }}%</h4>
+                                <small class="text-muted">Attendance</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="border rounded p-2">
+                                <h4 class="text-success mb-0">{{ child.grade_count }}</h4>
+                                <small class="text-muted">Grades</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'parents:child_details' child.id %}" class="btn btn-primary">
+                            <i class="bi bi-eye"></i> View Details
+                        </a>
+                        <a href="{% url 'students:report_card' child.id %}" class="btn btn-outline-success" target="_blank">
+                            <i class="bi bi-file-text"></i> Report Card
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        <i class="bi bi-info-circle"></i> No children linked to your account. Please contact the administrator.
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

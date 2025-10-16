@@ -1,0 +1,557 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}School Management System{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{% static 'css/loader.css' %}">
+
+    
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --sidebar-width: 260px;
+            --sidebar-collapsed-width: 70px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .main-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #34495e 100%);
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: white !important;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .header .navbar-brand i {
+            font-size: 1.8rem;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem 1rem;
+            background: rgba(255,255,255,0.1);
+            border-radius: 25px;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .user-info:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+            text-decoration: none;
+            color: white;
+        }
+
+        .user-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: var(--secondary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: linear-gradient(180deg, #2c3e50 0%, #1a252f 100%);
+            color: white;
+            min-height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 999;
+            box-shadow: 2px 0 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            overflow-y: auto;
+            padding-top: 80px;
+        }
+
+        .sidebar.collapsed {
+            width: var(--sidebar-collapsed-width);
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.2);
+            border-radius: 3px;
+        }
+
+        .sidebar h4 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin: 1.5rem 1rem 1rem;
+            padding: 0.5rem;
+            border-left: 4px solid var(--secondary-color);
+            color: #ecf0f1;
+            text-align: center;
+        }
+
+        /* Navigation Links */
+        .nav-item {
+            margin: 0.25rem 0.5rem;
+        }
+
+        .nav-link {
+            color: #bdc3c7 !important;
+            padding: 0.75rem 1.25rem !important;
+            border-radius: 0 25px 25px 0 !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 0.75rem !important;
+            text-decoration: none !important;
+            transition: all 0.3s ease !important;
+            font-weight: 500 !important;
+            border-left: 3px solid transparent !important;
+            margin: 0 !important;
+            font-size: 0.95rem;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: linear-gradient(90deg, var(--secondary-color), rgba(52, 152, 219, 0.2)) !important;
+            color: white !important;
+            border-left-color: var(--secondary-color) !important;
+            transform: translateX(5px) !important;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3) !important;
+        }
+
+        .nav-link i {
+            font-size: 1.1rem;
+            width: 20px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .nav-link span {
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar.collapsed .nav-link span {
+            opacity: 0;
+            position: absolute;
+            left: -1000px;
+        }
+
+        /* Divider */
+        .sidebar-divider {
+            border: 0;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            margin: 1.5rem 1.25rem;
+        }
+
+        /* Logout Link - Special Red Styling */
+        .logout-section {
+            margin-top: auto;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .logout-link {
+            color: var(--accent-color) !important;
+            font-weight: 600 !important;
+        }
+
+        .logout-link:hover,
+        .logout-link.active {
+            background: linear-gradient(90deg, var(--accent-color), rgba(231, 76, 60, 0.2)) !important;
+            color: white !important;
+            border-left-color: var(--accent-color) !important;
+            transform: translateX(5px) !important;
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3) !important;
+        }
+
+        /* Main Content Area */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            min-height: 100vh;
+            padding: 2rem;
+            transition: margin-left 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .sidebar.collapsed + .main-content {
+            margin-left: var(--sidebar-collapsed-width);
+        }
+
+        .content-wrapper {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.08);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .page-title {
+            color: var(--primary-color);
+            font-weight: 700;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .page-title i {
+            color: var(--secondary-color);
+            font-size: 2.2rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .sidebar {
+                width: var(--sidebar-collapsed-width);
+                transform: translateX(-100%);
+            }
+
+            .sidebar.show {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .content-wrapper {
+                padding: 1.5rem;
+            }
+
+            .page-title {
+                font-size: 1.5rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 0.75rem 0;
+            }
+
+            .header .navbar-brand {
+                font-size: 1.25rem;
+            }
+
+            .main-content {
+                padding: 1rem;
+            }
+
+            .content-wrapper {
+                padding: 1rem;
+                margin-bottom: 1rem;
+            }
+        }
+
+        /* Toggle Button for Sidebar */
+        .sidebar-toggle {
+            position: fixed;
+            top: 90px;
+            left: 20px;
+            z-index: 1001;
+            background: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .sidebar-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+        }
+
+        @media (min-width: 993px) {
+            .sidebar-toggle {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+        <!-- Global Loading Overlay -->
+    <div class="loading-overlay" id="globalLoader">
+        <div class="spinner-container">
+            <div class="spinner"></div>
+            <div class="spinner-text">Loading...</div>
+        </div>
+    </div>
+
+    <!-- Page Progress Bar -->
+    <div class="page-loader" id="pageLoader"></div>
+
+    {% if user.is_authenticated %}
+    <div class="main-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="container-fluid">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="navbar-brand">
+                        <i class="bi bi-mortarboard-fill"></i>
+                        Girls Model Jhs MS
+                    </div>
+                    <div>
+                        <a href="#" class="user-info">
+                            <div class="user-avatar">
+                                {{ user.get_full_name|first|upper }}
+                            </div>
+                            <div class="d-none d-md-block">
+                                <div class="fw-bold">{{ user.get_full_name }}</div>
+                                <small>{{ user.get_username }}</small>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Toggle Button for Mobile -->
+        <button class="sidebar-toggle d-block d-md-none" onclick="toggleSidebar()">
+            <i class="bi bi-list"></i>
+        </button>
+
+        <!-- Sidebar -->
+        <nav class="sidebar" id="sidebar">
+            <h4><i class="bi bi-building"></i> Welcome</h4>
+            
+            <!-- Dashboard -->
+            <div class="nav-item">
+                <a href="{% url 'dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                    <i class="bi bi-speedometer2"></i>
+                    <span class="nav-text">Dashboard</span>
+                </a>
+            </div>
+            
+            <!-- Admin/Teacher Links -->
+            {% if user.user_type == 'admin' or user.user_type == 'teacher' %}
+            <div class="nav-item">
+                <a href="{% url 'students:student_list' %}" class="nav-link {% if request.resolver_match.url_name == 'student_list' %}active{% endif %}">
+                    <i class="bi bi-people"></i>
+                    <span class="nav-text">Students</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{% url 'students:mark_attendance' %}" class="nav-link {% if request.resolver_match.url_name == 'mark_attendance' %}active{% endif %}">
+                    <i class="bi bi-calendar-check"></i>
+                    <span class="nav-text">Mark Attendance</span>
+                </a>
+            </div>
+            {% endif %}
+            
+            <!-- Teacher Only Links -->
+            {% if user.user_type == 'teacher' %}
+            <div class="nav-item">
+                <a href="{% url 'teachers:my_classes' %}" class="nav-link {% if request.resolver_match.url_name == 'my_classes' %}active{% endif %}">
+                    <i class="bi bi-book"></i>
+                    <span class="nav-text">My Classes</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{% url 'teachers:enter_grades' %}" class="nav-link {% if request.resolver_match.url_name == 'enter_grades' %}active{% endif %}">
+                    <i class="bi bi-pencil-square"></i>
+                    <span class="nav-text">Enter Grades</span>
+                </a>
+            </div>
+            {% endif %}
+            
+            <!-- PARENT LINKS - ADDED HERE -->
+            {% if user.user_type == 'parent' %}
+            <div class="nav-item">
+                <a href="{% url 'parents:my_children' %}" class="nav-link {% if request.resolver_match.url_name == 'my_children' %}active{% endif %}">
+                    <i class="bi bi-person-hearts"></i>
+                    <span class="nav-text">My Children</span>
+                </a>
+            </div>
+            {% endif %}
+            
+            <!-- Divider -->
+            <hr class="sidebar-divider">
+            
+            <!-- Logout Section -->
+            <div class="logout-section">
+                <a href="{% url 'logout' %}" class="nav-link logout-link">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span class="nav-text">Logout</span>
+                </a>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content" id="mainContent">
+            <div class="content-wrapper">
+                {% block content %}
+                {% endblock %}
+            </div>
+        </main>
+    </div>
+
+    <!-- Mobile Sidebar Overlay -->
+    <div class="position-fixed top-0 start-0 w-100 h-100 bg-dark bg-opacity-50 d-none" id="sidebarOverlay" style="z-index: 998;" onclick="toggleSidebar()"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            
+            sidebar.classList.toggle('show');
+            overlay.classList.toggle('d-none');
+        }
+
+        // Close sidebar when clicking overlay
+        document.getElementById('sidebarOverlay').addEventListener('click', toggleSidebar);
+
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            
+            if (window.innerWidth > 992) {
+                sidebar.classList.remove('show');
+                overlay.classList.add('d-none');
+            }
+        });
+
+        // Enhanced active link detection
+        document.addEventListener('DOMContentLoaded', function() {
+            const navLinks = document.querySelectorAll('.nav-link');
+            const currentUrl = window.location.pathname;
+            
+            navLinks.forEach(link => {
+                const href = link.getAttribute('href');
+                const linkUrlName = href.split('/').filter(Boolean).pop();
+                
+                // Check if current URL matches the link
+                if (currentUrl.includes(linkUrlName) || link.classList.contains('active')) {
+                    link.classList.add('active');
+                }
+                
+                // Remove active from other links in same section
+                link.addEventListener('click', function() {
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+        });
+    </script>
+    <script>
+        // Global loader functions
+        function showLoader(message = 'Loading...') {
+            const loader = document.getElementById('globalLoader');
+            const text = loader.querySelector('.spinner-text');
+            text.textContent = message;
+            loader.classList.add('active');
+        }
+
+        function hideLoader() {
+            const loader = document.getElementById('globalLoader');
+            loader.classList.remove('active');
+        }
+
+        // Show loader on form submit
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add loading to all forms
+            const forms = document.querySelectorAll('form');
+            forms.forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    const submitBtn = form.querySelector('button[type="submit"]');
+                    if (submitBtn && !submitBtn.classList.contains('no-loader')) {
+                        submitBtn.classList.add('btn-loading');
+                        submitBtn.disabled = true;
+                        showLoader('Processing...');
+                    }
+                });
+            });
+
+            // Add loading to all AJAX-like buttons
+            const ajaxButtons = document.querySelectorAll('[data-loading]');
+            ajaxButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    showLoader(this.dataset.loading || 'Loading...');
+                });
+            });
+
+            // Page navigation loading
+            const links = document.querySelectorAll('a:not([target="_blank"]):not([href^="#"])');
+            links.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    if (this.href && !this.classList.contains('no-loader')) {
+                        const pageLoader = document.getElementById('pageLoader');
+                        pageLoader.classList.add('loading');
+                    }
+                });
+            });
+
+            // Hide loader on page load
+            window.addEventListener('load', function() {
+                hideLoader();
+                document.getElementById('pageLoader').classList.remove('loading');
+            });
+        });
+
+        // Expose globally
+        window.showLoader = showLoader;
+        window.hideLoader = hideLoader;
+    </script>
+    {% else %}
+    {% block login_content %}
+    {% endblock %}
+    {% endif %}
+</body>
+</html>

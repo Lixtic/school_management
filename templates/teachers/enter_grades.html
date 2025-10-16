@@ -1,0 +1,205 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2 class="mb-4">Enter Grades</h2>
+<div id="loadingStudents" style="display: none;" class="text-center py-5">
+    <div class="pulse-loader">
+        <div class="pulse-dot"></div>
+        <div class="pulse-dot"></div>
+        <div class="pulse-dot"></div>
+    </div>
+    <p class="mt-3 text-muted">Loading students...</p>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form method="post" id="gradeForm">
+            {% csrf_token %}
+            
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label class="form-label">Select Class & Subject</label>
+                    <select name="class_subject" id="classSubjectSelect" class="form-select" required>
+                        <option value="">-- Select Class & Subject --</option>
+                        {% for cs in class_subjects %}
+                            <option value="{{ cs.class_name.id }}" 
+                                    data-subject="{{ cs.subject.id }}"
+                                    data-subject-name="{{ cs.subject.name }}">
+                                {{ cs.class_name }} - {{ cs.subject }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="col-md-4">
+                    <label class="form-label">Term</label>
+                    <select name="term" class="form-select" required>
+                        <option value="First Term">First Term</option>
+                        <option value="Second Term">Second Term</option>
+                        <option value="Third Term">Third Term</option>
+                    </select>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">&nbsp;</label>
+                    <button type="button" id="loadStudents" class="btn btn-primary w-100">
+                        <i class="bi bi-people"></i> Load Students
+                    </button>
+                </div>
+            </div>
+
+            <div id="studentList" style="display: none;">
+                <div class="alert alert-info">
+                    <strong>Grading System:</strong> Class Work (30 marks) + Exams (70 marks) = Total (100 marks)
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>SN</th>
+                                <th>Admission No</th>
+                                <th>Student Name</th>
+                                <th>Class Work<br><small>(Max: 30)</small></th>
+                                <th>Exams<br><small>(Max: 70)</small></th>
+                                <th>Total<br><small>(Auto)</small></th>
+                                <th>Grade<br><small>(Auto)</small></th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentTableBody">
+                        </tbody>
+                    </table>
+                </div>
+                
+                <button type="submit" class="btn btn-success btn-lg">
+                    <i class="bi bi-check-circle"></i> Submit Grades
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.getElementById('loadStudents').addEventListener('click', function() {
+    const select = document.getElementById('classSubjectSelect');
+    const classId = select.value;
+    const subjectId = select.options[select.selectedIndex].dataset.subject;
+    
+    if (!classId || !subjectId) {
+        alert('Please select a class and subject first');
+        return;
+    }
+    
+    fetch(`/teachers/get-students/${classId}/`)
+        .then(response => response.json())
+        .then(students => {
+            const tbody = document.getElementById('studentTableBody');
+            tbody.innerHTML = '';
+            
+            students.forEach((student, index) => {
+                const row = `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td>${student.admission_number}</td>
+                        <td>${student.name}</td>
+                        <td>
+                            <input type="hidden" name="student_id[]" value="${student.id}">
+                            <input type="hidden" name="subject_id" value="${subjectId}">
+                            <input type="number" name="class_score_${student.id}" 
+                                   class="form-control class-score" 
+                                   min="0" max="30" step="0.1" 
+                                   data-row="${student.id}"
+                                   required>
+                        </td>
+                        <td>
+                            <input type="number" name="exams_score_${student.id}" 
+                                   class="form-control exams-score" 
+                                   min="0" max="70" step="0.1" 
+                                   data-row="${student.id}"
+                                   required>
+                        </td>
+                        <td>
+                            <input type="text" id="total_${student.id}" 
+                                   class="form-control" 
+                                   readonly 
+                                   style="background: #e9ecef;">
+                        </td>
+                        <td>
+                            <span id="grade_${student.id}" class="badge bg-secondary">-</span>
+                        </td>
+                    </tr>
+                `;
+                tbody.innerHTML += row;
+            });
+            
+            // Add event listeners for auto-calculation
+            document.querySelectorAll('.class-score, .exams-score').forEach(input => {
+                input.addEventListener('input', function() {
+                    calculateTotal(this.dataset.row);
+                });
+            });
+            
+            document.getElementById('studentList').style.display = 'block';
+        })
+        .catch(error => {
+            alert('Error loading students: ' + error);
+        });
+});
+
+function calculateTotal(studentId) {
+    const classScore = parseFloat(document.querySelector(`input[name="class_score_${studentId}"]`).value) || 0;
+    const examsScore = parseFloat(document.querySelector(`input[name="exams_score_${studentId}"]`).value) || 0;
+    
+    // Validate max scores
+    if (classScore > 30) {
+        alert('Class work score cannot exceed 30 marks');
+        document.querySelector(`input[name="class_score_${studentId}"]`).value = 30;
+        return;
+    }
+    
+    if (examsScore > 70) {
+        alert('Exams score cannot exceed 70 marks');
+        document.querySelector(`input[name="exams_score_${studentId}"]`).value = 70;
+        return;
+    }
+    
+    const total = classScore + examsScore;
+    document.getElementById(`total_${studentId}`).value = total.toFixed(1);
+    
+    // Calculate grade
+    let grade, gradeClass;
+    if (total >= 80) {
+        grade = '1 - Highest';
+        gradeClass = 'bg-success';
+    } else if (total >= 70) {
+        grade = '2 - Higher';
+        gradeClass = 'bg-primary';
+    } else if (total >= 65) {
+        grade = '3 - High';
+        gradeClass = 'bg-info';
+    } else if (total >= 60) {
+        grade = '4 - High Avg';
+        gradeClass = 'bg-primary';
+    } else if (total >= 55) {
+        grade = '5 - Average';
+        gradeClass = 'bg-warning';
+    } else if (total >= 50) {
+        grade = '6 - Low Avg';
+        gradeClass = 'bg-warning';
+    } else if (total >= 45) {
+        grade = '7 - Low';
+        gradeClass = 'bg-danger';
+    } else if (total >= 40) {
+        grade = '8 - Lower';
+        gradeClass = 'bg-danger';
+    } else {
+        grade = '9 - Lowest';
+        gradeClass = 'bg-dark';
+    }
+    
+    const gradeBadge = document.getElementById(`grade_${studentId}`);
+    gradeBadge.textContent = grade;
+    gradeBadge.className = `badge ${gradeClass}`;
+}
+</script>
+{% endblock %}

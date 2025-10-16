@@ -6,22 +6,15 @@ import os
 from pathlib import Path
 import dj_database_url
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-your-secret-key-here-change-in-production')
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DEBUG', 'True') == 'True'  # Default True for local dev
+DEBUG = os.environ.get('DEBUG', '').lower() in ('true', '1', 'yes')
 
-# Allow all hosts in dev; restrict in production
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '*').split(',')
 
-
-# Application definition
 INSTALLED_APPS = [
-    # Django core apps
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -29,11 +22,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    # Third-party apps
     'crispy_forms',
     'crispy_bootstrap5',
 
-    # Local apps
     'accounts',
     'students',
     'teachers',
@@ -43,7 +34,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # Serve static files in production
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -72,17 +63,9 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'school_system.wsgi.application'
 
-
-# =====================
-# DATABASES
-# =====================
-# Use Railway Postgres in production, fallback to SQLite locally
 DATABASE_URL = os.environ.get("DATABASE_URL")
-
 if DATABASE_URL:
-    DATABASES = {
-        'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600)
-    }
+    DATABASES = {'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600)}
 else:
     DATABASES = {
         'default': {
@@ -91,10 +74,6 @@ else:
         }
     }
 
-
-# =====================
-# PASSWORD VALIDATION
-# =====================
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
@@ -102,41 +81,28 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
-
-# =====================
-# INTERNATIONALIZATION
-# =====================
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-
-# =====================
-# STATIC & MEDIA FILES
-# =====================
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-
-# Enable WhiteNoise compressed static storage for production
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-
-# =====================
-# AUTH & LOGIN
-# =====================
 AUTH_USER_MODEL = 'accounts.User'
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'dashboard'
 LOGOUT_REDIRECT_URL = 'login'
 
-
-# =====================
-# CRISPY FORMS CONFIG
-# =====================
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
+
+CSRF_TRUSTED_ORIGINS = ['https://*.up.railway.app']
+
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

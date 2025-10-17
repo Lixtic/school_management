@@ -4,6 +4,11 @@ from django.conf import settings
 from django.conf.urls.static import static
 from accounts import views as account_views
 
+admin.site.site_header = "Daboya Girls Model JHS Administration"
+admin.site.site_title = "School Admin"
+admin.site.index_title = "Welcome to Girls Model JHS Management System"
+
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', account_views.login_view, name='login'),

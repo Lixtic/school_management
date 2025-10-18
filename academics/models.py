@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.exceptions import ValidationError
 
 class AcademicYear(models.Model):
     name = models.CharField(max_length=20)
@@ -46,3 +47,55 @@ class ClassSubject(models.Model):
     
     class Meta:
         unique_together = ['class_name', 'subject']
+
+
+class Schedule(models.Model):
+    DAYS_OF_WEEK = [
+        ('monday', 'Monday'),
+        ('tuesday', 'Tuesday'),
+        ('wednesday', 'Wednesday'),
+        ('thursday', 'Thursday'),
+        ('friday', 'Friday'),
+    ]
+    
+    PERIOD_CHOICES = [
+        (1, '1st Period'),
+        (2, '2nd Period'),
+        (3, '3rd Period'),
+        (4, '4th Period'),
+        (5, '5th Period'),
+        (6, '6th Period'),
+        (7, '7th Period'),
+        (8, '8th Period'),
+    ]
+    
+    class_subject = models.ForeignKey(ClassSubject, on_delete=models.CASCADE)
+    day = models.CharField(max_length=10, choices=DAYS_OF_WEEK)
+    period = models.IntegerField(choices=PERIOD_CHOICES)
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+    
+    def clean(self):
+        # Check for time conflicts
+        conflicts = Schedule.objects.filter(
+            class_subject__class_name=self.class_subject.class_name,
+            day=self.day,
+        ).exclude(id=self.id)
+        
+        for schedule in conflicts:
+            if (self.start_time <= schedule.end_time and 
+                self.end_time >= schedule.start_time):
+                raise ValidationError(
+                    f'Time conflict with {schedule.class_subject.subject} '
+                    f'({schedule.start_time.strftime("%I:%M %p")} - '
+                    f'{schedule.end_time.strftime("%I:%M %p")})'
+                )
+    
+    def __str__(self):
+        return (f"{self.class_subject} - {self.get_day_display()} "
+                f"Period {self.period} ({self.start_time.strftime('%I:%M %p')} - "
+                f"{self.end_time.strftime('%I:%M %p')})")
+    
+    class Meta:
+        ordering = ['day', 'period']
+        unique_together = ['class_subject', 'day', 'period']

@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>Grades Import Results</h1>
+
+  {% if confirmed %}
+    <p>Import performed.</p>
+    <p>Created: {{ created }} | Updated: {{ updated }} | Skipped: {{ skipped }}</p>
+  {% else %}
+    <p>Preview results — no writes performed.</p>
+    <p>Would create: {{ preview_created }} | Would update: {{ preview_updated }} | Would skip: {{ preview_skipped }}</p>
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <input type="hidden" name="confirm" value="1" />
+      {% if tmp_token %}
+        <input type="hidden" name="tmp_token" value="{{ tmp_token }}" />
+      {% endif %}
+      <button type="submit" class="btn btn-danger">Confirm and perform import</button>
+    </form>
+  {% endif %}
+
+  <h2>Row details</h2>
+  <table class="table">
+    <thead><tr><th>Row</th><th>Status</th><th>Message</th></tr></thead>
+    <tbody>
+      {% for d in preview_details|default:details %}
+        <tr>
+          <td>{{ d.row }}</td>
+          <td>{{ d.status }}</td>
+          <td>{{ d.message }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% if affected_student_ids %}
+    <h3>Affected students</h3>
+    <ul>
+      {% for sid in affected_student_ids %}
+        <li><a href="{% url 'students:report_card' sid %}" target="_blank">Student {{ sid }} report card</a></li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endblock %}

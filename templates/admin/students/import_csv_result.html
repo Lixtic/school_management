@@ -1,0 +1,33 @@
+{% extends 'admin/base_site.html' %}
+
+{% block content %}
+  <h1>Student Import Results</h1>
+  <p>Created: {{ created }} | Skipped: {{ skipped }}</p>
+  {% if created_classes %}
+    <p>Auto-created classes: {{ created_classes|join:", " }}</p>
+  {% endif %}
+
+  <h2>Details</h2>
+  <table class="adminlist">
+    <thead>
+      <tr>
+        <th>Row</th>
+        <th>Action</th>
+        <th>Identifier</th>
+        <th>Message</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for d in details %}
+        <tr>
+          <td>{{ forloop.counter }}</td>
+          <td>{{ d.action }}</td>
+          <td>{{ d.identifier }}</td>
+          <td>{{ d.message }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <p><a href="..">Back to students</a></p>
+{% endblock %}

@@ -1,0 +1,55 @@
+{% extends 'admin/base_site.html' %}
+
+{% block content %}
+  <div class="module">
+    <h1>Grades Import Results</h1>
+
+    {% if confirmed %}
+      <p class="success">Import completed.</p>
+      <p><strong>Created:</strong> {{ created }} &nbsp; <strong>Updated:</strong> {{ updated }} &nbsp; <strong>Skipped:</strong> {{ skipped }}</p>
+    {% else %}
+      <p class="help">Preview results — no changes have been written. Click Confirm below to perform the import.</p>
+      <p><strong>Would create:</strong> {{ preview_created }} &nbsp; <strong>Would update:</strong> {{ preview_updated }} &nbsp; <strong>Would skip:</strong> {{ preview_skipped }}</p>
+      <form method="post">
+        {% csrf_token %}
+        {% if tmp_token %}
+          <input type="hidden" name="tmp_token" value="{{ tmp_token }}" />
+        {% endif %}
+        <input type="hidden" name="confirm" value="1" />
+        <div class="submit-row">
+          <input type="submit" value="Confirm import" class="default">
+        </div>
+      </form>
+    {% endif %}
+
+    <h2>Row details</h2>
+    <table class="adminlist">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Status</th>
+          <th>Message</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for d in preview_details|default:details %}
+          <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ d.status }}</td>
+            <td>{{ d.message }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <p><a href="..">Back to students</a></p>
+    {% if affected_student_ids %}
+      <h3>Affected students</h3>
+      <ul>
+        {% for sid in affected_student_ids %}
+          <li><a href="{% url 'students:report_card' sid %}" target="_blank">Student {{ sid }} report card</a></li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  </div>
+{% endblock %}

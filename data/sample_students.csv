@@ -1,0 +1,11 @@
+admission_number,first_name,last_name,date_of_birth,current_class,email,gender,date_of_admission,roll_number,emergency_contact
+A2025-001,Kwame,Mensah,9/15/2012,JHS 1A,kwame.mensah@example.com,male,9/1/2024,1,2.33245E+11
+A2025-002,Amina,Abdulai,3/2/2011,JHS 1A,amina.abdulai@example.com,female,9/1/2024,2,2.33245E+11
+A2025-003,Kojo,Opoku,7/21/2012,JHS 1B,kojo.opoku@example.com,male,9/1/2024,3,2.33245E+11
+A2025-004,Esi,Boateng,11/10/2011,JHS 1B,esi.boateng@example.com,female,9/1/2024,4,2.33245E+11
+A2025-005,Yaw,Frimpong,1/30/2012,JHS 2A,yaw.frimpong@example.com,male,9/1/2024,5,2.33245E+11
+A2025-006,Nana,Owusu,6/14/2010,JHS 2A,nana.owusu@example.com,female,9/1/2024,6,2.33245E+11
+A2025-007,Abena,Kumah,4/5/2012,JHS 2B,abena.kumah@example.com,female,9/1/2024,7,2.33245E+11
+A2025-008,Kojo,Asare,8/17/2011,JHS 3A,kojo.asare@example.com,male,9/1/2024,8,2.33245E+11
+A2025-009,Serwaa,Mensah,12/22/2010,JHS 3A,serwaa.mensah@example.com,female,9/1/2024,9,2.33245E+11
+A2025-010,Michael,Brown,5/3/2011,JHS 1A,michael.brown@example.com,male,9/1/2024,10,2.33245E+11

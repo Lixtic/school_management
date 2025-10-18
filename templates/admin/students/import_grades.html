@@ -1,0 +1,34 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+  <div class="app-import">
+    <h1>Import Grades (CSV)</h1>
+    <div class="module aligned">
+      <p class="help">CSV must include student identifier (admission_number, email or username), subject (code or name), term, class_score and exams_score. Preview first to verify.</p>
+      <form method="post" enctype="multipart/form-data" class="import-form">
+        {% csrf_token %}
+        <table>
+          <tr>
+            <th>{{ form.csv_file.label_tag }}</th>
+            <td>{{ form.csv_file }}</td>
+          </tr>
+          <tr>
+            <th>{{ form.update_existing.label_tag }}</th>
+            <td>{{ form.update_existing }}</td>
+          </tr>
+          <tr>
+            <th>{{ form.academic_year.label_tag }}</th>
+            <td>{{ form.academic_year }}</td>
+          </tr>
+          <tr>
+            <th>{{ form.class_id.label_tag }}</th>
+            <td>{{ form.class_id }}</td>
+          </tr>
+        </table>
+        <div class="submit-row">
+          <input type="submit" value="Preview import" class="default" />
+        </div>
+      </form>
+    </div>
+  </div>
+{% endblock %}

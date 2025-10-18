@@ -141,6 +141,15 @@ LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'dashboard'
 LOGOUT_REDIRECT_URL = 'login'
 
+# Timetable configuration (modifiable without touching code)
+TIMETABLE_TIME_SLOTS = [
+    ("07:00", "08:30"),
+    ("08:30", "09:45"),
+    ("09:45", "10:30"),
+    ("10:30", "11:30"),
+    ("11:30", "13:00"),
+]
+
 
 # =====================
 # CRISPY FORMS CONFIG

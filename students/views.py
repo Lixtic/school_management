@@ -236,11 +236,58 @@ def student_dashboard_view(request):
     # Get all grades
     grades = Grade.objects.filter(student=student).select_related('subject').order_by('-created_at')
     
+    # Calculate grade statistics
+    from django.db.models import Avg, Count as DbCount, Q
+    import json
+    
+    # Get grades per subject
+    subject_grades = grades.values('subject__name').annotate(
+        avg_marks=Avg('total_score'),
+        count=DbCount('id')
+    ).order_by('subject__name')
+    
+    subject_names = [s['subject__name'] for s in subject_grades]
+    subject_avg_marks = [round(s['avg_marks'], 2) if s['avg_marks'] else 0 for s in subject_grades]
+    
+    # Get grade distribution (A, B, C, D, etc.)
+    grade_distribution = grades.values('grade').annotate(
+        count=DbCount('id')
+    ).order_by('grade')
+    
+    grade_labels = [g['grade'] for g in grade_distribution]
+    grade_counts = [g['count'] for g in grade_distribution]
+    
+    # Overall performance metrics
+    overall_avg = 0
+    if grades.exists():
+        overall_avg = round(grades.aggregate(Avg('total_score'))['total_score__avg'], 2)
+    
+    # Last 30 days performance trend
+    thirty_days_ago = date.today() - timedelta(days=30)
+    performance_trend = grades.filter(
+        created_at__gte=thirty_days_ago
+    ).values('created_at__date').annotate(
+        avg_marks=Avg('total_score')
+    ).order_by('created_at__date')
+    
+    trend_dates = [str(p['created_at__date']) for p in performance_trend]
+    trend_marks = [round(p['avg_marks'], 2) if p['avg_marks'] else 0 for p in performance_trend]
+    
     context = {
         'student': student,
         'recent_attendance': recent_attendance,
         'attendance_stats': attendance_stats,
         'grades': grades,
+        'subject_names': json.dumps(subject_names),
+        'subject_avg_marks': json.dumps(subject_avg_marks),
+        'grade_labels': json.dumps(grade_labels),
+        'grade_counts': json.dumps(grade_counts),
+        'overall_avg': overall_avg,
+        'trend_dates': json.dumps(trend_dates),
+        'trend_marks': json.dumps(trend_marks),
+        'has_subject_grades': bool(subject_grades),
+        'has_grade_distribution': bool(grade_distribution),
+        'has_performance_trend': bool(performance_trend),
     }
     
     return render(request, 'dashboard/student_dashboard.html', context)

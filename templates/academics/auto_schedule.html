@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Auto Generate Class Schedules</h2>
+    
+    <div class="card">
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">School Day Start Time</label>
+                        <input type="time" name="start_time" class="form-control" required 
+                               value="{{ start_time|default:'08:00' }}">
+                        <small class="text-muted">When does the school day start?</small>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <label class="form-label">School Day End Time</label>
+                        <input type="time" name="end_time" class="form-control" required 
+                               value="{{ end_time|default:'15:30' }}">
+                        <small class="text-muted">When does the school day end?</small>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <label class="form-label">Period Duration (minutes)</label>
+                        <input type="number" name="period_duration" class="form-control" required 
+                               value="{{ period_duration|default:45 }}" min="30" max="120">
+                        <small class="text-muted">How long is each class period?</small>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <label class="form-label">Break Periods</label>
+                        <input type="text" name="break_periods" class="form-control" 
+                               value="{{ break_periods|default:'3,6' }}"
+                               placeholder="e.g., 3,6">
+                        <small class="text-muted">Enter period numbers for breaks (comma-separated)</small>
+                    </div>
+                </div>
+                
+                <div class="alert alert-info mt-3">
+                    <h5>How Auto-Scheduling Works:</h5>
+                    <ul class="mb-0">
+                        <li>Generates a balanced schedule for all classes</li>
+                        <li>Ensures no teacher has conflicting classes</li>
+                        <li>Distributes subjects evenly across the week</li>
+                        <li>Respects break periods</li>
+                        <li>Works Monday through Friday</li>
+                    </ul>
+                </div>
+                
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    Warning: This will replace all existing schedules. Make sure to review the generated schedules after creation.
+                </div>
+                
+                <div class="mt-3">
+                    <button type="submit" class="btn btn-primary">
+                        Generate Schedules
+                    </button>
+                    <a href="{% url 'dashboard' %}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% if generated %}
+<div class="container mt-4">
+    <div class="alert alert-success">
+        <h4 class="alert-heading">Schedules Generated Successfully!</h4>
+        <p>The system has generated schedules for all classes. Please review them below:</p>
+    </div>
+    
+    {% regroup schedules by class_subject.class_name as class_list %}
+    
+    <div class="accordion" id="schedulesAccordion">
+        {% for class in class_list %}
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button {% if not forloop.first %}collapsed{% endif %}" type="button" 
+                        data-bs-toggle="collapse" data-bs-target="#class{{ forloop.counter }}">
+                    {{ class.grouper }} Schedule
+                </button>
+            </h2>
+            <div id="class{{ forloop.counter }}" 
+                 class="accordion-collapse collapse {% if forloop.first %}show{% endif %}">
+                <div class="accordion-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Day</th>
+                                    <th>Period</th>
+                                    <th>Subject</th>
+                                    <th>Teacher</th>
+                                    <th>Time</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for schedule in class.list %}
+                                <tr>
+                                    <td>{{ schedule.get_day_display }}</td>
+                                    <td>Period {{ schedule.period }}</td>
+                                    <td>{{ schedule.class_subject.subject.name }}</td>
+                                    <td>{{ schedule.class_subject.teacher.user.get_full_name }}</td>
+                                    <td>{{ schedule.start_time|time:"g:i A" }} - {{ schedule.end_time|time:"g:i A" }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Toast Notification Demo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        .demo-card {
+            max-width: 600px;
+            margin: 2rem auto;
+        }
+        .btn-demo {
+            margin: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card demo-card shadow">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0"><i class="bi bi-bell-fill me-2"></i>Toast Notification Demo</h4>
+            </div>
+            <div class="card-body">
+                <h5>Click the buttons below to see toast notifications:</h5>
+                <div class="mt-4">
+                    <button onclick="showToast('Action completed successfully!', 'success')" class="btn btn-success btn-demo">
+                        <i class="bi bi-check-circle me-2"></i>Success Toast
+                    </button>
+                    <button onclick="showToast('An error occurred!', 'error')" class="btn btn-danger btn-demo">
+                        <i class="bi bi-exclamation-circle me-2"></i>Error Toast
+                    </button>
+                    <button onclick="showToast('Here is some information', 'info')" class="btn btn-info btn-demo text-white">
+                        <i class="bi bi-info-circle me-2"></i>Info Toast
+                    </button>
+                </div>
+                <hr>
+                <h5>Real-world Examples:</h5>
+                <div class="mt-3">
+                    <button onclick="showToast('Attendance marked successfully for 25 students!', 'success')" class="btn btn-outline-success btn-demo">
+                        Attendance Saved
+                    </button>
+                    <button onclick="showToast('Grades entered successfully for 30 students!', 'success')" class="btn btn-outline-success btn-demo">
+                        Grades Saved
+                    </button>
+                    <button onclick="showToast('You do not have permission to perform this action', 'error')" class="btn btn-outline-danger btn-demo">
+                        Permission Denied
+                    </button>
+                    <button onclick="showToast('Your session will expire in 5 minutes', 'info')" class="btn btn-outline-info btn-demo">
+                        Session Warning
+                    </button>
+                </div>
+            </div>
+            <div class="card-footer text-muted">
+                <small><i class="bi bi-lightbulb me-1"></i>Toast notifications auto-hide after 4 seconds</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999;">
+        <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert">
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="bi bi-check-circle-fill me-2"></i>
+                    <span id="toastMessage">Success!</span>
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        </div>
+        <div id="errorToast" class="toast align-items-center text-white bg-danger border-0" role="alert">
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="bi bi-exclamation-circle-fill me-2"></i>
+                    <span id="errorToastMessage">Error!</span>
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        </div>
+        <div id="infoToast" class="toast align-items-center text-white bg-info border-0" role="alert">
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="bi bi-info-circle-fill me-2"></i>
+                    <span id="infoToastMessage">Info</span>
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function showToast(message, type = 'success') {
+            let toastEl, messageEl;
+            
+            if (type === 'success') {
+                toastEl = document.getElementById('successToast');
+                messageEl = document.getElementById('toastMessage');
+            } else if (type === 'error') {
+                toastEl = document.getElementById('errorToast');
+                messageEl = document.getElementById('errorToastMessage');
+            } else if (type === 'info') {
+                toastEl = document.getElementById('infoToast');
+                messageEl = document.getElementById('infoToastMessage');
+            }
+            
+            if (toastEl && messageEl) {
+                messageEl.textContent = message;
+                const toast = new bootstrap.Toast(toastEl, {
+                    animation: true,
+                    autohide: true,
+                    delay: 4000
+                });
+                toast.show();
+            }
+        }
+    </script>
+</body>
+</html>

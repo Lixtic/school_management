@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import AcademicYear, Class, Subject, ClassSubject
+from .models import AcademicYear, Class, Subject, ClassSubject, Schedule
 
 @admin.register(AcademicYear)
 class AcademicYearAdmin(admin.ModelAdmin):
@@ -17,6 +17,13 @@ class ClassAdmin(admin.ModelAdmin):
 class SubjectAdmin(admin.ModelAdmin):
     list_display = ['code', 'name']
     search_fields = ['code', 'name']
+
+@admin.register(Schedule)
+class ScheduleAdmin(admin.ModelAdmin):
+    list_display = ['class_subject', 'day', 'period', 'start_time', 'end_time']
+    list_filter = ['day', 'period', 'class_subject__class_name']
+    search_fields = ['class_subject__class_name__name', 'class_subject__subject__name']
+    ordering = ['day', 'period', 'start_time']
 
 @admin.register(ClassSubject)
 class ClassSubjectAdmin(admin.ModelAdmin):

@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid px-3 px-md-4 py-4">
+    <!-- Page Header -->
+    <div class="page-header mb-4">
+        <h1><i class="bi bi-book-fill me-2"></i>My Classes</h1>
+        <p class="page-subtitle">Manage and enter grades for your assigned classes and subjects</p>
+    </div>
+
+    {% if class_subjects %}
+        <!-- Statistics -->
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-md-3">
+                <div class="card stat-card border-left-primary h-100" style="border-left: 4px solid #3498db;">
+                    <div class="card-body py-3">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <p class="stat-card-label">Total Classes</p>
+                                <h4 class="stat-card-value">{{ class_subjects|length }}</h4>
+                            </div>
+                            <div class="stat-icon bg-primary text-white">
+                                <i class="bi bi-book-fill"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card stat-card border-left-success h-100" style="border-left: 4px solid #2ecc71;">
+                    <div class="card-body py-3">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <p class="stat-card-label">Total Subjects</p>
+                                <h4 class="stat-card-value" id="subjectCount">-</h4>
+                            </div>
+                            <div class="stat-icon bg-success text-white">
+                                <i class="bi bi-mortarboard-fill"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card stat-card border-left-info h-100" style="border-left: 4px solid #1abc9c;">
+                    <div class="card-body py-3">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <p class="stat-card-label">Action Items</p>
+                                <h4 class="stat-card-value">3</h4>
+                            </div>
+                            <div class="stat-icon bg-info text-white">
+                                <i class="bi bi-clipboard-check-fill"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card stat-card border-left-warning h-100" style="border-left: 4px solid #f39c12;">
+                    <div class="card-body py-3">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <p class="stat-card-label">View Schedule</p>
+                                <h4 class="stat-card-value" style="font-size: 1.1rem;">
+                                    <a href="{% url 'academics:view_timetable' %}" style="color: #f39c12; text-decoration: none;">→</a>
+                                </h4>
+                            </div>
+                            <div class="stat-icon bg-warning text-white">
+                                <i class="bi bi-calendar-event-fill"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Classes Grid -->
+        <div class="row g-3 mb-4">
+            {% for class_subject in class_subjects %}
+            <div class="col-12 col-md-6 col-lg-4">
+                <div class="card border-0 shadow-sm h-100" style="transition: all 0.3s ease;">
+                    <div class="p-4" style="background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); color: white;">
+                        <h5 style="font-weight: 700; margin-bottom: 0.5rem;">
+                            <i class="bi bi-book-half me-2"></i>{{ class_subject.class_name }}
+                        </h5>
+                        <p style="margin-bottom: 0; font-size: 0.95rem; opacity: 0.95;">{{ class_subject.subject }}</p>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="mb-4">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="bi bi-info-circle me-2" style="color: #3498db; font-weight: 600;"></i>
+                                <span style="font-size: 0.9rem; color: #7f8c8d; font-weight: 500;">Class ID: {{ class_subject.class_name.id }}</span>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-tag-fill me-2" style="color: #2ecc71; font-weight: 600;"></i>
+                                <span style="font-size: 0.9rem; color: #7f8c8d; font-weight: 500;">Subject ID: {{ class_subject.subject.id }}</span>
+                            </div>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <a href="{% url 'teachers:enter_grades' %}?class_subject={{ class_subject.id }}" 
+                               class="btn btn-primary" style="font-weight: 600;">
+                                <i class="bi bi-pencil-square me-1"></i>Enter Grades
+                            </a>
+                            <a href="/academics/class-timetable/{{ class_subject.class_name.id }}/" 
+                               class="btn btn-outline-info" style="font-weight: 600;">
+                                <i class="bi bi-calendar-week me-1"></i>View Schedule
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+    {% else %}
+        <!-- Empty State -->
+        <div class="alert alert-info border-0 border-left-info" style="border-left: 4px solid #1abc9c;">
+            <div class="d-flex align-items-start">
+                <i class="bi bi-info-circle me-2" style="font-size: 1.1rem; color: #1abc9c;"></i>
+                <div>
+                    <strong>No Classes Assigned</strong>
+                    <p class="mb-0" style="font-size: 0.9rem; margin-top: 0.25rem;">You are not assigned to any classes yet. Please contact the administrator to add you to classes.</p>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+// Calculate unique subjects count
+document.addEventListener('DOMContentLoaded', function() {
+    const subjects = new Set();
+    document.querySelectorAll('[data-subject]').forEach(el => {
+        subjects.add(el.getAttribute('data-subject'));
+    });
+    document.getElementById('subjectCount').textContent = subjects.size;
+});
+</script>
+
+<style>
+.card:hover {
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12) !important;
+    transform: translateY(-4px);
+}
+</style>
+{% endblock %}

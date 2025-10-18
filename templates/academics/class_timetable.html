@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Class Timetable - {{ class.name }}</h2>
+    
+    <div class="card mt-3">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Period</th>
+                            {% for day_code, day_name in days.items %}
+                                <th>{{ day_name }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for period in periods %}
+                            <tr>
+                                <th>Period {{ period }}</th>
+                                {% for day_code, day_name in days.items %}
+                                    <td>
+                                        {% with slot=timetable|get_item:day_code|get_item:period %}
+                                            {% if slot %}
+                                                <strong>{{ slot.subject }}</strong><br>
+                                                <small class="text-muted">{{ slot.teacher }}</small><br>
+                                                <small>{{ slot.start_time }} - {{ slot.end_time }}</small>
+                                            {% else %}
+                                                -
+                                            {% endif %}
+                                        {% endwith %}
+                                    </td>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

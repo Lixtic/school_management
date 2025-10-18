@@ -1,0 +1,15 @@
+{% extends "admin/change_list.html" %}
+
+{% block object-tools %}
+  <div class="object-tools">
+    <ul class="object-tools">
+      <li>
+        <a class="addlink" href="{{ import_csv_url }}">Import from CSV</a>
+      </li>
+      <li>
+        <a class="addlink" href="{{ import_grades_url }}">Import grades</a>
+      </li>
+    </ul>
+  </div>
+  {{ block.super }}
+{% endblock %}

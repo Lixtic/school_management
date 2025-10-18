@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Manage Class Schedule</h2>
+    
+    <div class="card">
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Select Class Subject</label>
+                        <select name="class_subject" class="form-select" required>
+                            <option value="">-- Select Class Subject --</option>
+                            {% for subject in class_subjects %}
+                                <option value="{{ subject.id }}">
+                                    {{ subject.class_name }} - {{ subject.subject.name }}
+                                    ({{ subject.teacher.user.get_full_name }})
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <label class="form-label">Day</label>
+                        <select name="day" class="form-select" required>
+                            <option value="">-- Select Day --</option>
+                            {% for day_code, day_name in days %}
+                                <option value="{{ day_code }}">{{ day_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <label class="form-label">Period</label>
+                        <select name="period" class="form-select" required>
+                            <option value="">-- Select Period --</option>
+                            {% for period_num, period_name in periods %}
+                                <option value="{{ period_num }}">{{ period_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <label class="form-label">Start Time</label>
+                        <input type="time" name="start_time" class="form-control" required>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <label class="form-label">End Time</label>
+                        <input type="time" name="end_time" class="form-control" required>
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary">Save Schedule</button>
+                    <a href="{% url 'dashboard' %}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

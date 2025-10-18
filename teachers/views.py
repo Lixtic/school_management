@@ -5,6 +5,13 @@ from django.http import JsonResponse
 from teachers.models import Teacher
 from academics.models import ClassSubject, AcademicYear
 from students.models import Student, Grade
+from students.forms import GradesCsvUploadForm
+import pandas as pd
+import load_sample_data
+from django.conf import settings
+from pathlib import Path
+import time
+import os
 
 @login_required
 def teacher_classes(request):
@@ -12,12 +19,24 @@ def teacher_classes(request):
         messages.error(request, 'Access denied')
         return redirect('dashboard')
     
-    teacher = Teacher.objects.get(user=request.user)
+    try:
+        teacher = Teacher.objects.get(user=request.user)
+    except Teacher.DoesNotExist:
+        messages.error(request, 'Teacher profile not found. Please contact administrator.')
+        return redirect('dashboard')
     class_subjects = ClassSubject.objects.filter(teacher=teacher).select_related(
         'class_name', 'subject'
     )
     
     return render(request, 'teachers/my_classes.html', {'class_subjects': class_subjects})
+
+
+@login_required
+def my_classes(request):
+    """Compatibility wrapper: some URLs or templates may reference `my_classes`.
+    Delegate to the main `teacher_classes` view to keep behavior consistent.
+    """
+    return teacher_classes(request)
 
 
 @login_required
@@ -73,3 +92,98 @@ def get_students(request, class_id):
         for s in students
     ]
     return JsonResponse(data, safe=False)
+
+
+@login_required
+def import_grades_csv(request):
+    if request.user.user_type != 'teacher':
+        messages.error(request, 'Access denied')
+        return redirect('dashboard')
+
+    if request.method == 'POST':
+        form = GradesCsvUploadForm(request.POST, request.FILES)
+        if form.is_valid():
+            csv_file = request.FILES['csv_file']
+            update_existing = form.cleaned_data.get('update_existing', True)
+            academic_year_val = form.cleaned_data.get('academic_year')
+            class_id_val = form.cleaned_data.get('class_id') if 'class_id' in form.cleaned_data else None
+            confirm = request.POST.get('confirm') == 'on'
+            tmp_token = request.POST.get('tmp_token')
+            try:
+                tmp_dir = Path(getattr(settings, 'MEDIA_ROOT', 'media')) / 'tmp_imports'
+                tmp_dir.mkdir(parents=True, exist_ok=True)
+
+                # If confirm and a tmp token exists, use that temp file instead of re-upload
+                if confirm and tmp_token:
+                    tmp_path = tmp_dir / tmp_token
+                    if not tmp_path.exists():
+                        messages.error(request, 'Temporary upload not found; please re-upload the CSV and preview again.')
+                        return redirect('teachers:import_grades_csv')
+                    df = pd.read_csv(tmp_path)
+                else:
+                    # Save uploaded file to temp for confirmation step
+                    timestamp = int(time.time())
+                    token = f"grades_{request.user.id}_{timestamp}.csv"
+                    tmp_path = tmp_dir / token
+                    with open(tmp_path, 'wb') as f:
+                        for chunk in csv_file.chunks():
+                            f.write(chunk)
+                    df = pd.read_csv(tmp_path)
+
+
+                # enforce required selection
+                if not academic_year_val or not class_id_val:
+                    messages.error(request, 'Please select Academic Year and Class before uploading.')
+                    return redirect('teachers:import_grades_csv')
+
+                # resolve academic year
+                ay_obj = None
+                try:
+                    from academics.models import AcademicYear
+                    ay_obj = AcademicYear.objects.filter(id=int(academic_year_val)).first()
+                except Exception:
+                    ay_obj = None
+
+                # resolve class if provided
+                class_obj = None
+                if class_id_val:
+                    try:
+                        from academics.models import Class as SchoolClass
+                        class_obj = SchoolClass.objects.filter(id=int(class_id_val)).first()
+                    except Exception:
+                        class_obj = None
+
+                # preview (dry-run)
+                preview = load_sample_data.import_grades_from_dataframe(df, academic_year=ay_obj, class_obj=class_obj, update_existing=update_existing, dry_run=True)
+                p_created = p_updated = p_skipped = 0
+                p_details = []
+                if isinstance(preview, tuple) and len(preview) == 4:
+                    p_created, p_updated, p_skipped, p_details = preview
+                else:
+                    try:
+                        p_created = preview[0]
+                        p_updated = preview[1]
+                        p_skipped = preview[2]
+                        p_details = preview[3]
+                    except Exception:
+                        p_details = []
+
+                if confirm:
+                    # perform actual import (will call the real importer if present)
+                    res = load_sample_data.import_grades_from_dataframe(df, academic_year=ay_obj, class_obj=class_obj, update_existing=update_existing, dry_run=False, created_by=request.user)
+                    created = res[0] if len(res) > 0 else 0
+                    updated = res[1] if len(res) > 1 else 0
+                    skipped = res[2] if len(res) > 2 else 0
+                    details = res[3] if len(res) > 3 else []
+                    student_ids = sorted({d.get('student_id') for d in details if d.get('student_id')})
+                    context = {'created': created, 'updated': updated, 'skipped': skipped, 'details': details, 'confirmed': True, 'affected_student_ids': student_ids}
+                    return render(request, 'teachers/import_grades_result.html', context)
+
+                context = {'preview_created': p_created, 'preview_updated': p_updated, 'preview_skipped': p_skipped, 'preview_details': p_details, 'confirmed': False, 'form': form}
+                return render(request, 'teachers/import_grades_result.html', context)
+            except Exception as e:
+                messages.error(request, f'Import failed: {e}')
+    else:
+        form = GradesCsvUploadForm()
+
+    return render(request, 'teachers/import_grades.html', {'form': form})

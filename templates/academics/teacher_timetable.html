@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% load academic_extras %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-3">
+        <h2 class="mb-0">My Teaching Schedule</h2>
+    <div class="btn-group flex-wrap" role="group" aria-label="Quick navigation">
+            <a href="{% url 'dashboard' %}" class="btn btn-outline-primary">
+                <i class="bi bi-speedometer2"></i> Dashboard
+            </a>
+            <a href="{% url 'teachers:enter_grades' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-pencil-square"></i> Enter Grades
+            </a>
+            <a href="{% url 'teachers:my_classes' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-people"></i> My Classes
+            </a>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered align-middle text-center">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width: 15%; background-color: #AED6F1;">Time</th>
+                            {% for day_code, day_label in days %}
+                                <th style="width: 17%; background-color: #FFB6C1;">{{ day_label }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for time_slot in time_slots %}
+                            <tr>
+                                <td style="background-color: #AED6F1; font-weight: 600;">
+                                    {{ time_slot.label }}
+                                </td>
+                                {% for day_code, day_label in days %}
+                                    {% with day_classes=time_slot.classes|get_item:day_code %}
+                                    <td {% if day_classes %}class="table-info"{% endif %}>
+                                        {% if day_classes %}
+                                            {% for class in day_classes %}
+                                                <div class="mb-2">
+                                                    <strong>{{ class.subject }}</strong><br>
+                                                    <small>{{ class.class_name }}</small>
+                                                </div>
+                                            {% endfor %}
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                    {% endwith %}
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

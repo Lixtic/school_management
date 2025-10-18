@@ -1,64 +1,79 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="container-fluid">
-    <h2 class="mb-4"><i class="bi bi-person-hearts"></i> My Children</h2>
+<div class="container-fluid px-3 px-md-4 py-4">
+    <!-- Page Header -->
+    <div class="page-header mb-4">
+        <h1><i class="bi bi-person-hearts-fill me-2"></i>My Children</h1>
+        <p class="page-subtitle">Monitor and track each child's academic progress</p>
+    </div>
 
     {% if children %}
+    <!-- Children Cards -->
     <div class="row g-4">
         {% for child in children %}
-        <div class="col-md-6 col-lg-4">
-            <div class="card h-100 shadow-sm">
-                <div class="card-body">
-                    <div class="text-center mb-3">
+        <div class="col-12 col-md-6 col-lg-4">
+            <div class="card border-0 shadow-sm h-100 overflow-hidden" style="transition: all 0.3s ease;">
+                <!-- Card Header with Background -->
+                <div class="p-4" style="background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); color: white;">
+                    <div class="text-center">
                         {% if child.user.profile_picture %}
                             <img src="{{ child.user.profile_picture.url }}" 
-                                 class="rounded-circle mb-2" 
-                                 width="80" height="80">
+                                 class="rounded-circle mb-3" 
+                                 width="90" height="90"
+                                 style="object-fit: cover; border: 4px solid white;">
                         {% else %}
-                            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-2" 
-                                 style="width: 80px; height: 80px; font-size: 2rem;">
-                                {{ child.user.first_name.0 }}{{ child.user.last_name.0 }}
+                            <div class="bg-white text-primary rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" 
+                                 style="width: 90px; height: 90px; font-size: 1.8rem; font-weight: 700; border: 4px solid white;">
+                                {{ child.user.first_name.0|upper }}{{ child.user.last_name.0|upper }}
                             </div>
                         {% endif %}
-                        <h5 class="card-title mb-1">{{ child.user.get_full_name }}</h5>
-                        <p class="text-muted mb-0">{{ child.admission_number }}</p>
+                        <h5 class="mb-1" style="font-weight: 700;">{{ child.user.get_full_name }}</h5>
+                        <p class="mb-0" style="font-size: 0.85rem; opacity: 0.95;">{{ child.admission_number }}</p>
+                    </div>
+                </div>
+
+                <!-- Card Body -->
+                <div class="card-body p-4">
+                    <!-- Basic Info -->
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span style="font-weight: 600; color: #2c3e50;">
+                                <i class="bi bi-bookmark-fill" style="color: #3498db; margin-right: 0.5rem;"></i>Class
+                            </span>
+                            <strong style="color: #2c3e50;">{{ child.current_class|default:"Not Assigned" }}</strong>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span style="font-weight: 600; color: #2c3e50;">
+                                <i class="bi bi-hash" style="color: #2ecc71; margin-right: 0.5rem;"></i>Roll Number
+                            </span>
+                            <strong style="color: #2c3e50;">{{ child.roll_number|default:"-" }}</strong>
+                        </div>
                     </div>
 
-                    <hr>
-
-                    <div class="mb-3">
-                        <div class="d-flex justify-content-between mb-2">
-                            <span><i class="bi bi-book"></i> Class:</span>
-                            <strong>{{ child.current_class|default:"Not Assigned" }}</strong>
-                        </div>
-                        <div class="d-flex justify-content-between mb-2">
-                            <span><i class="bi bi-hash"></i> Roll Number:</span>
-                            <strong>{{ child.roll_number|default:"-" }}</strong>
-                        </div>
-                    </div>
-
-                    <div class="row text-center mb-3">
+                    <!-- Quick Stats -->
+                    <div class="row g-2 mb-4">
                         <div class="col-6">
-                            <div class="border rounded p-2">
-                                <h4 class="text-primary mb-0">{{ child.attendance_percentage }}%</h4>
-                                <small class="text-muted">Attendance</small>
+                            <div class="p-3" style="background-color: rgba(52, 152, 219, 0.1); border-radius: 8px; text-align: center;">
+                                <h4 style="color: #3498db; margin-bottom: 0.25rem; font-weight: 700;">{{ child.attendance_percentage }}%</h4>
+                                <small style="color: #7f8c8d; font-weight: 500;">Attendance</small>
                             </div>
                         </div>
                         <div class="col-6">
-                            <div class="border rounded p-2">
-                                <h4 class="text-success mb-0">{{ child.grade_count }}</h4>
-                                <small class="text-muted">Grades</small>
+                            <div class="p-3" style="background-color: rgba(46, 204, 113, 0.1); border-radius: 8px; text-align: center;">
+                                <h4 style="color: #2ecc71; margin-bottom: 0.25rem; font-weight: 700;">{{ child.grade_count }}</h4>
+                                <small style="color: #7f8c8d; font-weight: 500;">Grades</small>
                             </div>
                         </div>
                     </div>
 
+                    <!-- Action Buttons -->
                     <div class="d-grid gap-2">
-                        <a href="{% url 'parents:child_details' child.id %}" class="btn btn-primary">
-                            <i class="bi bi-eye"></i> View Details
+                        <a href="{% url 'parents:child_details' child.id %}" class="btn btn-primary" style="font-weight: 600;">
+                            <i class="bi bi-eye me-1"></i> View Full Details
                         </a>
-                        <a href="{% url 'students:report_card' child.id %}" class="btn btn-outline-success" target="_blank">
-                            <i class="bi bi-file-text"></i> Report Card
+                        <a href="{% url 'students:report_card' child.id %}" class="btn btn-outline-success" target="_blank" style="font-weight: 600;">
+                            <i class="bi bi-file-earmark-pdf me-1"></i> Report Card
                         </a>
                     </div>
                 </div>
@@ -66,10 +81,25 @@
         </div>
         {% endfor %}
     </div>
+    
     {% else %}
-    <div class="alert alert-info">
-        <i class="bi bi-info-circle"></i> No children linked to your account. Please contact the administrator.
+    <!-- Empty State -->
+    <div class="alert alert-info border-0 border-left-info" style="border-left: 4px solid #1abc9c;">
+        <div class="d-flex align-items-start">
+            <i class="bi bi-info-circle me-2" style="font-size: 1.1rem; color: #1abc9c;"></i>
+            <div>
+                <strong>No Children Linked</strong>
+                <p class="mb-0" style="font-size: 0.9rem; margin-top: 0.25rem;">No children are linked to your account. Please contact the administrator to add your children.</p>
+            </div>
+        </div>
     </div>
     {% endif %}
 </div>
+
+<style>
+.card:hover {
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12) !important;
+    transform: translateY(-4px);
+}
+</style>
 {% endblock %}

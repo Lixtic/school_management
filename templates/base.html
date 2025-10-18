@@ -8,6 +8,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="{% static 'css/loader.css' %}">
+    <link rel="stylesheet" href="{% static 'css/professional-ui.css' %}">
+    <link rel="stylesheet" href="{% static 'css/toast.css' %}">
 
     
     <style>
@@ -72,6 +74,7 @@
             color: white;
             text-decoration: none;
             transition: all 0.3s ease;
+            font-size: 0.95rem;
         }
 
         .user-info:hover {
@@ -91,6 +94,20 @@
             justify-content: center;
             font-weight: bold;
             font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+        
+        .user-avatar-sm {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--secondary-color);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.95rem;
+            cursor: pointer;
         }
 
         /* Sidebar */
@@ -107,10 +124,17 @@
             transition: all 0.3s ease;
             overflow-y: auto;
             padding-top: 80px;
+            max-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
         .sidebar.collapsed {
             width: var(--sidebar-collapsed-width);
+        }
+
+        .sidebar.show {
+            transform: translateX(0);
         }
 
         .sidebar::-webkit-scrollbar {
@@ -134,6 +158,20 @@
             border-left: 4px solid var(--secondary-color);
             color: #ecf0f1;
             text-align: center;
+            flex-shrink: 0;
+        }
+
+        .sidebar-nav-container {
+            flex: 1;
+            overflow-y: auto;
+            padding-bottom: 1rem;
+        }
+
+        .logout-section {
+            margin-top: auto;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            flex-shrink: 0;
         }
 
         /* Navigation Links */
@@ -191,12 +229,6 @@
         }
 
         /* Logout Link - Special Red Styling */
-        .logout-section {
-            margin-top: auto;
-            padding-top: 2rem;
-            border-top: 1px solid rgba(255,255,255,0.1);
-        }
-
         .logout-link {
             color: var(--accent-color) !important;
             font-weight: 600 !important;
@@ -251,12 +283,30 @@
         /* Responsive Design */
         @media (max-width: 992px) {
             .sidebar {
-                width: var(--sidebar-collapsed-width);
+                width: 100%;
+                max-width: 280px;
                 transform: translateX(-100%);
+                height: 100vh;
+                overflow-y: auto;
             }
 
             .sidebar.show {
                 transform: translateX(0);
+                box-shadow: 2px 0 25px rgba(0,0,0,0.3);
+            }
+
+            .sidebar h4 {
+                font-size: 1.15rem;
+                margin: 1rem 1rem 0.75rem;
+            }
+
+            .nav-item {
+                margin: 0.2rem 0.4rem;
+            }
+
+            .nav-link {
+                padding: 0.65rem 1rem !important;
+                font-size: 0.9rem;
             }
 
             .main-content {
@@ -278,7 +328,58 @@
             }
 
             .header .navbar-brand {
-                font-size: 1.25rem;
+                font-size: 1.1rem;
+            }
+
+            .header .navbar-brand i {
+                font-size: 1.4rem;
+            }
+
+            .user-info {
+                padding: 0.35rem 0.5rem;
+                gap: 0.5rem;
+            }
+
+            .sidebar {
+                max-width: 260px;
+                padding-top: 70px;
+            }
+
+            .sidebar h4 {
+                font-size: 1.05rem;
+                margin: 0.8rem 0.8rem 0.6rem;
+                padding: 0.4rem;
+            }
+
+            .nav-item {
+                margin: 0.15rem 0.3rem;
+            }
+
+            .nav-link {
+                padding: 0.6rem 0.9rem !important;
+                font-size: 0.85rem;
+                border-radius: 0 20px 20px 0 !important;
+            }
+
+            .nav-link i {
+                font-size: 1rem;
+                width: 18px;
+            }
+
+            .sidebar-divider {
+                margin: 1.2rem 1rem;
+            }
+
+            .logout-section {
+                padding-top: 1.5rem;
+            }
+
+            .user-info .d-none {
+                display: none !important;
+            }
+
+            .user-avatar-sm {
+                display: flex !important;
             }
 
             .main-content {
@@ -288,6 +389,84 @@
             .content-wrapper {
                 padding: 1rem;
                 margin-bottom: 1rem;
+            }
+
+            .page-title {
+                font-size: 1.25rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .header .navbar-brand {
+                font-size: 1rem;
+            }
+
+            .header .navbar-brand i {
+                font-size: 1.2rem;
+            }
+
+            .container-fluid {
+                padding-left: 0.5rem;
+                padding-right: 0.5rem;
+            }
+
+            .user-info {
+                padding: 0.25rem 0.35rem;
+            }
+
+            .sidebar {
+                max-width: 240px;
+                padding-top: 65px;
+            }
+
+            .sidebar h4 {
+                font-size: 0.95rem;
+                margin: 0.6rem 0.6rem 0.5rem;
+            }
+
+            .nav-item {
+                margin: 0.1rem 0.25rem;
+            }
+
+            .nav-link {
+                padding: 0.5rem 0.75rem !important;
+                font-size: 0.8rem;
+            }
+
+            .nav-link i {
+                font-size: 0.95rem;
+                width: 16px;
+            }
+
+            .nav-link span {
+                display: inline;
+            }
+
+            .sidebar-divider {
+                margin: 1rem 0.8rem;
+            }
+
+            .sidebar-toggle {
+                width: 40px;
+                height: 40px;
+                top: 85px;
+                left: 10px;
+            }
+
+            .sidebar-toggle i {
+                font-size: 1.2rem;
+            }
+
+            .main-content {
+                padding: 0.75rem;
+            }
+
+            .content-wrapper {
+                padding: 0.75rem;
+            }
+
+            .page-title {
+                font-size: 1.1rem;
             }
         }
 
@@ -341,12 +520,12 @@
         <header class="header">
             <div class="container-fluid">
                 <div class="d-flex justify-content-between align-items-center">
-                    <div class="navbar-brand">
+                    <div class="navbar-brand d-flex align-items-center gap-2">
                         <i class="bi bi-mortarboard-fill"></i>
-                        Girls Model Jhs MS
+                        <span class="d-none d-sm-inline">Girls Model JHS MS</span>
                     </div>
-                    <div>
-                        <a href="#" class="user-info">
+                    <div class="d-flex align-items-center gap-2">
+                        <a href="#" class="user-info d-none d-md-flex">
                             <div class="user-avatar">
                                 {{ user.get_full_name|first|upper }}
                             </div>
@@ -355,13 +534,18 @@
                                 <small>{{ user.get_username }}</small>
                             </div>
                         </a>
+                        
+                        <!-- Mobile User Avatar -->
+                        <div class="user-avatar-sm d-md-none" onclick="toggleSidebar()" title="Menu">
+                            {{ user.get_full_name|first|upper }}
+                        </div>
                     </div>
                 </div>
             </div>
         </header>
 
         <!-- Toggle Button for Mobile -->
-        <button class="sidebar-toggle d-block d-md-none" onclick="toggleSidebar()">
+        <button class="sidebar-toggle d-block d-md-none" id="sidebarToggle" onclick="toggleSidebar()" title="Toggle Menu">
             <i class="bi bi-list"></i>
         </button>
 
@@ -369,58 +553,60 @@
         <nav class="sidebar" id="sidebar">
             <h4><i class="bi bi-building"></i> Welcome</h4>
             
-            <!-- Dashboard -->
-            <div class="nav-item">
-                <a href="{% url 'dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
-                    <i class="bi bi-speedometer2"></i>
-                    <span class="nav-text">Dashboard</span>
-                </a>
+            <div class="sidebar-nav-container">
+                <!-- Dashboard -->
+                <div class="nav-item">
+                    <a href="{% url 'dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                        <i class="bi bi-speedometer2"></i>
+                        <span class="nav-text">Dashboard</span>
+                    </a>
+                </div>
+                
+                <!-- Admin/Teacher Links -->
+                {% if user.user_type == 'admin' or user.user_type == 'teacher' %}
+                <div class="nav-item">
+                    <a href="{% url 'students:student_list' %}" class="nav-link {% if request.resolver_match.url_name == 'student_list' %}active{% endif %}">
+                        <i class="bi bi-people"></i>
+                        <span class="nav-text">Students</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="{% url 'students:mark_attendance' %}" class="nav-link {% if request.resolver_match.url_name == 'mark_attendance' %}active{% endif %}">
+                        <i class="bi bi-calendar-check"></i>
+                        <span class="nav-text">Mark Attendance</span>
+                    </a>
+                </div>
+                {% endif %}
+                
+                <!-- Teacher Only Links -->
+                {% if user.user_type == 'teacher' %}
+                <div class="nav-item">
+                    <a href="{% url 'teachers:my_classes' %}" class="nav-link {% if request.resolver_match.url_name == 'my_classes' %}active{% endif %}">
+                        <i class="bi bi-book"></i>
+                        <span class="nav-text">My Classes</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="{% url 'teachers:enter_grades' %}" class="nav-link {% if request.resolver_match.url_name == 'enter_grades' %}active{% endif %}">
+                        <i class="bi bi-pencil-square"></i>
+                        <span class="nav-text">Enter Grades</span>
+                    </a>
+                </div>
+                {% endif %}
+                
+                <!-- PARENT LINKS - ADDED HERE -->
+                {% if user.user_type == 'parent' %}
+                <div class="nav-item">
+                    <a href="{% url 'parents:my_children' %}" class="nav-link {% if request.resolver_match.url_name == 'my_children' %}active{% endif %}">
+                        <i class="bi bi-person-hearts"></i>
+                        <span class="nav-text">My Children</span>
+                    </a>
+                </div>
+                {% endif %}
+                
+                <!-- Divider -->
+                <hr class="sidebar-divider">
             </div>
-            
-            <!-- Admin/Teacher Links -->
-            {% if user.user_type == 'admin' or user.user_type == 'teacher' %}
-            <div class="nav-item">
-                <a href="{% url 'students:student_list' %}" class="nav-link {% if request.resolver_match.url_name == 'student_list' %}active{% endif %}">
-                    <i class="bi bi-people"></i>
-                    <span class="nav-text">Students</span>
-                </a>
-            </div>
-            <div class="nav-item">
-                <a href="{% url 'students:mark_attendance' %}" class="nav-link {% if request.resolver_match.url_name == 'mark_attendance' %}active{% endif %}">
-                    <i class="bi bi-calendar-check"></i>
-                    <span class="nav-text">Mark Attendance</span>
-                </a>
-            </div>
-            {% endif %}
-            
-            <!-- Teacher Only Links -->
-            {% if user.user_type == 'teacher' %}
-            <div class="nav-item">
-                <a href="{% url 'teachers:my_classes' %}" class="nav-link {% if request.resolver_match.url_name == 'my_classes' %}active{% endif %}">
-                    <i class="bi bi-book"></i>
-                    <span class="nav-text">My Classes</span>
-                </a>
-            </div>
-            <div class="nav-item">
-                <a href="{% url 'teachers:enter_grades' %}" class="nav-link {% if request.resolver_match.url_name == 'enter_grades' %}active{% endif %}">
-                    <i class="bi bi-pencil-square"></i>
-                    <span class="nav-text">Enter Grades</span>
-                </a>
-            </div>
-            {% endif %}
-            
-            <!-- PARENT LINKS - ADDED HERE -->
-            {% if user.user_type == 'parent' %}
-            <div class="nav-item">
-                <a href="{% url 'parents:my_children' %}" class="nav-link {% if request.resolver_match.url_name == 'my_children' %}active{% endif %}">
-                    <i class="bi bi-person-hearts"></i>
-                    <span class="nav-text">My Children</span>
-                </a>
-            </div>
-            {% endif %}
-            
-            <!-- Divider -->
-            <hr class="sidebar-divider">
             
             <!-- Logout Section -->
             <div class="logout-section">
@@ -449,13 +635,33 @@
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('sidebarOverlay');
+            const toggle = document.getElementById('sidebarToggle');
             
             sidebar.classList.toggle('show');
             overlay.classList.toggle('d-none');
+            
+            // Animate toggle button
+            if (toggle) {
+                toggle.style.transform = sidebar.classList.contains('show') ? 'scale(0.95)' : 'scale(1)';
+            }
+        }
+
+        // Close sidebar when clicking a nav link (mobile)
+        if (window.innerWidth <= 992) {
+            document.querySelectorAll('.sidebar .nav-link').forEach(link => {
+                link.addEventListener('click', function() {
+                    if (window.innerWidth <= 992) {
+                        toggleSidebar();
+                    }
+                });
+            });
         }
 
         // Close sidebar when clicking overlay
-        document.getElementById('sidebarOverlay').addEventListener('click', toggleSidebar);
+        const overlay = document.getElementById('sidebarOverlay');
+        if (overlay) {
+            overlay.addEventListener('click', toggleSidebar);
+        }
 
         // Handle window resize
         window.addEventListener('resize', function() {
@@ -549,6 +755,93 @@
         window.showLoader = showLoader;
         window.hideLoader = hideLoader;
     </script>
+    
+    <!-- Extra JS Block for Custom Page Scripts -->
+    {% block extra_js %}
+    {% endblock %}
+    
+    <!-- Toast Notification Container -->
+    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999;">
+        <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="bi bi-check-circle-fill me-2"></i>
+                    <span id="toastMessage">Action completed successfully!</span>
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+        <div id="errorToast" class="toast align-items-center text-white bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="bi bi-exclamation-circle-fill me-2"></i>
+                    <span id="errorToastMessage">An error occurred!</span>
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+        <div id="infoToast" class="toast align-items-center text-white bg-info border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="bi bi-info-circle-fill me-2"></i>
+                    <span id="infoToastMessage">Information</span>
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification Script -->
+    <script>
+        // Global toast notification function
+        function showToast(message, type = 'success') {
+            let toastEl, messageEl;
+            
+            if (type === 'success') {
+                toastEl = document.getElementById('successToast');
+                messageEl = document.getElementById('toastMessage');
+            } else if (type === 'error') {
+                toastEl = document.getElementById('errorToast');
+                messageEl = document.getElementById('errorToastMessage');
+            } else if (type === 'info') {
+                toastEl = document.getElementById('infoToast');
+                messageEl = document.getElementById('infoToastMessage');
+            }
+            
+            if (toastEl && messageEl) {
+                messageEl.textContent = message;
+                const toast = new bootstrap.Toast(toastEl, {
+                    animation: true,
+                    autohide: true,
+                    delay: 4000
+                });
+                toast.show();
+            }
+        }
+
+        // Auto-show toast for Django messages
+        document.addEventListener('DOMContentLoaded', function() {
+            {% if messages %}
+                {% for message in messages %}
+                    {% if message.tags == 'success' %}
+                        showToast("{{ message|escapejs }}", 'success');
+                    {% elif message.tags == 'error' %}
+                        showToast("{{ message|escapejs }}", 'error');
+                    {% elif message.tags == 'info' %}
+                        showToast("{{ message|escapejs }}", 'info');
+                    {% elif message.tags == 'warning' %}
+                        showToast("{{ message|escapejs }}", 'info');
+                    {% else %}
+                        showToast("{{ message|escapejs }}", 'success');
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        });
+
+        // Expose globally
+        window.showToast = showToast;
+    </script>
+    
     {% else %}
     {% block login_content %}
     {% endblock %}

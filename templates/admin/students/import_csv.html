@@ -1,0 +1,19 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+  <div class="app-import">
+    <h1>Import Students from CSV</h1>
+    <div class="module aligned">
+      <p class="help">Upload a CSV with student records. Use the preview to verify changes before confirming.</p>
+      <form method="post" enctype="multipart/form-data" class="import-form">
+        {% csrf_token %}
+        <fieldset class="module aligned">
+          {{ form.as_table }}
+        </fieldset>
+        <div class="submit-row">
+          <input type="submit" value="Preview import" class="default" />
+        </div>
+      </form>
+    </div>
+  </div>
+{% endblock %}

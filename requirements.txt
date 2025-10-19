@@ -5,4 +5,5 @@ dj-database-url==3.0.1
 whitenoise==6.11.0
 django-crispy-forms==2.3
 crispy-bootstrap5==2024.10
+pandas==2.2.3
 

@@ -4,6 +4,7 @@ from django.urls import path
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.utils.html import format_html
+from schools.admin_mixins import SchoolFieldAdminMixin
 
 from .forms import CsvUploadForm
 from .forms import GradesCsvUploadForm
@@ -11,7 +12,7 @@ import pandas as pd
 import load_sample_data
 
 @admin.register(Student)
-class StudentAdmin(admin.ModelAdmin):
+class StudentAdmin(SchoolFieldAdminMixin, admin.ModelAdmin):
     list_display = ['admission_number', 'get_full_name', 'gender', 'current_class', 'roll_number']
     search_fields = ['admission_number', 'user__first_name', 'user__last_name']
     list_filter = ['current_class', 'date_of_admission', 'gender']
@@ -149,7 +150,7 @@ class StudentAdmin(admin.ModelAdmin):
 
 
 @admin.register(Attendance)
-class AttendanceAdmin(admin.ModelAdmin):
+class AttendanceAdmin(SchoolFieldAdminMixin, admin.ModelAdmin):
     list_display = ['student', 'date', 'status', 'marked_by']
     list_filter = ['status', 'date']
     search_fields = ['student__user__first_name', 'student__user__last_name']
@@ -157,7 +158,7 @@ class AttendanceAdmin(admin.ModelAdmin):
 
 
 @admin.register(Grade)
-class GradeAdmin(admin.ModelAdmin):
+class GradeAdmin(SchoolFieldAdminMixin, admin.ModelAdmin):
     list_display = ['student', 'subject', 'term', 'class_score', 'exams_score', 
                     'total_score', 'grade', 'subject_position', 'remarks']
     list_filter = ['academic_year', 'term', 'subject', 'grade']

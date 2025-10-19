@@ -1,9 +1,10 @@
 # teachers/admin.py
 from django.contrib import admin
 from .models import Teacher
+from schools.admin_mixins import SchoolFieldAdminMixin
 
 @admin.register(Teacher)
-class TeacherAdmin(admin.ModelAdmin):
+class TeacherAdmin(SchoolFieldAdminMixin, admin.ModelAdmin):
     list_display = ['employee_id', 'get_full_name', 'date_of_joining', 'qualification']
     search_fields = ['employee_id', 'user__first_name', 'user__last_name']
     list_filter = ['date_of_joining']

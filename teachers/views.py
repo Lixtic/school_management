@@ -197,3 +197,107 @@ def import_grades_csv(request):
         form = GradesCsvUploadForm()
 
     return render(request, 'teachers/import_grades.html', {'form': form})
+
+
+@login_required
+def register_teacher(request):
+    """View for registering a new teacher - Admin only"""
+    if request.user.user_type != 'admin':
+        messages.error(request, 'Only administrators can register teachers.')
+        return redirect('dashboard')
+    
+    school = request.user.school
+    if not school:
+        messages.error(request, 'You are not associated with any school.')
+        return redirect('dashboard')
+    
+    from .forms import TeacherRegistrationForm
+    
+    if request.method == 'POST':
+        form = TeacherRegistrationForm(request.POST, school=school)
+        if form.is_valid():
+            teacher = form.save()
+            messages.success(request, f'Teacher {teacher.user.get_full_name()} registered successfully!')
+            return redirect('teachers:list')
+    else:
+        form = TeacherRegistrationForm(school=school)
+    
+    return render(request, 'teachers/register_teacher.html', {'form': form})
+
+
+@login_required
+def teacher_list(request):
+    """View to list all teachers in the school"""
+    if request.user.user_type != 'admin':
+        messages.error(request, 'Only administrators can view teacher list.')
+        return redirect('dashboard')
+    
+    school = request.user.school
+    if not school:
+        messages.error(request, 'You are not associated with any school.')
+        return redirect('dashboard')
+    
+    teachers = Teacher.objects.filter(school=school).select_related('user').prefetch_related('subjects')
+    
+    return render(request, 'teachers/teacher_list.html', {'teachers': teachers})
+
+
+@login_required
+def update_teacher(request, teacher_id):
+    """View for updating teacher information - Admin only"""
+    if request.user.user_type != 'admin':
+        messages.error(request, 'Only administrators can update teachers.')
+        return redirect('dashboard')
+    
+    school = request.user.school
+    if not school:
+        messages.error(request, 'You are not associated with any school.')
+        return redirect('dashboard')
+    
+    from .forms import TeacherUpdateForm
+    
+    try:
+        teacher = Teacher.objects.get(id=teacher_id, school=school)
+    except Teacher.DoesNotExist:
+        messages.error(request, 'Teacher not found.')
+        return redirect('teachers:list')
+    
+    if request.method == 'POST':
+        form = TeacherUpdateForm(request.POST, instance=teacher, school=school)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'Teacher {teacher.user.get_full_name()} updated successfully!')
+            return redirect('teachers:list')
+    else:
+        form = TeacherUpdateForm(instance=teacher, school=school)
+    
+    return render(request, 'teachers/update_teacher.html', {'form': form, 'teacher': teacher})
+
+
+@login_required
+def delete_teacher(request, teacher_id):
+    """View for deleting a teacher - Admin only"""
+    if request.user.user_type != 'admin':
+        messages.error(request, 'Only administrators can delete teachers.')
+        return redirect('dashboard')
+    
+    school = request.user.school
+    if not school:
+        messages.error(request, 'You are not associated with any school.')
+        return redirect('dashboard')
+    
+    try:
+        teacher = Teacher.objects.get(id=teacher_id, school=school)
+        teacher_name = teacher.user.get_full_name()
+        
+        # Delete associated user account
+        user = teacher.user
+        teacher.delete()
+        if user:
+            user.delete()
+        
+        messages.success(request, f'Teacher {teacher_name} deleted successfully!')
+    except Teacher.DoesNotExist:
+        messages.error(request, 'Teacher not found.')
+    
+    return redirect('teachers:list')

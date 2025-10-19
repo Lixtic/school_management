@@ -434,3 +434,90 @@ def generate_report_card(request, student_id):
     }
     
     return render(request, 'students/report_card.html', context)
+
+
+@login_required
+def register_student(request):
+    """View for registering a new student - Admin only"""
+    if request.user.user_type != 'admin':
+        messages.error(request, 'Only administrators can register students.')
+        return redirect('dashboard')
+    
+    school = request.user.school
+    if not school:
+        messages.error(request, 'You are not associated with any school.')
+        return redirect('dashboard')
+    
+    from .forms import StudentRegistrationForm
+    
+    if request.method == 'POST':
+        form = StudentRegistrationForm(request.POST, school=school)
+        if form.is_valid():
+            student = form.save()
+            messages.success(request, f'Student {student.user.get_full_name()} registered successfully!')
+            return redirect('students:list')
+    else:
+        form = StudentRegistrationForm(school=school)
+    
+    return render(request, 'students/register_student.html', {'form': form})
+
+
+@login_required
+def update_student(request, student_id):
+    """View for updating student information - Admin only"""
+    if request.user.user_type != 'admin':
+        messages.error(request, 'Only administrators can update students.')
+        return redirect('dashboard')
+    
+    school = request.user.school
+    if not school:
+        messages.error(request, 'You are not associated with any school.')
+        return redirect('dashboard')
+    
+    from .forms import StudentUpdateForm
+    
+    try:
+        student = Student.objects.get(id=student_id, school=school)
+    except Student.DoesNotExist:
+        messages.error(request, 'Student not found.')
+        return redirect('students:list')
+    
+    if request.method == 'POST':
+        form = StudentUpdateForm(request.POST, instance=student, school=school)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'Student {student.user.get_full_name()} updated successfully!')
+            return redirect('students:list')
+    else:
+        form = StudentUpdateForm(instance=student, school=school)
+    
+    return render(request, 'students/update_student.html', {'form': form, 'student': student})
+
+
+@login_required
+def delete_student(request, student_id):
+    """View for deleting a student - Admin only"""
+    if request.user.user_type != 'admin':
+        messages.error(request, 'Only administrators can delete students.')
+        return redirect('dashboard')
+    
+    school = request.user.school
+    if not school:
+        messages.error(request, 'You are not associated with any school.')
+        return redirect('dashboard')
+    
+    try:
+        student = Student.objects.get(id=student_id, school=school)
+        student_name = student.user.get_full_name()
+        
+        # Delete associated user account
+        user = student.user
+        student.delete()
+        if user:
+            user.delete()
+        
+        messages.success(request, f'Student {student_name} deleted successfully!')
+    except Student.DoesNotExist:
+        messages.error(request, 'Student not found.')
+    
+    return redirect('students:list')

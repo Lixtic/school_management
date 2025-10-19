@@ -20,7 +20,7 @@ def register_school(request):
             school.trial_end_date = timezone.now().date() + timedelta(days=30)
             school.save()
             
-            # Create admin user
+            # Create admin user with staff permissions for Django admin access
             admin_user = User.objects.create_user(
                 username=form.cleaned_data['admin_username'],
                 email=form.cleaned_data['admin_email'],
@@ -28,7 +28,8 @@ def register_school(request):
                 first_name=form.cleaned_data['admin_first_name'],
                 last_name=form.cleaned_data['admin_last_name'],
                 user_type='admin',
-                school=school
+                school=school,
+                is_staff=True  # Allow access to Django admin panel
             )
             
             # Link admin to school

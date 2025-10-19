@@ -92,8 +92,9 @@ def dashboard(request):
             'absent_count': json.dumps(absent_count),
             'students_by_class': bool(students_by_class),
             'attendance_stats': bool(attendance_data),
+            'current_date': datetime.now().date(),
         }
-        return render(request, 'dashboard/admin_dashboard.html', context)
+        return render(request, 'dashboard/enhanced_admin_dashboard.html', context)
     elif user.user_type == 'teacher':
         from teachers.models import Teacher
         from students.models import Grade, Student

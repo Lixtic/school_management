@@ -116,3 +116,107 @@ def child_details(request, student_id):
     }
     
     return render(request, 'parents/child_details.html', context)
+
+# ========== PARENT MANAGEMENT (ADMIN ONLY) ==========
+
+@login_required
+def parent_list(request):
+    """List all parents for the school"""
+    if request.user.user_type != 'admin':
+        messages.error(request, 'Only administrators can manage parents.')
+        return redirect('dashboard')
+    
+    school = request.user.school
+    if not school:
+        messages.error(request, 'You are not associated with any school.')
+        return redirect('dashboard')
+    
+    parents = Parent.objects.filter(school=school).select_related('user').prefetch_related('children__user')
+    
+    return render(request, 'parents/parent_list.html', {'parents': parents})
+
+
+@login_required
+def register_parent(request):
+    """Register a new parent"""
+    if request.user.user_type != 'admin':
+        messages.error(request, 'Only administrators can register parents.')
+        return redirect('dashboard')
+    
+    school = request.user.school
+    if not school:
+        messages.error(request, 'You are not associated with any school.')
+        return redirect('dashboard')
+    
+    from .forms import ParentRegistrationForm
+    
+    if request.method == 'POST':
+        form = ParentRegistrationForm(request.POST, school=school)
+        if form.is_valid():
+            parent = form.save()
+            messages.success(request, f'Parent {parent.user.get_full_name()} registered successfully!')
+            return redirect('parents:parent_list')
+    else:
+        form = ParentRegistrationForm(school=school)
+    
+    return render(request, 'parents/register_parent.html', {'form': form})
+
+
+@login_required
+def update_parent(request, pk):
+    """Update parent information"""
+    if request.user.user_type != 'admin':
+        messages.error(request, 'Only administrators can update parents.')
+        return redirect('dashboard')
+    
+    school = request.user.school
+    if not school:
+        messages.error(request, 'You are not associated with any school.')
+        return redirect('dashboard')
+    
+    from .forms import ParentUpdateForm
+    
+    try:
+        parent = Parent.objects.get(pk=pk, school=school)
+    except Parent.DoesNotExist:
+        messages.error(request, 'Parent not found.')
+        return redirect('parents:parent_list')
+    
+    if request.method == 'POST':
+        form = ParentUpdateForm(request.POST, instance=parent, school=school)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'Parent {parent.user.get_full_name()} updated successfully!')
+            return redirect('parents:parent_list')
+    else:
+        form = ParentUpdateForm(instance=parent, school=school)
+    
+    return render(request, 'parents/update_parent.html', {'form': form, 'parent': parent})
+
+
+@login_required
+def delete_parent(request, pk):
+    """Delete a parent"""
+    if request.user.user_type != 'admin':
+        messages.error(request, 'Only administrators can delete parents.')
+        return redirect('dashboard')
+    
+    school = request.user.school
+    if not school:
+        messages.error(request, 'You are not associated with any school.')
+        return redirect('dashboard')
+    
+    try:
+        parent = Parent.objects.get(pk=pk, school=school)
+        user = parent.user
+        name = user.get_full_name()
+        
+        # Delete parent and associated user account
+        parent.delete()
+        user.delete()
+        
+        messages.success(request, f'Parent {name} deleted successfully!')
+    except Parent.DoesNotExist:
+        messages.error(request, 'Parent not found.')
+    
+    return redirect('parents:parent_list')

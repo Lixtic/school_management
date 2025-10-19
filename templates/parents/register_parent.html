@@ -1,0 +1,214 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Register Parent - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2><i class="fas fa-user-plus me-2"></i>Register Parent</h2>
+            <p class="text-muted mb-0">Create a new parent account and assign children</p>
+        </div>
+        <a href="{% url 'parents:parent_list' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to List
+        </a>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="row">
+        <div class="col-lg-8">
+            <form method="post" novalidate>
+                {% csrf_token %}
+                
+                <!-- Personal Information -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="fas fa-user me-2"></i>Personal Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.first_name.id_for_label }}" class="form-label">
+                                    First Name <span class="text-danger">*</span>
+                                </label>
+                                {{ form.first_name }}
+                                {% if form.first_name.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.first_name.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.last_name.id_for_label }}" class="form-label">
+                                    Last Name <span class="text-danger">*</span>
+                                </label>
+                                {{ form.last_name }}
+                                {% if form.last_name.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.last_name.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.relation.id_for_label }}" class="form-label">
+                                    Relation <span class="text-danger">*</span>
+                                </label>
+                                {{ form.relation }}
+                                {% if form.relation.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.relation.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.occupation.id_for_label }}" class="form-label">
+                                    Occupation
+                                </label>
+                                {{ form.occupation }}
+                                {% if form.occupation.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.occupation.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Account Information -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0"><i class="fas fa-lock me-2"></i>Account Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.username.id_for_label }}" class="form-label">
+                                    Username <span class="text-danger">*</span>
+                                </label>
+                                {{ form.username }}
+                                {% if form.username.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.username.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.email.id_for_label }}" class="form-label">
+                                    Email <span class="text-danger">*</span>
+                                </label>
+                                {{ form.email }}
+                                {% if form.email.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.email.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.password1.id_for_label }}" class="form-label">
+                                    Password <span class="text-danger">*</span>
+                                </label>
+                                {{ form.password1 }}
+                                {% if form.password1.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.password1.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.password2.id_for_label }}" class="form-label">
+                                    Confirm Password <span class="text-danger">*</span>
+                                </label>
+                                {{ form.password2 }}
+                                {% if form.password2.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.password2.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="{{ form.phone.id_for_label }}" class="form-label">
+                                Phone Number <span class="text-danger">*</span>
+                            </label>
+                            {{ form.phone }}
+                            {% if form.phone.errors %}
+                                <div class="invalid-feedback d-block">{{ form.phone.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Children Assignment -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0"><i class="fas fa-child me-2"></i>Assign Children</h5>
+                    </div>
+                    <div class="card-body">
+                        <label class="form-label">Select Children <span class="text-danger">*</span></label>
+                        <div class="border rounded p-3" style="max-height: 300px; overflow-y: auto;">
+                            {% for choice in form.children %}
+                                <div class="form-check mb-2">
+                                    {{ choice.tag }}
+                                    <label class="form-check-label" for="{{ choice.id_for_label }}">
+                                        {{ choice.choice_label }}
+                                    </label>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        {% if form.children.errors %}
+                            <div class="invalid-feedback d-block">{{ form.children.errors.0 }}</div>
+                        {% endif %}
+                        <small class="form-text text-muted">{{ form.children.help_text }}</small>
+                    </div>
+                </div>
+
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger">{{ form.non_field_errors.0 }}</div>
+                {% endif %}
+
+                <div class="d-flex gap-2 mb-4">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="fas fa-save me-2"></i>Register Parent
+                    </button>
+                    <a href="{% url 'parents:parent_list' %}" class="btn btn-outline-secondary btn-lg">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Help Section -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-info sticky-top" style="top: 20px;">
+                <div class="card-header bg-info bg-opacity-10">
+                    <h6 class="mb-0 text-info">
+                        <i class="fas fa-info-circle me-2"></i>Registration Guidelines
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <ul class="mb-0">
+                        <li class="mb-2">
+                            <strong>Personal Details:</strong> Enter the parent's full name and relationship to the student(s).
+                        </li>
+                        <li class="mb-2">
+                            <strong>Username:</strong> Must be unique across the entire system.
+                        </li>
+                        <li class="mb-2">
+                            <strong>Password:</strong> Should be secure and at least 8 characters.
+                        </li>
+                        <li class="mb-2">
+                            <strong>Children:</strong> Select all students this parent is responsible for. Parents can have multiple children.
+                        </li>
+                        <li class="mb-0">
+                            <strong>Access:</strong> Parents will be able to:
+                            <ul class="mt-1">
+                                <li>View their children's grades</li>
+                                <li>Check attendance records</li>
+                                <li>View homework assignments</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

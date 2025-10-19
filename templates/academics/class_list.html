@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Classes - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2><i class="fas fa-chalkboard me-2"></i>Classes</h2>
+            <p class="text-muted mb-0">Manage classes for your school</p>
+        </div>
+        <a href="{% url 'academics:create_class' %}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>Add Class
+        </a>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            {% if classes %}
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Class Name</th>
+                                <th>Academic Year</th>
+                                <th>Class Teacher</th>
+                                <th>Students</th>
+                                <th>Subjects</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for class in classes %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ class.name }}</strong>
+                                    </td>
+                                    <td>
+                                        {{ class.academic_year.name }}
+                                        {% if class.academic_year.is_current %}
+                                            <span class="badge bg-success ms-1">Current</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if class.class_teacher %}
+                                            <div class="d-flex align-items-center">
+                                                {% if class.class_teacher.user.profile_picture %}
+                                                    <img src="{{ class.class_teacher.user.profile_picture.url }}" 
+                                                         alt="{{ class.class_teacher.user.get_full_name }}"
+                                                         class="rounded-circle me-2"
+                                                         style="width: 32px; height: 32px; object-fit: cover;">
+                                                {% else %}
+                                                    <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-2"
+                                                         style="width: 32px; height: 32px; font-size: 0.8rem;">
+                                                        {{ class.class_teacher.user.first_name.0 }}{{ class.class_teacher.user.last_name.0 }}
+                                                    </div>
+                                                {% endif %}
+                                                <span>{{ class.class_teacher.user.get_full_name }}</span>
+                                            </div>
+                                        {% else %}
+                                            <span class="text-muted">Not assigned</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-info">
+                                            {{ class.students.count }} student{{ class.students.count|pluralize }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-warning text-dark">
+                                            {{ class.classsubject_set.count }} subject{{ class.classsubject_set.count|pluralize }}
+                                        </span>
+                                    </td>
+                                    <td class="text-end">
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <a href="{% url 'academics:update_class' class.pk %}" 
+                                               class="btn btn-outline-primary" 
+                                               title="Edit">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            {% if class.students.count == 0 %}
+                                                <button type="button" 
+                                                        class="btn btn-outline-danger" 
+                                                        data-bs-toggle="modal" 
+                                                        data-bs-target="#deleteModal{{ class.pk }}"
+                                                        title="Delete">
+                                                    <i class="fas fa-trash-alt"></i>
+                                                </button>
+                                            {% else %}
+                                                <button type="button" 
+                                                        class="btn btn-outline-secondary" 
+                                                        disabled
+                                                        title="Cannot delete: has students">
+                                                    <i class="fas fa-trash-alt"></i>
+                                                </button>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <!-- Delete Modal -->
+                                <div class="modal fade" id="deleteModal{{ class.pk }}" tabindex="-1">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Confirm Deletion</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                Are you sure you want to delete the class <strong>{{ class.name }}</strong>? This action cannot be undone.
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                <a href="{% url 'academics:delete_class' class.pk %}" class="btn btn-danger">
+                                                    <i class="fas fa-trash-alt me-2"></i>Delete
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-chalkboard fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">No classes found</h5>
+                    <p class="text-muted">Get started by adding your first class.</p>
+                    <a href="{% url 'academics:create_class' %}" class="btn btn-primary mt-3">
+                        <i class="fas fa-plus me-2"></i>Add Class
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,435 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Admin Dashboard - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Welcome Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="mb-1">
+                        <i class="bi bi-speedometer2 me-2"></i>Welcome back, {{ user.get_full_name }}!
+                    </h2>
+                    <p class="text-muted mb-0">
+                        <i class="bi bi-building me-1"></i>{{ user.school.name }} - Admin Dashboard
+                    </p>
+                </div>
+                <div class="text-end">
+                    <div class="badge bg-success fs-6 px-3 py-2">
+                        <i class="bi bi-calendar3 me-1"></i>{{ current_date|date:"F d, Y" }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats Cards -->
+    <div class="row g-4 mb-4">
+        <!-- Students -->
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #3498db !important;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div>
+                            <h6 class="text-muted text-uppercase mb-1">Students</h6>
+                            <h2 class="mb-0 fw-bold">{{ total_students }}</h2>
+                        </div>
+                        <div class="rounded-circle bg-primary bg-opacity-10 p-3">
+                            <i class="bi bi-people fs-2 text-primary"></i>
+                        </div>
+                    </div>
+                    <a href="{% url 'students:student_list' %}" class="btn btn-sm btn-outline-primary w-100 mt-2">
+                        <i class="bi bi-eye me-1"></i>View All
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Teachers -->
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #27ae60 !important;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div>
+                            <h6 class="text-muted text-uppercase mb-1">Teachers</h6>
+                            <h2 class="mb-0 fw-bold">{{ total_teachers }}</h2>
+                        </div>
+                        <div class="rounded-circle bg-success bg-opacity-10 p-3">
+                            <i class="bi bi-person-workspace fs-2 text-success"></i>
+                        </div>
+                    </div>
+                    <a href="{% url 'teachers:list' %}" class="btn btn-sm btn-outline-success w-100 mt-2">
+                        <i class="bi bi-eye me-1"></i>View All
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Classes -->
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #f39c12 !important;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div>
+                            <h6 class="text-muted text-uppercase mb-1">Classes</h6>
+                            <h2 class="mb-0 fw-bold">{{ total_classes }}</h2>
+                        </div>
+                        <div class="rounded-circle bg-warning bg-opacity-10 p-3">
+                            <i class="bi bi-diagram-3 fs-2 text-warning"></i>
+                        </div>
+                    </div>
+                    <a href="{% url 'academics:class_list' %}" class="btn btn-sm btn-outline-warning w-100 mt-2">
+                        <i class="bi bi-eye me-1"></i>View All
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Subjects -->
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #e74c3c !important;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div>
+                            <h6 class="text-muted text-uppercase mb-1">Subjects</h6>
+                            <h2 class="mb-0 fw-bold">{{ total_subjects }}</h2>
+                        </div>
+                        <div class="rounded-circle bg-danger bg-opacity-10 p-3">
+                            <i class="bi bi-journal-text fs-2 text-danger"></i>
+                        </div>
+                    </div>
+                    <a href="{% url 'academics:subject_list' %}" class="btn btn-sm btn-outline-danger w-100 mt-2">
+                        <i class="bi bi-eye me-1"></i>View All
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-bottom">
+                    <h5 class="mb-0">
+                        <i class="bi bi-lightning-charge-fill me-2 text-warning"></i>Quick Actions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <!-- Academic Year -->
+                        <div class="col-lg-3 col-md-4 col-sm-6">
+                            <a href="{% url 'academics:create_academic_year' %}" class="text-decoration-none">
+                                <div class="d-grid">
+                                    <button class="btn btn-outline-primary d-flex align-items-center justify-content-center p-3">
+                                        <i class="bi bi-calendar-plus fs-4 me-2"></i>
+                                        <span>New Academic Year</span>
+                                    </button>
+                                </div>
+                            </a>
+                        </div>
+
+                        <!-- Add Class -->
+                        <div class="col-lg-3 col-md-4 col-sm-6">
+                            <a href="{% url 'academics:create_class' %}" class="text-decoration-none">
+                                <div class="d-grid">
+                                    <button class="btn btn-outline-warning d-flex align-items-center justify-content-center p-3">
+                                        <i class="bi bi-plus-circle fs-4 me-2"></i>
+                                        <span>Add Class</span>
+                                    </button>
+                                </div>
+                            </a>
+                        </div>
+
+                        <!-- Add Subject -->
+                        <div class="col-lg-3 col-md-4 col-sm-6">
+                            <a href="{% url 'academics:create_subject' %}" class="text-decoration-none">
+                                <div class="d-grid">
+                                    <button class="btn btn-outline-danger d-flex align-items-center justify-content-center p-3">
+                                        <i class="bi bi-book fs-4 me-2"></i>
+                                        <span>Add Subject</span>
+                                    </button>
+                                </div>
+                            </a>
+                        </div>
+
+                        <!-- Register Teacher -->
+                        <div class="col-lg-3 col-md-4 col-sm-6">
+                            <a href="{% url 'teachers:register' %}" class="text-decoration-none">
+                                <div class="d-grid">
+                                    <button class="btn btn-outline-success d-flex align-items-center justify-content-center p-3">
+                                        <i class="bi bi-person-plus fs-4 me-2"></i>
+                                        <span>Register Teacher</span>
+                                    </button>
+                                </div>
+                            </a>
+                        </div>
+
+                        <!-- Register Student -->
+                        <div class="col-lg-3 col-md-4 col-sm-6">
+                            <a href="{% url 'students:register' %}" class="text-decoration-none">
+                                <div class="d-grid">
+                                    <button class="btn btn-outline-info d-flex align-items-center justify-content-center p-3">
+                                        <i class="bi bi-person-badge fs-4 me-2"></i>
+                                        <span>Register Student</span>
+                                    </button>
+                                </div>
+                            </a>
+                        </div>
+
+                        <!-- Register Parent -->
+                        <div class="col-lg-3 col-md-4 col-sm-6">
+                            <a href="{% url 'parents:register_parent' %}" class="text-decoration-none">
+                                <div class="d-grid">
+                                    <button class="btn btn-outline-secondary d-flex align-items-center justify-content-center p-3">
+                                        <i class="bi bi-people-fill fs-4 me-2"></i>
+                                        <span>Register Parent</span>
+                                    </button>
+                                </div>
+                            </a>
+                        </div>
+
+                        <!-- Mark Attendance -->
+                        <div class="col-lg-3 col-md-4 col-sm-6">
+                            <a href="{% url 'students:mark_attendance' %}" class="text-decoration-none">
+                                <div class="d-grid">
+                                    <button class="btn btn-outline-primary d-flex align-items-center justify-content-center p-3">
+                                        <i class="bi bi-calendar-check fs-4 me-2"></i>
+                                        <span>Mark Attendance</span>
+                                    </button>
+                                </div>
+                            </a>
+                        </div>
+
+                        <!-- School Profile -->
+                        <div class="col-lg-3 col-md-4 col-sm-6">
+                            <a href="{% url 'schools:profile' %}" class="text-decoration-none">
+                                <div class="d-grid">
+                                    <button class="btn btn-outline-dark d-flex align-items-center justify-content-center p-3">
+                                        <i class="bi bi-gear-fill fs-4 me-2"></i>
+                                        <span>School Settings</span>
+                                    </button>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row g-4">
+        <!-- Students by Class Chart -->
+        {% if students_by_class %}
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-bottom">
+                    <h5 class="mb-0">
+                        <i class="bi bi-bar-chart-fill me-2 text-primary"></i>Students by Class
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="studentsChart" style="max-height: 300px;"></canvas>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Attendance Trends Chart -->
+        {% if attendance_stats %}
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-bottom">
+                    <h5 class="mb-0">
+                        <i class="bi bi-graph-up me-2 text-success"></i>Attendance (Last 7 Days)
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="attendanceChart" style="max-height: 300px;"></canvas>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Management Links -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-bottom">
+                    <h5 class="mb-0">
+                        <i class="bi bi-grid-3x3-gap-fill me-2 text-info"></i>Management Overview
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <div class="list-group">
+                                <div class="list-group-item bg-light">
+                                    <strong><i class="bi bi-calendar-range me-2"></i>Academic Structure</strong>
+                                </div>
+                                <a href="{% url 'academics:academic_year_list' %}" class="list-group-item list-group-item-action">
+                                    <i class="bi bi-calendar3 me-2"></i>Academic Years
+                                </a>
+                                <a href="{% url 'academics:class_list' %}" class="list-group-item list-group-item-action">
+                                    <i class="bi bi-diagram-3 me-2"></i>Classes
+                                </a>
+                                <a href="{% url 'academics:subject_list' %}" class="list-group-item list-group-item-action">
+                                    <i class="bi bi-journal-text me-2"></i>Subjects
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="list-group">
+                                <div class="list-group-item bg-light">
+                                    <strong><i class="bi bi-people me-2"></i>People Management</strong>
+                                </div>
+                                <a href="{% url 'students:student_list' %}" class="list-group-item list-group-item-action">
+                                    <i class="bi bi-person-badge me-2"></i>Students
+                                </a>
+                                <a href="{% url 'teachers:list' %}" class="list-group-item list-group-item-action">
+                                    <i class="bi bi-person-workspace me-2"></i>Teachers
+                                </a>
+                                <a href="{% url 'parents:parent_list' %}" class="list-group-item list-group-item-action">
+                                    <i class="bi bi-people-fill me-2"></i>Parents
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="list-group">
+                                <div class="list-group-item bg-light">
+                                    <strong><i class="bi bi-gear me-2"></i>Operations</strong>
+                                </div>
+                                <a href="{% url 'students:mark_attendance' %}" class="list-group-item list-group-item-action">
+                                    <i class="bi bi-calendar-check me-2"></i>Attendance
+                                </a>
+                                <a href="{% url 'academics:view_timetable' %}" class="list-group-item list-group-item-action">
+                                    <i class="bi bi-table me-2"></i>Timetable
+                                </a>
+                                <a href="{% url 'schools:profile' %}" class="list-group-item list-group-item-action">
+                                    <i class="bi bi-building-gear me-2"></i>School Profile
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Students by Class Chart
+    {% if students_by_class %}
+    const studentsCtx = document.getElementById('studentsChart');
+    new Chart(studentsCtx, {
+        type: 'bar',
+        data: {
+            labels: {{ class_names|safe }},
+            datasets: [{
+                label: 'Number of Students',
+                data: {{ student_counts|safe }},
+                backgroundColor: 'rgba(52, 152, 219, 0.7)',
+                borderColor: 'rgba(52, 152, 219, 1)',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+    {% endif %}
+
+    // Attendance Chart
+    {% if attendance_stats %}
+    const attendanceCtx = document.getElementById('attendanceChart');
+    new Chart(attendanceCtx, {
+        type: 'line',
+        data: {
+            labels: {{ attendance_labels|safe }},
+            datasets: [{
+                label: 'Present',
+                data: {{ present_count|safe }},
+                borderColor: 'rgba(39, 174, 96, 1)',
+                backgroundColor: 'rgba(39, 174, 96, 0.1)',
+                tension: 0.4,
+                fill: true
+            }, {
+                label: 'Absent',
+                data: {{ absent_count|safe }},
+                borderColor: 'rgba(231, 76, 60, 1)',
+                backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top'
+                }
+            }
+        }
+    });
+    {% endif %}
+</script>
+
+<style>
+    .btn-outline-primary:hover,
+    .btn-outline-success:hover,
+    .btn-outline-warning:hover,
+    .btn-outline-danger:hover,
+    .btn-outline-info:hover,
+    .btn-outline-secondary:hover,
+    .btn-outline-dark:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        transition: all 0.3s ease;
+    }
+    
+    .card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    
+    .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1) !important;
+    }
+    
+    .list-group-item-action:hover {
+        background-color: #f8f9fa;
+        border-left: 3px solid var(--bs-primary);
+    }
+</style>
+{% endblock %}

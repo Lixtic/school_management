@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ action }} Class - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2><i class="fas fa-chalkboard me-2"></i>{{ action }} Class</h2>
+            <p class="text-muted mb-0">{% if action == 'Create' %}Add a new class{% else %}Update class details{% endif %}</p>
+        </div>
+        <a href="{% url 'academics:class_list' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to List
+        </a>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Class Information</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        
+                        <!-- Name Field -->
+                        <div class="mb-3">
+                            <label for="{{ form.name.id_for_label }}" class="form-label">
+                                Class Name <span class="text-danger">*</span>
+                            </label>
+                            {{ form.name }}
+                            {% if form.name.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.name.errors.0 }}
+                                </div>
+                            {% endif %}
+                            <small class="form-text text-muted">
+                                E.g., "Grade 1", "Form 2A", "Year 10 - Science Stream"
+                            </small>
+                        </div>
+
+                        <!-- Academic Year -->
+                        <div class="mb-3">
+                            <label for="{{ form.academic_year.id_for_label }}" class="form-label">
+                                Academic Year <span class="text-danger">*</span>
+                            </label>
+                            {{ form.academic_year }}
+                            {% if form.academic_year.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.academic_year.errors.0 }}
+                                </div>
+                            {% endif %}
+                            <small class="form-text text-muted">
+                                Select the academic year this class belongs to
+                            </small>
+                        </div>
+
+                        <!-- Class Teacher -->
+                        <div class="mb-3">
+                            <label for="{{ form.class_teacher.id_for_label }}" class="form-label">
+                                Class Teacher
+                            </label>
+                            {{ form.class_teacher }}
+                            {% if form.class_teacher.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.class_teacher.errors.0 }}
+                                </div>
+                            {% endif %}
+                            <small class="form-text text-muted">
+                                The primary teacher responsible for this class (optional)
+                            </small>
+                        </div>
+
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {{ form.non_field_errors.0 }}
+                            </div>
+                        {% endif %}
+
+                        <hr class="my-4">
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>{{ action }} Class
+                            </button>
+                            <a href="{% url 'academics:class_list' %}" class="btn btn-outline-secondary">
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Help Section -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-info">
+                <div class="card-header bg-info bg-opacity-10">
+                    <h6 class="mb-0 text-info">
+                        <i class="fas fa-info-circle me-2"></i>Class Guidelines
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <ul class="mb-0">
+                        <li class="mb-2">
+                            <strong>Class Name:</strong> Use a clear, descriptive name that students and parents will recognize.
+                        </li>
+                        <li class="mb-2">
+                            <strong>Academic Year:</strong> Each class must be linked to an academic year. You can create multiple classes for different years.
+                        </li>
+                        <li class="mb-2">
+                            <strong>Class Teacher:</strong> This teacher will have primary responsibility for the class and appear as the class contact.
+                        </li>
+                        <li class="mb-0">
+                            <strong>After Creating:</strong> You can:
+                            <ul class="mt-1">
+                                <li>Assign subjects to this class</li>
+                                <li>Enroll students</li>
+                                <li>Create timetables</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

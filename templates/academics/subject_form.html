@@ -1,0 +1,163 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ action }} Subject - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2><i class="fas fa-book me-2"></i>{{ action }} Subject</h2>
+            <p class="text-muted mb-0">{% if action == 'Create' %}Add a new subject{% else %}Update subject details{% endif %}</p>
+        </div>
+        <a href="{% url 'academics:subject_list' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to List
+        </a>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Subject Information</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        
+                        <!-- Code Field -->
+                        <div class="mb-3">
+                            <label for="{{ form.code.id_for_label }}" class="form-label">
+                                Subject Code <span class="text-danger">*</span>
+                            </label>
+                            {{ form.code }}
+                            {% if form.code.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.code.errors.0 }}
+                                </div>
+                            {% endif %}
+                            <small class="form-text text-muted">
+                                A unique identifier for the subject (e.g., "MATH101", "ENG1", "SCI-PHY")
+                            </small>
+                        </div>
+
+                        <!-- Name Field -->
+                        <div class="mb-3">
+                            <label for="{{ form.name.id_for_label }}" class="form-label">
+                                Subject Name <span class="text-danger">*</span>
+                            </label>
+                            {{ form.name }}
+                            {% if form.name.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.name.errors.0 }}
+                                </div>
+                            {% endif %}
+                            <small class="form-text text-muted">
+                                E.g., "Mathematics", "English Language", "Physics"
+                            </small>
+                        </div>
+
+                        <!-- Description Field -->
+                        <div class="mb-3">
+                            <label for="{{ form.description.id_for_label }}" class="form-label">
+                                Description
+                            </label>
+                            {{ form.description }}
+                            {% if form.description.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.description.errors.0 }}
+                                </div>
+                            {% endif %}
+                            <small class="form-text text-muted">
+                                Provide a brief description of the subject (optional)
+                            </small>
+                        </div>
+
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {{ form.non_field_errors.0 }}
+                            </div>
+                        {% endif %}
+
+                        <hr class="my-4">
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>{{ action }} Subject
+                            </button>
+                            <a href="{% url 'academics:subject_list' %}" class="btn btn-outline-secondary">
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Help Section -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-info">
+                <div class="card-header bg-info bg-opacity-10">
+                    <h6 class="mb-0 text-info">
+                        <i class="fas fa-info-circle me-2"></i>Subject Guidelines
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <ul class="mb-0">
+                        <li class="mb-2">
+                            <strong>Subject Code:</strong> Create a unique code for each subject. This helps with:
+                            <ul class="mt-1">
+                                <li>Quick identification</li>
+                                <li>Report generation</li>
+                                <li>Timetable display</li>
+                            </ul>
+                        </li>
+                        <li class="mb-2">
+                            <strong>Subject Name:</strong> Use the full, official name of the subject as it should appear on reports and certificates.
+                        </li>
+                        <li class="mb-2">
+                            <strong>Description:</strong> Helpful for:
+                            <ul class="mt-1">
+                                <li>New teachers understanding the curriculum</li>
+                                <li>Parents knowing what's covered</li>
+                                <li>Course catalogs</li>
+                            </ul>
+                        </li>
+                        <li class="mb-0">
+                            <strong>After Creating:</strong> You can assign this subject to classes and designate teachers.
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            {% if action == 'Update' and subject %}
+                <div class="card shadow-sm border-warning mt-3">
+                    <div class="card-header bg-warning bg-opacity-10">
+                        <h6 class="mb-0 text-warning">
+                            <i class="fas fa-exclamation-triangle me-2"></i>Usage Information
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-2">This subject is currently assigned to:</p>
+                        <ul class="mb-0">
+                            <li>{{ subject.classsubject_set.count }} class{{ subject.classsubject_set.count|pluralize:'es' }}</li>
+                        </ul>
+                        <p class="mt-2 mb-0 small text-muted">
+                            Changes to the subject name will be reflected in all classes and reports.
+                        </p>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

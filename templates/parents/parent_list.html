@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Parents - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2><i class="fas fa-user-friends me-2"></i>Parents & Guardians</h2>
+            <p class="text-muted mb-0">Manage parent accounts and associations</p>
+        </div>
+        <a href="{% url 'parents:register_parent' %}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>Add Parent
+        </a>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            {% if parents %}
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Parent Name</th>
+                                <th>Relation</th>
+                                <th>Contact</th>
+                                <th>Occupation</th>
+                                <th>Children</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for parent in parents %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            {% if parent.user.profile_picture %}
+                                                <img src="{{ parent.user.profile_picture.url }}" 
+                                                     alt="{{ parent.user.get_full_name }}"
+                                                     class="rounded-circle me-2"
+                                                     style="width: 40px; height: 40px; object-fit: cover;">
+                                            {% else %}
+                                                <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center me-2"
+                                                     style="width: 40px; height: 40px;">
+                                                    {{ parent.user.first_name.0 }}{{ parent.user.last_name.0 }}
+                                                </div>
+                                            {% endif %}
+                                            <div>
+                                                <div class="fw-bold">{{ parent.user.get_full_name }}</div>
+                                                <small class="text-muted">@{{ parent.user.username }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-info">
+                                            {{ parent.get_relation_display }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="small">
+                                            <i class="fas fa-envelope me-1"></i>{{ parent.user.email }}<br>
+                                            <i class="fas fa-phone me-1"></i>{{ parent.user.phone|default:"N/A" }}
+                                        </div>
+                                    </td>
+                                    <td>{{ parent.occupation|default:"Not specified" }}</td>
+                                    <td>
+                                        {% for child in parent.children.all %}
+                                            <span class="badge bg-primary mb-1">{{ child.user.get_full_name }}</span>
+                                        {% empty %}
+                                            <span class="text-muted">No children assigned</span>
+                                        {% endfor %}
+                                    </td>
+                                    <td class="text-end">
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="{% url 'parents:update_parent' parent.pk %}" 
+                                               class="btn btn-outline-primary" 
+                                               title="Edit">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <button type="button" 
+                                                    class="btn btn-outline-danger" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#deleteModal{{ parent.pk }}"
+                                                    title="Delete">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <!-- Delete Modal -->
+                                <div class="modal fade" id="deleteModal{{ parent.pk }}" tabindex="-1">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Confirm Deletion</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                Are you sure you want to delete <strong>{{ parent.user.get_full_name }}</strong>? 
+                                                This will remove their account and access to the parent portal.
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                <a href="{% url 'parents:delete_parent' parent.pk %}" class="btn btn-danger">
+                                                    <i class="fas fa-trash-alt me-2"></i>Delete
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-user-friends fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">No parents found</h5>
+                    <p class="text-muted">Get started by adding parents for your students.</p>
+                    <a href="{% url 'parents:register_parent' %}" class="btn btn-primary mt-3">
+                        <i class="fas fa-plus me-2"></i>Add Parent
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

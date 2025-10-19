@@ -187,3 +187,329 @@ def auto_schedule_view(request):
             messages.error(request, f'Error: {str(e)}')
     
     return render(request, 'academics/auto_schedule.html', context)
+
+
+# ========== ACADEMIC YEAR MANAGEMENT ==========
+
+@login_required
+def academic_year_list(request):
+    """List all academic years for the school"""
+    if request.user.user_type != 'admin':
+        messages.error(request, 'Only administrators can manage academic years.')
+        return redirect('dashboard')
+    
+    school = request.user.school
+    if not school:
+        messages.error(request, 'You are not associated with any school.')
+        return redirect('dashboard')
+    
+    from .models import AcademicYear
+    academic_years = AcademicYear.objects.filter(school=school).order_by('-is_current', '-start_date')
+    
+    return render(request, 'academics/academic_year_list.html', {'academic_years': academic_years})
+
+
+@login_required
+def create_academic_year(request):
+    """Create a new academic year"""
+    if request.user.user_type != 'admin':
+        messages.error(request, 'Only administrators can create academic years.')
+        return redirect('dashboard')
+    
+    school = request.user.school
+    if not school:
+        messages.error(request, 'You are not associated with any school.')
+        return redirect('dashboard')
+    
+    from .forms import AcademicYearForm
+    
+    if request.method == 'POST':
+        form = AcademicYearForm(request.POST, school=school)
+        if form.is_valid():
+            academic_year = form.save(commit=False)
+            academic_year.school = school
+            academic_year.save()
+            messages.success(request, f'Academic year {academic_year.name} created successfully!')
+            return redirect('academics:academic_year_list')
+    else:
+        form = AcademicYearForm(school=school)
+    
+    return render(request, 'academics/academic_year_form.html', {'form': form, 'action': 'Create'})
+
+
+@login_required
+def update_academic_year(request, pk):
+    """Update an academic year"""
+    if request.user.user_type != 'admin':
+        messages.error(request, 'Only administrators can update academic years.')
+        return redirect('dashboard')
+    
+    school = request.user.school
+    if not school:
+        messages.error(request, 'You are not associated with any school.')
+        return redirect('dashboard')
+    
+    from .models import AcademicYear
+    from .forms import AcademicYearForm
+    
+    try:
+        academic_year = AcademicYear.objects.get(pk=pk, school=school)
+    except AcademicYear.DoesNotExist:
+        messages.error(request, 'Academic year not found.')
+        return redirect('academics:academic_year_list')
+    
+    if request.method == 'POST':
+        form = AcademicYearForm(request.POST, instance=academic_year, school=school)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'Academic year {academic_year.name} updated successfully!')
+            return redirect('academics:academic_year_list')
+    else:
+        form = AcademicYearForm(instance=academic_year, school=school)
+    
+    return render(request, 'academics/academic_year_form.html', {
+        'form': form,
+        'action': 'Update',
+        'academic_year': academic_year
+    })
+
+
+@login_required
+def delete_academic_year(request, pk):
+    """Delete an academic year"""
+    if request.user.user_type != 'admin':
+        messages.error(request, 'Only administrators can delete academic years.')
+        return redirect('dashboard')
+    
+    school = request.user.school
+    if not school:
+        messages.error(request, 'You are not associated with any school.')
+        return redirect('dashboard')
+    
+    from .models import AcademicYear
+    
+    try:
+        academic_year = AcademicYear.objects.get(pk=pk, school=school)
+        name = academic_year.name
+        academic_year.delete()
+        messages.success(request, f'Academic year {name} deleted successfully!')
+    except AcademicYear.DoesNotExist:
+        messages.error(request, 'Academic year not found.')
+    
+    return redirect('academics:academic_year_list')
+
+
+# ========== CLASS MANAGEMENT ==========
+
+@login_required
+def class_list(request):
+    """List all classes for the school"""
+    if request.user.user_type != 'admin':
+        messages.error(request, 'Only administrators can manage classes.')
+        return redirect('dashboard')
+    
+    school = request.user.school
+    if not school:
+        messages.error(request, 'You are not associated with any school.')
+        return redirect('dashboard')
+    
+    classes = Class.objects.filter(school=school).select_related('academic_year', 'class_teacher__user').order_by('name')
+    
+    return render(request, 'academics/class_list.html', {'classes': classes})
+
+
+@login_required
+def create_class(request):
+    """Create a new class"""
+    if request.user.user_type != 'admin':
+        messages.error(request, 'Only administrators can create classes.')
+        return redirect('dashboard')
+    
+    school = request.user.school
+    if not school:
+        messages.error(request, 'You are not associated with any school.')
+        return redirect('dashboard')
+    
+    from .forms import ClassForm
+    
+    if request.method == 'POST':
+        form = ClassForm(request.POST, school=school)
+        if form.is_valid():
+            class_obj = form.save(commit=False)
+            class_obj.school = school
+            class_obj.save()
+            messages.success(request, f'Class {class_obj.name} created successfully!')
+            return redirect('academics:class_list')
+    else:
+        form = ClassForm(school=school)
+    
+    return render(request, 'academics/class_form.html', {'form': form, 'action': 'Create'})
+
+
+@login_required
+def update_class(request, pk):
+    """Update a class"""
+    if request.user.user_type != 'admin':
+        messages.error(request, 'Only administrators can update classes.')
+        return redirect('dashboard')
+    
+    school = request.user.school
+    if not school:
+        messages.error(request, 'You are not associated with any school.')
+        return redirect('dashboard')
+    
+    from .forms import ClassForm
+    
+    try:
+        class_obj = Class.objects.get(pk=pk, school=school)
+    except Class.DoesNotExist:
+        messages.error(request, 'Class not found.')
+        return redirect('academics:class_list')
+    
+    if request.method == 'POST':
+        form = ClassForm(request.POST, instance=class_obj, school=school)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'Class {class_obj.name} updated successfully!')
+            return redirect('academics:class_list')
+    else:
+        form = ClassForm(instance=class_obj, school=school)
+    
+    return render(request, 'academics/class_form.html', {
+        'form': form,
+        'action': 'Update',
+        'class': class_obj
+    })
+
+
+@login_required
+def delete_class(request, pk):
+    """Delete a class"""
+    if request.user.user_type != 'admin':
+        messages.error(request, 'Only administrators can delete classes.')
+        return redirect('dashboard')
+    
+    school = request.user.school
+    if not school:
+        messages.error(request, 'You are not associated with any school.')
+        return redirect('dashboard')
+    
+    try:
+        class_obj = Class.objects.get(pk=pk, school=school)
+        name = class_obj.name
+        class_obj.delete()
+        messages.success(request, f'Class {name} deleted successfully!')
+    except Class.DoesNotExist:
+        messages.error(request, 'Class not found.')
+    
+    return redirect('academics:class_list')
+
+
+# ========== SUBJECT MANAGEMENT ==========
+
+@login_required
+def subject_list(request):
+    """List all subjects for the school"""
+    if request.user.user_type != 'admin':
+        messages.error(request, 'Only administrators can manage subjects.')
+        return redirect('dashboard')
+    
+    school = request.user.school
+    if not school:
+        messages.error(request, 'You are not associated with any school.')
+        return redirect('dashboard')
+    
+    from .models import Subject
+    subjects = Subject.objects.filter(school=school).order_by('name')
+    
+    return render(request, 'academics/subject_list.html', {'subjects': subjects})
+
+
+@login_required
+def create_subject(request):
+    """Create a new subject"""
+    if request.user.user_type != 'admin':
+        messages.error(request, 'Only administrators can create subjects.')
+        return redirect('dashboard')
+    
+    school = request.user.school
+    if not school:
+        messages.error(request, 'You are not associated with any school.')
+        return redirect('dashboard')
+    
+    from .forms import SubjectForm
+    
+    if request.method == 'POST':
+        form = SubjectForm(request.POST, school=school)
+        if form.is_valid():
+            subject = form.save(commit=False)
+            subject.school = school
+            subject.save()
+            messages.success(request, f'Subject {subject.name} created successfully!')
+            return redirect('academics:subject_list')
+    else:
+        form = SubjectForm(school=school)
+    
+    return render(request, 'academics/subject_form.html', {'form': form, 'action': 'Create'})
+
+
+@login_required
+def update_subject(request, pk):
+    """Update a subject"""
+    if request.user.user_type != 'admin':
+        messages.error(request, 'Only administrators can update subjects.')
+        return redirect('dashboard')
+    
+    school = request.user.school
+    if not school:
+        messages.error(request, 'You are not associated with any school.')
+        return redirect('dashboard')
+    
+    from .models import Subject
+    from .forms import SubjectForm
+    
+    try:
+        subject = Subject.objects.get(pk=pk, school=school)
+    except Subject.DoesNotExist:
+        messages.error(request, 'Subject not found.')
+        return redirect('academics:subject_list')
+    
+    if request.method == 'POST':
+        form = SubjectForm(request.POST, instance=subject, school=school)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'Subject {subject.name} updated successfully!')
+            return redirect('academics:subject_list')
+    else:
+        form = SubjectForm(instance=subject, school=school)
+    
+    return render(request, 'academics/subject_form.html', {
+        'form': form,
+        'action': 'Update',
+        'subject': subject
+    })
+
+
+@login_required
+def delete_subject(request, pk):
+    """Delete a subject"""
+    if request.user.user_type != 'admin':
+        messages.error(request, 'Only administrators can delete subjects.')
+        return redirect('dashboard')
+    
+    school = request.user.school
+    if not school:
+        messages.error(request, 'You are not associated with any school.')
+        return redirect('dashboard')
+    
+    from .models import Subject
+    
+    try:
+        subject = Subject.objects.get(pk=pk, school=school)
+        name = subject.name
+        subject.delete()
+        messages.success(request, f'Subject {name} deleted successfully!')
+    except Subject.DoesNotExist:
+        messages.error(request, 'Subject not found.')
+    
+    return redirect('academics:subject_list')

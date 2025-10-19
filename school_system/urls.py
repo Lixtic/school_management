@@ -15,6 +15,7 @@ urlpatterns = [
     path('login/', account_views.login_view, name='login'),
     path('logout/', account_views.logout_view, name='logout'),
     path('dashboard/', account_views.dashboard, name='dashboard'),
+    path('schools/', include('schools.urls')),
     path('teachers/', include('teachers.urls')),
     path('students/', include('students.urls')),
     path('parents/', include('parents.urls')),

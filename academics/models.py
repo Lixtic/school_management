@@ -2,6 +2,9 @@ from django.db import models
 from django.core.exceptions import ValidationError
 
 class AcademicYear(models.Model):
+    # Multi-tenant: Link to school
+    school = models.ForeignKey('schools.School', on_delete=models.CASCADE, related_name='academic_years', null=True, blank=True)
+    
     name = models.CharField(max_length=20)
     start_date = models.DateField()
     end_date = models.DateField()
@@ -15,6 +18,9 @@ class AcademicYear(models.Model):
 
 
 class Class(models.Model):
+    # Multi-tenant: Link to school
+    school = models.ForeignKey('schools.School', on_delete=models.CASCADE, related_name='classes', null=True, blank=True)
+    
     name = models.CharField(max_length=50)  # e.g., "Grade 10A", "Grade 9B"
     academic_year = models.ForeignKey(AcademicYear, on_delete=models.CASCADE)
     class_teacher = models.ForeignKey('teachers.Teacher', on_delete=models.SET_NULL, 
@@ -29,6 +35,9 @@ class Class(models.Model):
 
 
 class Subject(models.Model):
+    # Multi-tenant: Link to school
+    school = models.ForeignKey('schools.School', on_delete=models.CASCADE, related_name='subjects', null=True, blank=True)
+    
     name = models.CharField(max_length=100)
     code = models.CharField(max_length=20, unique=True)
     description = models.TextField(blank=True)
@@ -38,6 +47,9 @@ class Subject(models.Model):
 
 
 class ClassSubject(models.Model):
+    # Multi-tenant: Link to school
+    school = models.ForeignKey('schools.School', on_delete=models.CASCADE, related_name='class_subjects', null=True, blank=True)
+    
     class_name = models.ForeignKey(Class, on_delete=models.CASCADE)
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
     teacher = models.ForeignKey('teachers.Teacher', on_delete=models.SET_NULL, null=True)
@@ -50,6 +62,9 @@ class ClassSubject(models.Model):
 
 
 class Schedule(models.Model):
+    # Multi-tenant: Link to school
+    school = models.ForeignKey('schools.School', on_delete=models.CASCADE, related_name='schedules', null=True, blank=True)
+    
     DAYS_OF_WEEK = [
         ('monday', 'Monday'),
         ('tuesday', 'Tuesday'),

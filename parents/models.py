@@ -8,6 +8,10 @@ class Parent(models.Model):
         ('mother', 'Mother'),
         ('guardian', 'Guardian'),
     )
+    
+    # Multi-tenant: Link to school
+    school = models.ForeignKey('schools.School', on_delete=models.CASCADE, related_name='parents', null=True, blank=True)
+    
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     relation = models.CharField(max_length=10, choices=RELATION_CHOICES)
     occupation = models.CharField(max_length=100, blank=True)

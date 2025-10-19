@@ -42,30 +42,32 @@ from academics.utils import get_timetable_slots
 @login_required
 def dashboard(request):
     user = request.user
+    school = user.school
     
     if user.user_type == 'admin':
-        # Get statistics
+        # Get statistics (filtered by school)
         from students.models import Student, Attendance
         from teachers.models import Teacher
         from academics.models import Class, Subject
         from django.db.models import Count, Q
         
-        total_students = Student.objects.count()
-        total_teachers = Teacher.objects.count()
-        total_classes = Class.objects.count()
-        total_subjects = Subject.objects.count()
+        total_students = Student.objects.filter(school=school).count()
+        total_teachers = Teacher.objects.filter(school=school).count()
+        total_classes = Class.objects.filter(school=school).count()
+        total_subjects = Subject.objects.filter(school=school).count()
         
-        # Students by class
-        students_by_class = Class.objects.annotate(
+        # Students by class (filtered by school)
+        students_by_class = Class.objects.filter(school=school).annotate(
             student_count=Count('student')
         ).values('name', 'student_count').order_by('name')
         
         class_names = [c['name'] for c in students_by_class]
         student_counts = [c['student_count'] for c in students_by_class]
         
-        # Attendance stats for the last 7 days
+        # Attendance stats for the last 7 days (filtered by school)
         seven_days_ago = datetime.now().date() - timedelta(days=7)
         attendance_data = Attendance.objects.filter(
+            school=school,
             date__gte=seven_days_ago
         ).values('date').annotate(
             present=Count('id', filter=Q(status='present')),
@@ -109,14 +111,16 @@ def dashboard(request):
                 requested_day = days[0][0]
         selected_day_label = day_lookup.get(requested_day, requested_day.capitalize())
 
-        # Get all classes where this teacher teaches
+        # Get all classes where this teacher teaches (filtered by school)
         class_subjects = ClassSubject.objects.filter(
-            teacher__user=user
+            teacher__user=user,
+            school=school
         ).select_related('class_name', 'subject')
         
-        # Get schedules for these classes
+        # Get schedules for these classes (filtered by school)
         schedules = Schedule.objects.filter(
-            class_subject__in=class_subjects
+            class_subject__in=class_subjects,
+            school=school
         ).select_related(
             'class_subject',
             'class_subject__subject',

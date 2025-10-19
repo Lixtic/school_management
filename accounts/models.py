@@ -14,5 +14,15 @@ class User(AbstractUser):
     address = models.TextField(blank=True)
     profile_picture = models.ImageField(upload_to='profiles/', null=True, blank=True)
     
+    # Multi-tenant: Link user to their school
+    school = models.ForeignKey(
+        'schools.School',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='users',
+        help_text='School this user belongs to'
+    )
+    
     def __str__(self):
         return f"{self.username} ({self.get_user_type_display()})"

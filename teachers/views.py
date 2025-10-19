@@ -19,14 +19,17 @@ def teacher_classes(request):
         messages.error(request, 'Access denied')
         return redirect('dashboard')
     
+    school = request.user.school
+    
     try:
-        teacher = Teacher.objects.get(user=request.user)
+        teacher = Teacher.objects.get(user=request.user, school=school)
     except Teacher.DoesNotExist:
         messages.error(request, 'Teacher profile not found. Please contact administrator.')
         return redirect('dashboard')
-    class_subjects = ClassSubject.objects.filter(teacher=teacher).select_related(
-        'class_name', 'subject'
-    )
+    class_subjects = ClassSubject.objects.filter(
+        teacher=teacher,
+        school=school
+    ).select_related('class_name', 'subject')
     
     return render(request, 'teachers/my_classes.html', {'class_subjects': class_subjects})
 
@@ -45,17 +48,19 @@ def enter_grades(request):
         messages.error(request, 'Access denied')
         return redirect('dashboard')
     
-    teacher = Teacher.objects.get(user=request.user)
-    class_subjects = ClassSubject.objects.filter(teacher=teacher).select_related(
-        'class_name', 'subject'
-    )
+    school = request.user.school
+    teacher = Teacher.objects.get(user=request.user, school=school)
+    class_subjects = ClassSubject.objects.filter(
+        teacher=teacher,
+        school=school
+    ).select_related('class_name', 'subject')
     
     if request.method == 'POST':
         term = request.POST.get('term')
         subject_id = request.POST.get('subject_id')
         student_ids = request.POST.getlist('student_id[]')
         
-        academic_year = AcademicYear.objects.filter(is_current=True).first()
+        academic_year = AcademicYear.objects.filter(school=school, is_current=True).first()
         
         for student_id in student_ids:
             class_score = request.POST.get(f'class_score_{student_id}')
@@ -70,7 +75,8 @@ def enter_grades(request):
                 defaults={
                     'class_score': class_score,
                     'exams_score': exams_score,
-                    'created_by': request.user
+                    'created_by': request.user,
+                    'school': school  # Set school on grade
                 }
             )
         
@@ -82,7 +88,11 @@ def enter_grades(request):
 
 @login_required
 def get_students(request, class_id):
-    students = Student.objects.filter(current_class_id=class_id).select_related('user')
+    # Filter by school
+    students = Student.objects.filter(
+        current_class_id=class_id,
+        school=request.user.school
+    ).select_related('user')
     data = [
         {
             'id': s.id,

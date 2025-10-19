@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'crispy_bootstrap5',
     
     # Local apps
+    'schools',  # Multi-tenant school management
     'accounts',
     'students',
     'teachers',
@@ -56,6 +57,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'schools.middleware.TenantMiddleware',  # Multi-tenant school filtering
 ]
 
 ROOT_URLCONF = 'school_system.urls'

@@ -9,6 +9,9 @@ class Student(models.Model):
         ('other', 'Other'),
     )
     
+    # Multi-tenant: Link to school
+    school = models.ForeignKey('schools.School', on_delete=models.CASCADE, related_name='students', null=True, blank=True)
+    
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     admission_number = models.CharField(max_length=20, unique=True)
     date_of_birth = models.DateField()
@@ -30,6 +33,10 @@ class Attendance(models.Model):
         ('late', 'Late'),
         ('excused', 'Excused'),
     )
+    
+    # Multi-tenant: Link to school
+    school = models.ForeignKey('schools.School', on_delete=models.CASCADE, related_name='attendances', null=True, blank=True)
+    
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
     date = models.DateField()
     status = models.CharField(max_length=10, choices=STATUS_CHOICES)
@@ -63,6 +70,9 @@ class Grade(models.Model):
         ('8', 'Lower'),
         ('9', 'Lowest'),
     )
+    
+    # Multi-tenant: Link to school
+    school = models.ForeignKey('schools.School', on_delete=models.CASCADE, related_name='grades', null=True, blank=True)
     
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
     subject = models.ForeignKey('academics.Subject', on_delete=models.CASCADE)

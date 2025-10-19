@@ -14,7 +14,9 @@ def student_list(request):
         messages.error(request, 'Access denied')
         return redirect('dashboard')
     
-    students = Student.objects.select_related('user', 'current_class').all()
+    # Filter by current user's school
+    school = request.user.school
+    students = Student.objects.select_related('user', 'current_class').filter(school=school)
     
     # Search functionality
     search = request.GET.get('search', '')
@@ -41,11 +43,11 @@ def student_list(request):
     elif sort_by == '-admission_number':
         students = students.order_by('-admission_number')
     
-    # Statistics
-    total_students = Student.objects.count()
-    active_students = Student.objects.filter(user__is_active=True).count()
-    total_classes = Class.objects.filter(academic_year__is_current=True).count()
-    classes = Class.objects.filter(academic_year__is_current=True)
+    # Statistics (filtered by school)
+    total_students = Student.objects.filter(school=school).count()
+    active_students = Student.objects.filter(school=school, user__is_active=True).count()
+    total_classes = Class.objects.filter(school=school, academic_year__is_current=True).count()
+    classes = Class.objects.filter(school=school, academic_year__is_current=True)
     
     context = {
         'students': students,
@@ -61,12 +63,13 @@ def student_list(request):
 @login_required
 def student_details_ajax(request, student_id):
     """Return student details as JSON for modal"""
-    student = get_object_or_404(Student, id=student_id)
+    # Ensure student belongs to user's school
+    student = get_object_or_404(Student, id=student_id, school=request.user.school)
     
-    # Attendance stats
-    total_attendance = Attendance.objects.filter(student=student).count()
-    present_count = Attendance.objects.filter(student=student, status='present').count()
-    absent_count = Attendance.objects.filter(student=student, status='absent').count()
+    # Attendance stats (filtered by school)
+    total_attendance = Attendance.objects.filter(student=student, school=request.user.school).count()
+    present_count = Attendance.objects.filter(student=student, school=request.user.school, status='present').count()
+    absent_count = Attendance.objects.filter(student=student, school=request.user.school, status='absent').count()
     
     attendance_percentage = 0
     if total_attendance > 0:
@@ -156,27 +159,30 @@ def mark_attendance(request):
         messages.error(request, 'You do not have permission to mark attendance')
         return redirect('dashboard')
     
+    school = request.user.school
+    
     if request.method == 'POST':
         date_str = request.POST.get('date')
         student_ids = request.POST.getlist('students')
         
         for student_id in student_ids:
             status = request.POST.get(f'status_{student_id}')
-            student = Student.objects.get(id=student_id)
+            student = Student.objects.get(id=student_id, school=school)
             
             Attendance.objects.update_or_create(
                 student=student,
                 date=date_str,
                 defaults={
                     'status': status,
-                    'marked_by': request.user
+                    'marked_by': request.user,
+                    'school': school  # Set school on attendance
                 }
             )
         
         messages.success(request, f'Attendance marked successfully for {len(student_ids)} students')
         return redirect('students:mark_attendance')
     
-    classes = Class.objects.filter(academic_year__is_current=True)
+    classes = Class.objects.filter(school=school, academic_year__is_current=True)
     return render(request, 'students/mark_attendance.html', {
         'classes': classes,
         'today': date.today()
@@ -185,7 +191,11 @@ def mark_attendance(request):
 
 @login_required
 def get_class_students(request, class_id):
-    students = Student.objects.filter(current_class_id=class_id).select_related('user')
+    # Filter by school
+    students = Student.objects.filter(
+        current_class_id=class_id, 
+        school=request.user.school
+    ).select_related('user')
     data = [
         {
             'id': s.id,

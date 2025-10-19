@@ -1,13 +1,17 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% block title %}Dashboard - {{ user.school.name|default:"School Management" }}{% endblock %}
+
 {% block content %}
 <div class="container-fluid px-3 px-md-4 py-4">
     <!-- Header Section -->
     <div class="mb-5">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <div>
-                <h2 class="mb-1" style="font-weight: 700; color: #2c3e50;">Dashboard</h2>
+                <h2 class="mb-1" style="font-weight: 700; color: #2c3e50;">
+                    {% if user.school %}{{ user.school.name }} - {% endif %}Dashboard
+                </h2>
                 <p class="text-muted mb-0">Welcome back, {{ user.get_full_name }}!</p>
             </div>
             <div class="text-end">

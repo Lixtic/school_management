@@ -4,7 +4,17 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from datetime import datetime, timedelta
 
+def home_view(request):
+    """Landing page/welcome screen"""
+    if request.user.is_authenticated:
+        return redirect('dashboard')
+    return render(request, 'accounts/home.html')
+
 def login_view(request):
+    # Redirect to dashboard if already logged in
+    if request.user.is_authenticated:
+        return redirect('dashboard')
+    
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
@@ -12,17 +22,20 @@ def login_view(request):
         
         if user is not None:
             login(request, user)
+            messages.success(request, f'Welcome back, {user.get_full_name() or user.username}!')
             return redirect('dashboard')
         else:
-            messages.error(request, 'Invalid credentials')
+            messages.error(request, 'Invalid username or password. Please try again.')
+            return redirect('home')
     
-    return render(request, 'accounts/login.html')
+    # If GET request, redirect to home
+    return redirect('home')
 
 
 @login_required
 def logout_view(request):
     logout(request)
-    return redirect('login')
+    return redirect('home')
 from academics.models import Schedule, ClassSubject
 from academics.utils import get_timetable_slots
 

@@ -22,8 +22,9 @@ class TeacherRegistrationForm(forms.ModelForm):
     
     # Teacher-specific fields
     employee_id = forms.CharField(max_length=20, required=True)
-    date_of_birth = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}), required=False)
-    qualification = forms.CharField(max_length=200, required=False)
+    date_of_birth = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}), required=True)
+    date_of_joining = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}), required=True)
+    qualification = forms.CharField(max_length=200, required=True)
     subjects = forms.ModelMultipleChoiceField(
         queryset=Subject.objects.none(),
         required=False,
@@ -32,7 +33,7 @@ class TeacherRegistrationForm(forms.ModelForm):
     
     class Meta:
         model = Teacher
-        fields = ['employee_id', 'date_of_birth', 'qualification', 'subjects']
+        fields = ['employee_id', 'date_of_birth', 'date_of_joining', 'qualification', 'subjects']
     
     def __init__(self, *args, **kwargs):
         self.school = kwargs.pop('school', None)
@@ -107,7 +108,7 @@ class TeacherUpdateForm(forms.ModelForm):
     
     class Meta:
         model = Teacher
-        fields = ['employee_id', 'date_of_birth', 'qualification', 'subjects']
+        fields = ['employee_id', 'date_of_birth', 'date_of_joining', 'qualification', 'subjects']
     
     def __init__(self, *args, **kwargs):
         self.school = kwargs.pop('school', None)

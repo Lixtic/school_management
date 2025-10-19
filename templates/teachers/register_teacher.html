@@ -65,10 +65,17 @@
                                 </div>
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label for="{{ form.date_of_birth.id_for_label }}" class="form-label">Date of Birth</label>
+                                        <label for="{{ form.date_of_birth.id_for_label }}" class="form-label">Date of Birth <span class="text-danger">*</span></label>
                                         {{ form.date_of_birth }}
                                         {% if form.date_of_birth.errors %}
                                         <div class="invalid-feedback d-block">{{ form.date_of_birth.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="{{ form.date_of_joining.id_for_label }}" class="form-label">Date of Joining <span class="text-danger">*</span></label>
+                                        {{ form.date_of_joining }}
+                                        {% if form.date_of_joining.errors %}
+                                        <div class="invalid-feedback d-block">{{ form.date_of_joining.errors }}</div>
                                         {% endif %}
                                     </div>
                                 </div>
@@ -131,7 +138,7 @@
                                         {% endif %}
                                     </div>
                                     <div class="col-md-6 mb-3">
-                                        <label for="{{ form.qualification.id_for_label }}" class="form-label">Qualification</label>
+                                        <label for="{{ form.qualification.id_for_label }}" class="form-label">Qualification <span class="text-danger">*</span></label>
                                         {{ form.qualification }}
                                         {% if form.qualification.errors %}
                                         <div class="invalid-feedback d-block">{{ form.qualification.errors }}</div>

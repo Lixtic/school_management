@@ -73,6 +73,10 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                # Custom context processors
+                'school_system.context_processors.breadcrumbs',
+                'school_system.context_processors.user_notifications',
+                'school_system.context_processors.school_settings',
             ],
         },
     },

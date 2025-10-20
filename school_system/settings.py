@@ -46,6 +46,8 @@ INSTALLED_APPS = [
     'teachers',
     'academics',
     'parents',
+    'communications',
+    'attendance_tracking',
 ]
 
 MIDDLEWARE = [

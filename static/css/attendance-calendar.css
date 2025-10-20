@@ -1,0 +1,50 @@
+/* static/css/attendance-calendar.css */
+
+#attendanceCalendar {
+    height: 75vh;
+}
+
+.fc-daygrid-day-frame {
+    cursor: pointer;
+}
+
+.fc-event {
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.calendar-tooltip {
+    position: absolute;
+    z-index: 10001;
+    background: rgba(0, 0, 0, 0.85);
+    color: white;
+    padding: 10px 15px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    max-width: 250px;
+    font-size: 0.875rem;
+    display: none;
+    pointer-events: none; /* Important */
+    transition: opacity 0.2s;
+}
+
+.tooltip-date {
+    font-weight: bold;
+    margin-bottom: 8px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid rgba(255,255,255,0.3);
+    font-size: 1rem;
+}
+
+.tooltip-body p {
+    margin: 0;
+    line-height: 1.6;
+}
+
+.tooltip-body .present {
+    color: #28a745; /* Bootstrap success green */
+}
+
+.tooltip-body .absent {
+    color: #dc3545; /* Bootstrap danger red */
+}

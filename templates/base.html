@@ -645,6 +645,12 @@
                         <span class="nav-text">Mark Attendance</span>
                     </a>
                 </div>
+                <div class="nav-item">
+                    <a href="{% url 'attendance_tracking:attendance_calendar' %}" class="nav-link {% if 'attendance-calendar' in request.path %}active{% endif %}">
+                        <i class="bi bi-calendar3-week"></i>
+                        <span class="nav-text">Attendance Calendar</span>
+                    </a>
+                </div>
                 {% endif %}
                 
                 <!-- Teacher Only Links -->
@@ -728,6 +734,13 @@
                     </a>
                 </div>
                 {% endif %}
+                
+                <div class="nav-item">
+                    <a href="{% url 'inbox' %}" class="nav-link {% if 'messages' in request.path %}active{% endif %}">
+                        <i class="bi bi-envelope"></i>
+                        <span class="nav-text">Messages</span>
+                    </a>
+                </div>
                 
                 <!-- Divider -->
                 <hr class="sidebar-divider">

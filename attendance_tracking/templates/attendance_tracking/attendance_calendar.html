@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}Attendance Calendar{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/attendance-calendar.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="page-title"><i class="bi bi-calendar-week"></i> Attendance Calendar</h2>
+        <div class="col-md-4">
+            <label for="classFilter" class="form-label">Filter by Class:</label>
+            <select id="classFilter" class="form-select">
+                <option value="">All Classes</option>
+                {% for class in classes %}
+                <option value="{{ class.id }}">{{ class.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div id="attendanceCalendar"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Tooltip for calendar events -->
+<div id="calendarTooltip" class="calendar-tooltip">
+    <div class="tooltip-date"></div>
+    <div class="tooltip-body"></div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+<script src="{% static 'js/attendance-calendar.js' %}"></script>
+{% endblock %}

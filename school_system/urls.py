@@ -22,6 +22,8 @@ urlpatterns = [
     path('students/', include('students.urls')),
     path('parents/', include('parents.urls')),
     path('academics/', include('academics.urls')),
+    path('messages/', include('communications.urls')),
+    path('attendance/', include('attendance_tracking.urls')),
 ]
 
 if settings.DEBUG:

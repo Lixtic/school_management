@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from django.shortcuts import redirect
 from accounts import views as account_views
 from school_system import search_views
 
@@ -13,6 +14,7 @@ admin.site.index_title = "Welcome to Girls Model JHS Management System"
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', account_views.home_view, name='home'),
+    path('dashboard/', lambda request: redirect('accounts:dashboard'), name='dashboard'),
     path('api/global-search/', search_views.global_search_api, name='global_search_api'),
     path('accounts/', include('accounts.urls')),
     path('schools/', include('schools.urls')),

@@ -1,6 +1,6 @@
 from django import forms
+from django.contrib.auth import get_user_model
 from .models import Message
-from django.conf import settings
 
 class MessageForm(forms.ModelForm):
     class Meta:
@@ -17,4 +17,5 @@ class MessageForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         if user:
             # Exclude the current user from the recipient list
-            self.fields['recipient'].queryset = settings.AUTH_USER_MODEL.objects.exclude(pk=user.pk)
+            User = get_user_model()
+            self.fields['recipient'].queryset = User.objects.exclude(pk=user.pk)

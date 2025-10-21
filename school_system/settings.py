@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'parents',
     'communications',
     'attendance_tracking',
+    'user_dashboard',
 ]
 
 MIDDLEWARE = [

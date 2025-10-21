@@ -1,0 +1,68 @@
+<!-- templates/dashboard/widgets/stats_summary.html -->
+<div class="col-12 dashboard-widget" data-widget-type="stats_summary">
+    <div class="position-relative">
+        <div class="drag-handle"><i class="bi bi-grip-vertical"></i></div>
+        <div class="row g-3">
+            <div class="col-6 col-md-3">
+                <div class="card stat-card h-100 border-0 shadow-sm" style="border-left: 4px solid #3498db;">
+                    <div class="card-body py-3">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <p class="text-muted mb-1" style="font-size: 0.85rem; font-weight: 600;">Students</p>
+                                <h4 class="mb-0" style="font-weight: 700; color: #2c3e50;">{{ total_students }}</h4>
+                            </div>
+                            <div class="stat-icon bg-primary text-white">
+                                <i class="bi bi-people-fill" style="font-size: 1.5rem;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card stat-card h-100 border-0 shadow-sm" style="border-left: 4px solid #2ecc71;">
+                    <div class="card-body py-3">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <p class="text-muted mb-1" style="font-size: 0.85rem; font-weight: 600;">Teachers</p>
+                                <h4 class="mb-0" style="font-weight: 700; color: #2c3e50;">{{ total_teachers }}</h4>
+                            </div>
+                            <div class="stat-icon bg-success text-white">
+                                <i class="bi bi-person-badge" style="font-size: 1.5rem;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card stat-card h-100 border-0 shadow-sm" style="border-left: 4px solid #e74c3c;">
+                    <div class="card-body py-3">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <p class="text-muted mb-1" style="font-size: 0.85rem; font-weight: 600;">Classes</p>
+                                <h4 class="mb-0" style="font-weight: 700; color: #2c3e50;">{{ total_classes }}</h4>
+                            </div>
+                            <div class="stat-icon bg-danger text-white">
+                                <i class="bi bi-door-open" style="font-size: 1.5rem;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card stat-card h-100 border-0 shadow-sm" style="border-left: 4px solid #f39c12;">
+                    <div class="card-body py-3">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <p class="text-muted mb-1" style="font-size: 0.85rem; font-weight: 600;">Subjects</p>
+                                <h4 class="mb-0" style="font-weight: 700; color: #2c3e50;">{{ total_subjects }}</h4>
+                            </div>
+                            <div class="stat-icon bg-warning text-white">
+                                <i class="bi bi-book" style="font-size: 1.5rem;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

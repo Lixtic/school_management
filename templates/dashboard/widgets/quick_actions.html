@@ -1,0 +1,43 @@
+<!-- templates/dashboard/widgets/quick_actions.html -->
+<div class="col-12 dashboard-widget" data-widget-type="quick_actions">
+    <div class="position-relative">
+        <div class="drag-handle"><i class="bi bi-grip-vertical"></i></div>
+        <div class="row g-3">
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body">
+                        <h6 class="card-title mb-3" style="font-weight: 600; color: #2c3e50;">
+                            <i class="bi bi-gear me-2"></i>Admin Panel
+                        </h6>
+                        <p class="card-text text-muted" style="font-size: 0.9rem;">Manage system settings and users</p>
+                        <a href="/admin/" class="btn btn-sm btn-primary">Access Panel</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body">
+                        <h6 class="card-title mb-3" style="font-weight: 600; color: #2c3e50;">
+                            <i class="bi bi-calendar3 me-2"></i>Scheduling
+                        </h6>
+                        <p class="card-text text-muted" style="font-size: 0.9rem;">Auto-generate class schedules</p>
+                        <a href="{% url 'academics:auto_schedule' %}" class="btn btn-sm btn-success">Generate</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body">
+                        <h6 class="card-title mb-3" style="font-weight: 600; color: #2c3e50;">
+                            <i class="bi bi-people me-2"></i>Reports
+                        </h6>
+                        <p class="card-text text-muted" style="font-size: 0.9rem;">View attendance and grade reports</p>
+                        <a href="/admin/students/grade/" class="btn btn-sm btn-info">View Reports</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

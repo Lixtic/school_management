@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard - {{ user.school.name|default:"Asetena Management System" }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-3 px-md-4 py-4">
+    <!-- Header Section -->
+    <div class="mb-5">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <h2 class="mb-1" style="font-weight: 700; color: #2c3e50;">
+                    {% if user.school %}{{ user.school.name }} - {% endif %}Dashboard
+                </h2>
+                <p class="text-muted mb-0">Welcome back, {{ user.get_full_name }}!</p>
+            </div>
+            <div class="text-end">
+                <button class="btn btn-sm btn-outline-secondary" id="customize-btn">
+                    <i class="bi bi-pencil-square me-1"></i> Customize
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Widgets Grid -->
+    <div class="row g-4 dashboard-grid">
+        {% for widget in widgets %}
+            {% if widget.widget_type == 'stats_summary' %}
+                {% include 'dashboard/widgets/stats_summary.html' %}
+            {% elif widget.widget_type == 'student_distribution' %}
+                {% include 'dashboard/widgets/student_distribution.html' %}
+            {% elif widget.widget_type == 'attendance_trend' %}
+                {% include 'dashboard/widgets/attendance_trend.html' %}
+            {% elif widget.widget_type == 'quick_actions' %}
+                {% include 'dashboard/widgets/quick_actions.html' %}
+            {% endif %}
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+    .dashboard-widget {
+        position: relative;
+    }
+    .drag-handle {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        cursor: grab;
+        color: #adb5bd;
+        padding: 5px;
+        background: rgba(255,255,255,0.5);
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.2s;
+    }
+    .dashboard-widget:hover .drag-handle {
+        opacity: 1;
+    }
+    .widget-ghost {
+        opacity: 0.4;
+        background: #c8ebfb;
+        border: 2px dashed #3498db;
+    }
+    .widget-chosen {
+        cursor: grabbing;
+    }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/dashboard-customization.js' %}"></script>
+<script>
+    // Store chart data in global variable
+    window.chartData = {
+        classNames: {{ class_names|safe|default:"[]" }},
+        studentCounts: {{ student_counts|safe|default:"[]" }},
+        attendanceLabels: {{ attendance_labels|safe|default:"[]" }},
+        presentCount: {{ present_count|safe|default:"[]" }},
+        absentCount: {{ absent_count|safe|default:"[]" }}
+    };
+</script>
+<script src="{% static 'js/admin_dashboard.js' %}"></script>
+{% endblock %}

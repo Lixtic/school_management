@@ -24,6 +24,7 @@ urlpatterns = [
     path('academics/', include('academics.urls')),
     path('messages/', include('communications.urls')),
     path('attendance/', include('attendance_tracking.urls')),
+    path('dashboard-settings/', include('user_dashboard.urls')),
 ]
 
 if settings.DEBUG:

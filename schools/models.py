@@ -89,11 +89,13 @@ class School(models.Model):
     
     @property
     def student_count(self):
-        return self.student_set.count()
+        from students.models import Student
+        return Student.objects.filter(school=self).count()
     
     @property
     def teacher_count(self):
-        return self.teacher_set.count()
+        from teachers.models import Teacher
+        return Teacher.objects.filter(school=self).count()
     
     @property
     def is_trial(self):

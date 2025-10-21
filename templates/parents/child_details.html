@@ -112,9 +112,9 @@
             </button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="homework-tab" data-bs-toggle="tab" 
-                    data-bs-target="#homework" type="button">
-                <i class="bi bi-journal-text"></i> Homework
+            <button class="nav-link" id="communication-tab" data-bs-toggle="tab" 
+                    data-bs-target="#communication" type="button">
+                <i class="bi bi-chat-dots"></i> Communication
             </button>
         </li>
     </ul>
@@ -130,10 +130,8 @@
                             <thead class="table-light">
                                 <tr>
                                     <th>Subject</th>
-                                    <th>Exam Type</th>
-                                    <th>Marks Obtained</th>
-                                    <th>Total Marks</th>
-                                    <th>Percentage</th>
+                                    <th>Term</th>
+                                    <th>Total Score</th>
                                     <th>Grade</th>
                                     <th>Date</th>
                                 </tr>
@@ -142,10 +140,8 @@
                                 {% for grade in grades %}
                                 <tr>
                                     <td><strong>{{ grade.subject }}</strong></td>
-                                    <td>{{ grade.exam_type }}</td>
-                                    <td>{{ grade.marks_obtained }}</td>
-                                    <td>{{ grade.total_marks }}</td>
-                                    <td>{{ grade.percentage|floatformat:2 }}%</td>
+                                    <td>{{ grade.get_term_display }}</td>
+                                    <td>{{ grade.total_score }}</td>
                                     <td>
                                         <span class="badge 
                                             {% if grade.grade == 'A+' or grade.grade == 'A' %}bg-success
@@ -159,7 +155,7 @@
                                 </tr>
                                 {% empty %}
                                 <tr>
-                                    <td colspan="7" class="text-center text-muted py-4">
+                                    <td colspan="5" class="text-center text-muted py-4">
                                         No grades available yet
                                     </td>
                                 </tr>
@@ -183,7 +179,6 @@
                                     <th>Date</th>
                                     <th>Status</th>
                                     <th>Remarks</th>
-                                    <th>Marked By</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -195,18 +190,15 @@
                                             <span class="badge bg-success">Present</span>
                                         {% elif att.status == 'absent' %}
                                             <span class="badge bg-danger">Absent</span>
-                                        {% elif att.status == 'late' %}
-                                            <span class="badge bg-warning">Late</span>
                                         {% else %}
-                                            <span class="badge bg-info">Excused</span>
+                                            <span class="badge bg-info">{{ att.status|title }}</span>
                                         {% endif %}
                                     </td>
                                     <td>{{ att.remarks|default:"-" }}</td>
-                                    <td>{{ att.marked_by.get_full_name|default:"N/A" }}</td>
                                 </tr>
                                 {% empty %}
                                 <tr>
-                                    <td colspan="4" class="text-center text-muted py-4">
+                                    <td colspan="3" class="text-center text-muted py-4">
                                         No attendance records yet
                                     </td>
                                 </tr>
@@ -218,37 +210,37 @@
             </div>
         </div>
 
-        <!-- Homework Tab -->
-        <div class="tab-pane fade" id="homework" role="tabpanel">
+        <!-- Communication Tab -->
+        <div class="tab-pane fade" id="communication" role="tabpanel">
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title mb-3">Assignments & Homework</h5>
-                    {% if homework %}
-                        <div class="list-group">
-                            {% for hw in homework %}
-                            <div class="list-group-item">
-                                <div class="d-flex w-100 justify-content-between">
-                                    <h6 class="mb-1">{{ hw.title }}</h6>
-                                    <small>{{ hw.assigned_date|date:"M d, Y" }}</small>
-                                </div>
-                                <p class="mb-1">{{ hw.description }}</p>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <small class="text-muted">
-                                        <strong>Subject:</strong> {{ hw.subject }} | 
-                                        <strong>Due:</strong> {{ hw.due_date|date:"F d, Y" }}
-                                    </small>
-                                    {% if hw.attachment %}
-                                        <a href="{{ hw.attachment.url }}" class="btn btn-sm btn-outline-primary" download>
-                                            <i class="bi bi-download"></i> Download
-                                        </a>
+                    <h5 class="card-title mb-3">Communication with Teachers</h5>
+                    <a href="{% url 'inbox' %}" class="btn btn-primary mb-3">
+                        <i class="bi bi-plus-circle"></i> New Message
+                    </a>
+                    <div class="list-group">
+                        {% for message in communications %}
+                        <a href="{% url 'view_message' message.id %}" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">
+                                    <i class="bi bi-person-fill"></i> 
+                                    {% if message.sender == request.user %}
+                                        To: {{ message.recipient.get_full_name }}
+                                    {% else %}
+                                        From: {{ message.sender.get_full_name }}
                                     {% endif %}
-                                </div>
+                                </h6>
+                                <small>{{ message.timestamp|timesince }} ago</small>
                             </div>
-                            {% endfor %}
+                            <p class="mb-1">{{ message.subject }}</p>
+                            <small class="text-muted">{{ message.body|truncatewords:15 }}</small>
+                        </a>
+                        {% empty %}
+                        <div class="text-center text-muted py-4">
+                            No messages with teachers yet.
                         </div>
-                    {% else %}
-                        <p class="text-center text-muted py-4">No homework assigned yet</p>
-                    {% endif %}
+                        {% endfor %}
+                    </div>
                 </div>
             </div>
         </div>

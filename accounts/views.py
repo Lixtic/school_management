@@ -85,7 +85,7 @@ def dashboard(request):
         context['total_subjects'] = Subject.objects.filter(school=school).count()
 
         students_by_class = Class.objects.filter(school=school).annotate(
-            student_count=Count('student_set')
+            student_count=Count('student')
         ).values('name', 'student_count').order_by('name')
         
         context['class_names'] = json.dumps([c['name'] for c in students_by_class])

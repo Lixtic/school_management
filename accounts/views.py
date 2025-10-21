@@ -71,9 +71,9 @@ def dashboard(request):
     context = {'widgets': widgets}
 
     if user.user_type == 'admin':
-        from students.models import Student
+        from students.models import Student, Attendance
         from teachers.models import Teacher
-        from academics.models import Class, Subject, Attendance
+        from academics.models import Class, Subject
         from django.db.models import Count, Q
         import json
         from datetime import datetime, timedelta
@@ -85,7 +85,7 @@ def dashboard(request):
         context['total_subjects'] = Subject.objects.filter(school=school).count()
 
         students_by_class = Class.objects.filter(school=school).annotate(
-            student_count=Count('students')
+            student_count=Count('student')
         ).values('name', 'student_count').order_by('name')
         
         context['class_names'] = json.dumps([c['name'] for c in students_by_class])

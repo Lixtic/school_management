@@ -4,7 +4,7 @@
     "**/*.pyc": true
   },
   "[django-html]": {
-    "editor.defaultFormatter": "None"
+    "editor.defaultFormatter": null
   },
   "files.associations": {
     "*.html": "django-html"

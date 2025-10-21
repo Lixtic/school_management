@@ -26,10 +26,10 @@ def login_view(request):
             return redirect('dashboard')
         else:
             messages.error(request, 'Invalid username or password. Please try again.')
-            return redirect('home')
+            return render(request, 'accounts/home.html')
     
-    # If GET request, redirect to home
-    return redirect('home')
+    # If GET request, render home page (which contains the login modal)
+    return render(request, 'accounts/home.html')
 
 
 @login_required

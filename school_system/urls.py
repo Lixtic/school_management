@@ -13,10 +13,8 @@ admin.site.index_title = "Welcome to Girls Model JHS Management System"
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', account_views.home_view, name='home'),
-    path('login/', account_views.login_view, name='login'),
-    path('logout/', account_views.logout_view, name='logout'),
-    path('dashboard/', account_views.dashboard, name='dashboard'),
     path('api/global-search/', search_views.global_search_api, name='global_search_api'),
+    path('accounts/', include('accounts.urls')),
     path('schools/', include('schools.urls')),
     path('teachers/', include('teachers.urls')),
     path('students/', include('students.urls')),

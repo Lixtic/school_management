@@ -77,23 +77,37 @@ def child_details(request, student_id):
     
     average_percentage = 0
     if grades.exists():
-        total_percentage = sum([g.percentage for g in grades])
+        total_percentage = sum([float(g.total_score) for g in grades])
         average_percentage = round(total_percentage / grades.count(), 2)
     
     overall_grade = 'N/A'
-    if average_percentage >= 90: overall_grade = 'A+'
-    elif average_percentage >= 80: overall_grade = 'A'
-    elif average_percentage >= 70: overall_grade = 'B+'
-    elif average_percentage >= 60: overall_grade = 'B'
-    elif average_percentage >= 50: overall_grade = 'C'
-    elif grades.exists(): overall_grade = 'F'
+    if average_percentage >= 80: overall_grade = 'Highest'
+    elif average_percentage >= 70: overall_grade = 'Higher'
+    elif average_percentage >= 65: overall_grade = 'High'
+    elif average_percentage >= 60: overall_grade = 'High Average'
+    elif average_percentage >= 55: overall_grade = 'Average'
+    elif average_percentage >= 50: overall_grade = 'Low Average'
+    elif average_percentage >= 45: overall_grade = 'Low'
+    elif average_percentage >= 40: overall_grade = 'Lower'
+    elif grades.exists(): overall_grade = 'Lowest'
 
     # Fetch communication with teachers
-    teacher_ids = student.current_class.teachers.values_list('user_id', flat=True)
-    communications = Message.objects.filter(
-        (Q(sender=request.user) & Q(recipient_id__in=teacher_ids)) |
-        (Q(sender_id__in=teacher_ids) & Q(recipient=request.user))
-    ).order_by('-timestamp')
+    # Get all teachers teaching this class through ClassSubject
+    teacher_ids = []
+    try:
+        from academics.models import ClassSubject
+        class_subjects = ClassSubject.objects.filter(class_name=student.current_class)
+        teacher_ids = class_subjects.values_list('teacher__user_id', flat=True).distinct()
+    except:
+        teacher_ids = []
+    
+    if teacher_ids:
+        communications = Message.objects.filter(
+            (Q(sender=request.user) & Q(recipient_id__in=teacher_ids)) |
+            (Q(sender_id__in=teacher_ids) & Q(recipient=request.user))
+        ).order_by('-timestamp')
+    else:
+        communications = Message.objects.none()
 
     context = {
         'student': student,

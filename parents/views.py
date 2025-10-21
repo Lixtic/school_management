@@ -105,7 +105,7 @@ def child_details(request, student_id):
         communications = Message.objects.filter(
             (Q(sender=request.user) & Q(recipient_id__in=teacher_ids)) |
             (Q(sender_id__in=teacher_ids) & Q(recipient=request.user))
-        ).order_by('-timestamp')
+        ).order_by('-sent_at')
     else:
         communications = Message.objects.none()
 

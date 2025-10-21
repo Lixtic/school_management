@@ -230,7 +230,7 @@
                                         From: {{ message.sender.get_full_name }}
                                     {% endif %}
                                 </h6>
-                                <small>{{ message.timestamp|timesince }} ago</small>
+                                <small>{{ message.sent_at|timesince }} ago</small>
                             </div>
                             <p class="mb-1">{{ message.subject }}</p>
                             <small class="text-muted">{{ message.body|truncatewords:15 }}</small>

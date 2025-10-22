@@ -672,48 +672,84 @@
                 <!-- Admin Only Links -->
                 {% if user.user_type == 'admin' %}
                 <div class="nav-section-header">
-                    <span class="nav-text">Administration</span>
+                    <span class="nav-text">School Management</span>
                 </div>
                 
                 <div class="nav-item">
-                    <a href="{% url 'schools:profile' %}" class="nav-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
-                        <i class="bi bi-building-gear"></i>
-                        <span class="nav-text">School Profile</span>
+                    <a href="{% url 'school_admin:students' %}" class="nav-link {% if 'school/admin/students' in request.path %}active{% endif %}">
+                        <i class="bi bi-people"></i>
+                        <span class="nav-text">Manage Students</span>
                     </a>
                 </div>
                 
                 <div class="nav-item">
-                    <a href="{% url 'academics:academic_year_list' %}" class="nav-link {% if 'academic_year' in request.path %}active{% endif %}">
-                        <i class="bi bi-calendar-range"></i>
-                        <span class="nav-text">Academic Years</span>
+                    <a href="{% url 'school_admin:teachers' %}" class="nav-link {% if 'school/admin/teachers' in request.path %}active{% endif %}">
+                        <i class="bi bi-person-badge"></i>
+                        <span class="nav-text">Manage Teachers</span>
                     </a>
                 </div>
                 
                 <div class="nav-item">
-                    <a href="{% url 'academics:class_list' %}" class="nav-link {% if 'classes' in request.path %}active{% endif %}">
+                    <a href="{% url 'school_admin:parents' %}" class="nav-link {% if 'school/admin/parents' in request.path %}active{% endif %}">
+                        <i class="bi bi-person-hearts"></i>
+                        <span class="nav-text">Manage Parents</span>
+                    </a>
+                </div>
+                
+                <div class="nav-item">
+                    <a href="{% url 'school_admin:classes' %}" class="nav-link {% if 'school/admin/classes' in request.path %}active{% endif %}">
                         <i class="bi bi-diagram-3"></i>
                         <span class="nav-text">Classes</span>
                     </a>
                 </div>
                 
+                <div class="nav-section-header">
+                    <span class="nav-text">Quick Actions</span>
+                </div>
+                
                 <div class="nav-item">
-                    <a href="{% url 'academics:subject_list' %}" class="nav-link {% if 'subjects' in request.path %}active{% endif %}">
-                        <i class="bi bi-journal-text"></i>
-                        <span class="nav-text">Subjects</span>
+                    <a href="{% url 'school_admin:add_student' %}" class="nav-link {% if request.resolver_match.url_name == 'add_student' %}active{% endif %}">
+                        <i class="bi bi-person-plus"></i>
+                        <span class="nav-text">Add Student</span>
                     </a>
                 </div>
                 
                 <div class="nav-item">
-                    <a href="{% url 'teachers:list' %}" class="nav-link {% if 'teachers' in request.path %}active{% endif %}">
-                        <i class="bi bi-person-workspace"></i>
-                        <span class="nav-text">Teachers</span>
+                    <a href="{% url 'school_admin:add_teacher' %}" class="nav-link {% if request.resolver_match.url_name == 'add_teacher' %}active{% endif %}">
+                        <i class="bi bi-person-plus-fill"></i>
+                        <span class="nav-text">Add Teacher</span>
                     </a>
                 </div>
                 
                 <div class="nav-item">
-                    <a href="{% url 'parents:parent_list' %}" class="nav-link {% if 'parents' in request.path and 'parent' in request.path %}active{% endif %}">
-                        <i class="bi bi-people-fill"></i>
-                        <span class="nav-text">Parents</span>
+                    <a href="{% url 'school_admin:add_parent' %}" class="nav-link {% if request.resolver_match.url_name == 'add_parent' %}active{% endif %}">
+                        <i class="bi bi-person-add"></i>
+                        <span class="nav-text">Add Parent</span>
+                    </a>
+                </div>
+                
+                <div class="nav-section-header">
+                    <span class="nav-text">Reports & Settings</span>
+                </div>
+                
+                <div class="nav-item">
+                    <a href="{% url 'school_admin:attendance' %}" class="nav-link {% if 'school/admin/attendance' in request.path %}active{% endif %}">
+                        <i class="bi bi-calendar-check"></i>
+                        <span class="nav-text">Attendance Reports</span>
+                    </a>
+                </div>
+                
+                <div class="nav-item">
+                    <a href="{% url 'school_admin:reports' %}" class="nav-link {% if request.resolver_match.url_name == 'reports' %}active{% endif %}">
+                        <i class="bi bi-file-earmark-bar-graph"></i>
+                        <span class="nav-text">Reports</span>
+                    </a>
+                </div>
+                
+                <div class="nav-item">
+                    <a href="{% url 'school_admin:settings' %}" class="nav-link {% if request.resolver_match.url_name == 'settings' %}active{% endif %}">
+                        <i class="bi bi-gear"></i>
+                        <span class="nav-text">Settings</span>
                     </a>
                 </div>
                 

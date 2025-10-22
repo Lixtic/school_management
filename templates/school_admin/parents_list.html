@@ -1,18 +1,18 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Teachers Management - School Admin{% endblock %}
+{% block title %}Parents Management - School Admin{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2><i class="bi bi-person-badge-fill"></i> Teachers Management</h2>
+        <h2><i class="bi bi-people"></i> Parents Management</h2>
         <div>
             <a href="{% url 'school_admin:dashboard' %}" class="btn btn-outline-secondary">
                 <i class="bi bi-arrow-left"></i> Back to Dashboard
             </a>
-            <a href="{% url 'school_admin:add_teacher' %}" class="btn btn-primary">
-                <i class="bi bi-person-plus-fill"></i> Add New Teacher
+            <a href="{% url 'school_admin:add_parent' %}" class="btn btn-primary">
+                <i class="bi bi-person-plus-fill"></i> Add New Parent
             </a>
         </div>
     </div>
@@ -23,35 +23,37 @@
                 <table class="table table-hover">
                     <thead>
                         <tr>
-                            <th>Employee ID</th>
                             <th>Name</th>
-                            <th>Subjects</th>
-                            <th>Date of Joining</th>
+                            <th>Relation</th>
+                            <th>Phone</th>
+                            <th>Children</th>
+                            <th>Occupation</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for teacher in teachers %}
+                        {% for parent in parents %}
                         <tr>
-                            <td><strong>{{ teacher.employee_id }}</strong></td>
-                            <td>{{ teacher.user.get_full_name }}</td>
+                            <td><strong>{{ parent.user.get_full_name }}</strong></td>
+                            <td><span class="badge bg-info">{{ parent.get_relation_display }}</span></td>
+                            <td>{{ parent.user.phone|default:"-" }}</td>
                             <td>
-                                {% for subject in teacher.subjects.all %}
-                                <span class="badge bg-success">{{ subject.name }}</span>
+                                {% for child in parent.children.all %}
+                                <span class="badge bg-success">{{ child.user.get_full_name }}</span>
                                 {% empty %}
-                                <span class="text-muted">No subjects assigned</span>
+                                <span class="text-muted">No children</span>
                                 {% endfor %}
                             </td>
-                            <td>{{ teacher.date_of_joining|date:"M d, Y" }}</td>
+                            <td>{{ parent.occupation|default:"-" }}</td>
                             <td>
-                                <a href="{% url 'teachers:teacher_detail' teacher.id %}" class="btn btn-sm btn-outline-primary">
+                                <a href="{% url 'parents:my_children' %}" class="btn btn-sm btn-outline-primary">
                                     <i class="bi bi-eye"></i> View
                                 </a>
                             </td>
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="5" class="text-center text-muted">No teachers found</td>
+                            <td colspan="6" class="text-center text-muted">No parents found</td>
                         </tr>
                         {% endfor %}
                     </tbody>

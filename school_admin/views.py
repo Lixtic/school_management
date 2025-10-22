@@ -4,16 +4,20 @@ Separate from Django admin - this is a custom admin interface for school adminis
 """
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
+from django.contrib.auth import get_user_model
 from django.db.models import Count, Avg, Q
 from django.utils import timezone
 from datetime import timedelta
 from .decorators import school_admin_required
+from .forms import AddTeacherForm, AddStudentForm, AddParentForm
 from students.models import Student, Grade, Attendance
 from teachers.models import Teacher
 from academics.models import Class, Subject, AcademicYear
 from parents.models import Parent
 from communications.models import Message
 from schools.models import School
+
+User = get_user_model()
 
 
 @school_admin_required
@@ -132,6 +136,48 @@ def students_management(request):
 
 
 @school_admin_required
+def add_student(request):
+    """Add a new student"""
+    school = request.user.school
+    
+    if request.method == 'POST':
+        form = AddStudentForm(request.POST, school=school)
+        if form.is_valid():
+            # Create user account
+            user = User.objects.create_user(
+                username=form.cleaned_data['username'],
+                email=form.cleaned_data['email'],
+                password=form.cleaned_data['password'],
+                first_name=form.cleaned_data['first_name'],
+                last_name=form.cleaned_data['last_name'],
+                user_type='student',
+                phone=form.cleaned_data['phone'],
+                address=form.cleaned_data['address'],
+                school=school
+            )
+            
+            # Create student profile
+            student = form.save(commit=False)
+            student.user = user
+            student.school = school
+            student.save()
+            
+            messages.success(
+                request,
+                f'Student {user.get_full_name()} added successfully!'
+            )
+            return redirect('school_admin:students')
+    else:
+        form = AddStudentForm(school=school)
+    
+    context = {
+        'school': school,
+        'form': form,
+    }
+    return render(request, 'school_admin/add_student.html', context)
+
+
+@school_admin_required
 def teachers_management(request):
     """Manage teachers - list, add, edit, delete"""
     school = request.user.school
@@ -144,6 +190,51 @@ def teachers_management(request):
         'teachers': teachers,
     }
     return render(request, 'school_admin/teachers_list.html', context)
+
+
+@school_admin_required
+def add_teacher(request):
+    """Add a new teacher"""
+    school = request.user.school
+    
+    if request.method == 'POST':
+        form = AddTeacherForm(request.POST, school=school)
+        if form.is_valid():
+            # Create user account
+            user = User.objects.create_user(
+                username=form.cleaned_data['username'],
+                email=form.cleaned_data['email'],
+                password=form.cleaned_data['password'],
+                first_name=form.cleaned_data['first_name'],
+                last_name=form.cleaned_data['last_name'],
+                user_type='teacher',
+                phone=form.cleaned_data['phone'],
+                address=form.cleaned_data['address'],
+                school=school
+            )
+            
+            # Create teacher profile
+            teacher = form.save(commit=False)
+            teacher.user = user
+            teacher.school = school
+            teacher.save()
+            
+            # Save many-to-many relationships (subjects)
+            form.save_m2m()
+            
+            messages.success(
+                request,
+                f'Teacher {user.get_full_name()} added successfully!'
+            )
+            return redirect('school_admin:teachers')
+    else:
+        form = AddTeacherForm(school=school)
+    
+    context = {
+        'school': school,
+        'form': form,
+    }
+    return render(request, 'school_admin/add_teacher.html', context)
 
 
 @school_admin_required
@@ -280,3 +371,63 @@ def reports(request):
         'current_year': current_year,
     }
     return render(request, 'school_admin/reports.html', context)
+
+
+@school_admin_required
+def parents_management(request):
+    """Manage parents - list and view"""
+    school = request.user.school
+    parents = Parent.objects.filter(
+        school=school
+    ).select_related('user').prefetch_related('children__user').order_by('user__last_name')
+    
+    context = {
+        'school': school,
+        'parents': parents,
+    }
+    return render(request, 'school_admin/parents_list.html', context)
+
+
+@school_admin_required
+def add_parent(request):
+    """Add a new parent"""
+    school = request.user.school
+    
+    if request.method == 'POST':
+        form = AddParentForm(request.POST, school=school)
+        if form.is_valid():
+            # Create user account
+            user = User.objects.create_user(
+                username=form.cleaned_data['username'],
+                email=form.cleaned_data['email'],
+                password=form.cleaned_data['password'],
+                first_name=form.cleaned_data['first_name'],
+                last_name=form.cleaned_data['last_name'],
+                user_type='parent',
+                phone=form.cleaned_data['phone'],
+                address=form.cleaned_data['address'],
+                school=school
+            )
+            
+            # Create parent profile
+            parent = form.save(commit=False)
+            parent.user = user
+            parent.school = school
+            parent.save()
+            
+            # Save many-to-many relationships (children)
+            form.save_m2m()
+            
+            messages.success(
+                request,
+                f'Parent {user.get_full_name()} added successfully!'
+            )
+            return redirect('school_admin:parents')
+    else:
+        form = AddParentForm(school=school)
+    
+    context = {
+        'school': school,
+        'form': form,
+    }
+    return render(request, 'school_admin/add_parent.html', context)

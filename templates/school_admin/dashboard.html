@@ -140,10 +140,10 @@
         
         <div class="col-md-3">
             <div class="stat-card">
-                <div class="stat-label">Classes</div>
-                <p class="stat-number">{{ total_classes }}</p>
-                <a href="{% url 'school_admin:classes' %}" class="text-decoration-none small">
-                    Manage <i class="bi bi-arrow-right"></i>
+                <div class="stat-label">Total Parents</div>
+                <p class="stat-number">{{ total_parents }}</p>
+                <a href="{% url 'school_admin:parents' %}" class="text-decoration-none small">
+                    View All <i class="bi bi-arrow-right"></i>
                 </a>
             </div>
         </div>
@@ -165,11 +165,14 @@
             <div class="recent-activity">
                 <h5 class="section-title">Quick Actions</h5>
                 <div class="d-flex flex-wrap gap-2">
-                    <a href="{% url 'students:register' %}" class="quick-action-btn">
+                    <a href="{% url 'school_admin:add_student' %}" class="quick-action-btn">
                         <i class="bi bi-person-plus-fill"></i> Add Student
                     </a>
-                    <a href="{% url 'teachers:register' %}" class="quick-action-btn">
+                    <a href="{% url 'school_admin:add_teacher' %}" class="quick-action-btn">
                         <i class="bi bi-person-badge-fill"></i> Add Teacher
+                    </a>
+                    <a href="{% url 'school_admin:add_parent' %}" class="quick-action-btn">
+                        <i class="bi bi-people-fill"></i> Add Parent
                     </a>
                     <a href="{% url 'students:mark_attendance' %}" class="quick-action-btn">
                         <i class="bi bi-calendar-check"></i> Mark Attendance

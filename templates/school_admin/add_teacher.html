@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Add Teacher - School Admin{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-10 mx-auto">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="bi bi-person-plus-fill"></i> Add New Teacher</h2>
+                <a href="{% url 'school_admin:teachers' %}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Back to Teachers
+                </a>
+            </div>
+            
+            <div class="card">
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <!-- User Information -->
+                        <h5 class="mb-3"><i class="bi bi-person-circle"></i> User Information</h5>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label for="id_first_name" class="form-label">First Name *</label>
+                                {{ form.first_name }}
+                                {% if form.first_name.errors %}
+                                <div class="text-danger">{{ form.first_name.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="id_last_name" class="form-label">Last Name *</label>
+                                {{ form.last_name }}
+                                {% if form.last_name.errors %}
+                                <div class="text-danger">{{ form.last_name.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="id_username" class="form-label">Username *</label>
+                                {{ form.username }}
+                                {% if form.username.errors %}
+                                <div class="text-danger">{{ form.username.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="id_password" class="form-label">Password *</label>
+                                {{ form.password }}
+                                {% if form.password.errors %}
+                                <div class="text-danger">{{ form.password.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="id_email" class="form-label">Email *</label>
+                                {{ form.email }}
+                                {% if form.email.errors %}
+                                <div class="text-danger">{{ form.email.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="id_phone" class="form-label">Phone</label>
+                                {{ form.phone }}
+                                {% if form.phone.errors %}
+                                <div class="text-danger">{{ form.phone.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-12">
+                                <label for="id_address" class="form-label">Address</label>
+                                {{ form.address }}
+                                {% if form.address.errors %}
+                                <div class="text-danger">{{ form.address.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Teacher Information -->
+                        <h5 class="mb-3"><i class="bi bi-card-text"></i> Teacher Information</h5>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label for="id_employee_id" class="form-label">Employee ID *</label>
+                                {{ form.employee_id }}
+                                {% if form.employee_id.errors %}
+                                <div class="text-danger">{{ form.employee_id.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="id_date_of_birth" class="form-label">Date of Birth *</label>
+                                {{ form.date_of_birth }}
+                                {% if form.date_of_birth.errors %}
+                                <div class="text-danger">{{ form.date_of_birth.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="id_date_of_joining" class="form-label">Date of Joining *</label>
+                                {{ form.date_of_joining }}
+                                {% if form.date_of_joining.errors %}
+                                <div class="text-danger">{{ form.date_of_joining.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="id_qualification" class="form-label">Qualification *</label>
+                                {{ form.qualification }}
+                                {% if form.qualification.errors %}
+                                <div class="text-danger">{{ form.qualification.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Subjects</label>
+                                {{ form.subjects }}
+                                {% if form.subjects.errors %}
+                                <div class="text-danger">{{ form.subjects.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="bi bi-check-circle"></i> Add Teacher
+                            </button>
+                            <a href="{% url 'school_admin:teachers' %}" class="btn btn-outline-secondary">
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="date"],
+    select,
+    textarea {
+        width: 100%;
+        padding: 0.375rem 0.75rem;
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+    }
+    textarea {
+        resize: vertical;
+    }
+    input[type="checkbox"] {
+        margin-right: 0.5rem;
+    }
+    #id_subjects label {
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+</style>
+{% endblock %}

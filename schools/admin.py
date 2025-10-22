@@ -1,9 +1,10 @@
 from django.contrib import admin
 from .models import School
+from schools.admin_mixins import SchoolFieldAdminMixin
 
 
 @admin.register(School)
-class SchoolAdmin(admin.ModelAdmin):
+class SchoolAdmin(SchoolFieldAdminMixin, admin.ModelAdmin):
     list_display = ['name', 'email', 'phone', 'subscription_status', 'student_count', 'teacher_count', 'created_at']
     list_filter = ['subscription_status', 'is_active', 'created_at']
     search_fields = ['name', 'email', 'slug']
@@ -32,3 +33,4 @@ class SchoolAdmin(admin.ModelAdmin):
             'fields': ('is_active', 'created_at', 'updated_at')
         }),
     )
+

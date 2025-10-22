@@ -2,6 +2,9 @@ from django.db import models
 from django.conf import settings
 
 class Message(models.Model):
+    # Multi-tenant: Link to school
+    school = models.ForeignKey('schools.School', on_delete=models.CASCADE, related_name='messages', null=True, blank=True)
+    
     sender = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='sent_messages')
     recipient = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='received_messages')
     parent_message = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='replies')

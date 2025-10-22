@@ -634,6 +634,24 @@
                 <!-- Teacher Only Links -->
                 {% if user.user_type == 'teacher' %}
                 <div class="nav-item">
+                    <a href="{% url 'students:student_list' %}" class="nav-link {% if request.resolver_match.url_name == 'student_list' %}active{% endif %}">
+                        <i class="bi bi-people"></i>
+                        <span class="nav-text">Students</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="{% url 'students:mark_attendance' %}" class="nav-link {% if request.resolver_match.url_name == 'mark_attendance' %}active{% endif %}">
+                        <i class="bi bi-calendar-check"></i>
+                        <span class="nav-text">Mark Attendance</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="{% url 'attendance_tracking:calendar_view' %}" class="nav-link {% if 'attendance-calendar' in request.path %}active{% endif %}">
+                        <i class="bi bi-calendar3-week"></i>
+                        <span class="nav-text">Attendance Calendar</span>
+                    </a>
+                </div>
+                <div class="nav-item">
                     <a href="{% url 'teachers:my_classes' %}" class="nav-link {% if request.resolver_match.url_name == 'my_classes' %}active{% endif %}">
                         <i class="bi bi-book"></i>
                         <span class="nav-text">My Classes</span>

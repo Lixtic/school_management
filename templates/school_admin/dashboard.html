@@ -5,92 +5,282 @@
 
 {% block extra_css %}
 <style>
+    body {
+        background: #f8fafc;
+    }
+    
     .school-admin-header {
         background: linear-gradient(135deg, {{ school.primary_color|default:"#2563eb" }} 0%, {{ school.secondary_color|default:"#7c3aed" }} 100%);
         color: white;
-        padding: 2rem 0;
-        margin-bottom: 2rem;
-        border-radius: 0.5rem;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        padding: 2.5rem 0;
+        margin: -1rem -15px 2rem -15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .school-admin-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        opacity: 0.3;
+    }
+    
+    .school-admin-header .container {
+        position: relative;
+        z-index: 1;
+    }
+    
+    .school-logo-badge {
+        background: white;
+        padding: 1rem;
+        border-radius: 1rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        display: inline-block;
     }
     
     .stat-card {
         background: white;
-        border-radius: 0.5rem;
-        padding: 1.5rem;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        border-left: 4px solid {{ school.primary_color|default:"#2563eb" }};
-        transition: transform 0.2s, box-shadow 0.2s;
+        border-radius: 1rem;
+        padding: 2rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        border: none;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        height: 100%;
+    }
+    
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+        background: linear-gradient(180deg, {{ school.primary_color|default:"#2563eb" }} 0%, {{ school.secondary_color|default:"#7c3aed" }} 100%);
     }
     
     .stat-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        transform: translateY(-5px);
+        box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+    }
+    
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+        margin-bottom: 1rem;
+        background: linear-gradient(135deg, {{ school.primary_color|default:"#2563eb" }}15 0%, {{ school.secondary_color|default:"#7c3aed" }}15 100%);
+        color: {{ school.primary_color|default:"#2563eb" }};
     }
     
     .stat-number {
-        font-size: 2rem;
-        font-weight: bold;
-        color: {{ school.primary_color|default:"#2563eb" }};
-        margin: 0;
+        font-size: 2.5rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, {{ school.primary_color|default:"#2563eb" }} 0%, {{ school.secondary_color|default:"#7c3aed" }} 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin: 0.5rem 0;
+        line-height: 1;
     }
     
     .stat-label {
-        color: #6b7280;
+        color: #64748b;
         font-size: 0.875rem;
+        font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.05em;
+        margin-bottom: 0.5rem;
+    }
+    
+    .stat-link {
+        color: {{ school.primary_color|default:"#2563eb" }};
+        text-decoration: none;
+        font-size: 0.875rem;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        margin-top: 0.5rem;
+        transition: all 0.2s;
+    }
+    
+    .stat-link:hover {
+        gap: 0.5rem;
+        color: {{ school.secondary_color|default:"#7c3aed" }};
     }
     
     .quick-action-btn {
         display: inline-flex;
         align-items: center;
+        justify-content: center;
         gap: 0.5rem;
-        padding: 0.75rem 1.5rem;
-        background: {{ school.primary_color|default:"#2563eb" }};
+        padding: 0.875rem 1.75rem;
+        background: linear-gradient(135deg, {{ school.primary_color|default:"#2563eb" }} 0%, {{ school.secondary_color|default:"#7c3aed" }} 100%);
         color: white;
-        border-radius: 0.5rem;
+        border-radius: 0.75rem;
         text-decoration: none;
-        transition: all 0.2s;
+        transition: all 0.3s ease;
         border: none;
-        font-weight: 500;
+        font-weight: 600;
+        font-size: 0.9rem;
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        margin: 0.25rem;
     }
     
     .quick-action-btn:hover {
-        background: {{ school.secondary_color|default:"#7c3aed" }};
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(37, 99, 235, 0.4);
         color: white;
-        transform: translateY(-1px);
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    
+    .quick-action-btn i {
+        font-size: 1.1rem;
     }
     
     .recent-activity {
         background: white;
-        border-radius: 0.5rem;
-        padding: 1.5rem;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        border-radius: 1rem;
+        padding: 2rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        height: 100%;
     }
     
     .section-title {
         font-size: 1.25rem;
-        font-weight: 600;
-        color: #1f2937;
-        margin-bottom: 1rem;
-        padding-bottom: 0.5rem;
-        border-bottom: 2px solid {{ school.primary_color|default:"#2563eb" }};
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 3px solid;
+        border-image: linear-gradient(90deg, {{ school.primary_color|default:"#2563eb" }} 0%, {{ school.secondary_color|default:"#7c3aed" }} 100%) 1;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
     }
     
-    .nav-tabs .nav-link.active {
-        background-color: {{ school.primary_color|default:"#2563eb" }};
-        color: white;
-        border-color: {{ school.primary_color|default:"#2563eb" }};
+    .list-group-item {
+        border: none;
+        border-bottom: 1px solid #e2e8f0;
+        padding: 1rem 0;
+        transition: all 0.2s;
+    }
+    
+    .list-group-item:hover {
+        background: #f8fafc;
+        padding-left: 0.5rem;
+    }
+    
+    .list-group-item:last-child {
+        border-bottom: none;
+    }
+    
+    .badge {
+        padding: 0.5rem 1rem;
+        font-weight: 600;
+        border-radius: 0.5rem;
+    }
+    
+    .table {
+        margin-bottom: 0;
+    }
+    
+    .table thead th {
+        background: #f8fafc;
+        color: #475569;
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.05em;
+        border: none;
+        padding: 1rem;
+    }
+    
+    .table tbody tr {
+        transition: all 0.2s;
+    }
+    
+    .table tbody tr:hover {
+        background: #f8fafc;
+        transform: scale(1.01);
+    }
+    
+    .table tbody td {
+        vertical-align: middle;
+        padding: 1rem;
+        border-color: #e2e8f0;
     }
     
     .chart-container {
         background: white;
+        padding: 2rem;
+        border-radius: 1rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+    
+    .chart-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 1.5rem;
+    }
+    
+    .attendance-stat {
+        text-align: center;
         padding: 1.5rem;
-        border-radius: 0.5rem;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        margin-top: 1rem;
+        border-radius: 0.75rem;
+        background: #f8fafc;
+        transition: all 0.2s;
+    }
+    
+    .attendance-stat:hover {
+        background: #e2e8f0;
+        transform: translateY(-2px);
+    }
+    
+    .attendance-stat .number {
+        font-size: 2rem;
+        font-weight: 700;
+        color: {{ school.primary_color|default:"#2563eb" }};
+        margin-bottom: 0.5rem;
+    }
+    
+    .attendance-stat .label {
+        font-size: 0.875rem;
+        color: #64748b;
+        font-weight: 600;
+    }
+    
+    .grade-badge {
+        display: inline-block;
+        min-width: 50px;
+        text-align: center;
+    }
+    
+    @media (max-width: 768px) {
+        .school-admin-header {
+            margin: -1rem -15px 1rem -15px;
+            padding: 1.5rem 0;
+        }
+        
+        .stat-card {
+            margin-bottom: 1rem;
+        }
+        
+        .quick-action-btn {
+            width: 100%;
+            margin: 0.25rem 0;
+        }
     }
 </style>
 {% endblock %}
@@ -101,14 +291,37 @@
     <div class="container">
         <div class="row align-items-center">
             <div class="col-md-8">
-                <h1 class="mb-2">
-                    <i class="bi bi-building"></i> {{ school.name }}
-                </h1>
-                <p class="mb-0 opacity-90">School Administration Dashboard</p>
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="stat-icon" style="background: rgba(255,255,255,0.2); color: white; font-size: 2.5rem;">
+                        <i class="bi bi-building"></i>
+                    </div>
+                    <div>
+                        <h1 class="mb-1" style="font-size: 2.5rem; font-weight: 700;">
+                            {{ school.name }}
+                        </h1>
+                        <p class="mb-0 opacity-90" style="font-size: 1.1rem;">
+                            <i class="bi bi-speedometer2"></i> School Administration Dashboard
+                        </p>
+                    </div>
+                </div>
+                <div class="d-flex gap-3 mt-3">
+                    <span class="badge bg-light text-dark px-3 py-2">
+                        <i class="bi bi-calendar-check"></i> Academic Year: {{ current_year.name }}
+                    </span>
+                    <span class="badge bg-light text-dark px-3 py-2">
+                        <i class="bi bi-geo-alt"></i> {{ school.city }}, {{ school.country }}
+                    </span>
+                </div>
             </div>
-            <div class="col-md-4 text-md-end">
+            <div class="col-md-4 text-md-end mt-3 mt-md-0">
                 {% if school.logo %}
-                <img src="{{ school.logo.url }}" alt="{{ school.name }}" style="max-height: 80px; background: white; padding: 10px; border-radius: 8px;">
+                <div class="school-logo-badge">
+                    <img src="{{ school.logo.url }}" alt="{{ school.name }}" style="max-height: 80px; max-width: 200px;">
+                </div>
+                {% else %}
+                <div class="school-logo-badge" style="width: 120px; height: 120px; display: flex; align-items: center; justify-content: center;">
+                    <i class="bi bi-building" style="font-size: 4rem; color: {{ school.primary_color|default:'#2563eb' }};"></i>
+                </div>
                 {% endif %}
             </div>
         </div>
@@ -120,40 +333,52 @@
     <div class="row g-4 mb-4">
         <div class="col-md-3">
             <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="bi bi-people-fill"></i>
+                </div>
                 <div class="stat-label">Total Students</div>
                 <p class="stat-number">{{ total_students }}</p>
-                <a href="{% url 'school_admin:students' %}" class="text-decoration-none small">
-                    View All <i class="bi bi-arrow-right"></i>
+                <a href="{% url 'school_admin:students' %}" class="stat-link">
+                    View All Students <i class="bi bi-arrow-right"></i>
                 </a>
             </div>
         </div>
         
         <div class="col-md-3">
             <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="bi bi-person-badge-fill"></i>
+                </div>
                 <div class="stat-label">Total Teachers</div>
                 <p class="stat-number">{{ total_teachers }}</p>
-                <a href="{% url 'school_admin:teachers' %}" class="text-decoration-none small">
-                    View All <i class="bi bi-arrow-right"></i>
+                <a href="{% url 'school_admin:teachers' %}" class="stat-link">
+                    View All Teachers <i class="bi bi-arrow-right"></i>
                 </a>
             </div>
         </div>
         
         <div class="col-md-3">
             <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="bi bi-person-hearts"></i>
+                </div>
                 <div class="stat-label">Total Parents</div>
                 <p class="stat-number">{{ total_parents }}</p>
-                <a href="{% url 'school_admin:parents' %}" class="text-decoration-none small">
-                    View All <i class="bi bi-arrow-right"></i>
+                <a href="{% url 'school_admin:parents' %}" class="stat-link">
+                    View All Parents <i class="bi bi-arrow-right"></i>
                 </a>
             </div>
         </div>
         
         <div class="col-md-3">
             <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="bi bi-calendar-check-fill"></i>
+                </div>
                 <div class="stat-label">Attendance Rate</div>
                 <p class="stat-number">{{ attendance_percentage }}%</p>
-                <a href="{% url 'school_admin:attendance' %}" class="text-decoration-none small">
-                    View Report <i class="bi bi-arrow-right"></i>
+                <a href="{% url 'school_admin:attendance' %}" class="stat-link">
+                    View Attendance <i class="bi bi-arrow-right"></i>
                 </a>
             </div>
         </div>
@@ -163,8 +388,10 @@
     <div class="row mb-4">
         <div class="col-12">
             <div class="recent-activity">
-                <h5 class="section-title">Quick Actions</h5>
-                <div class="d-flex flex-wrap gap-2">
+                <h5 class="section-title">
+                    <i class="bi bi-lightning-fill"></i> Quick Actions
+                </h5>
+                <div class="d-flex flex-wrap justify-content-center">
                     <a href="{% url 'school_admin:add_student' %}" class="quick-action-btn">
                         <i class="bi bi-person-plus-fill"></i> Add Student
                     </a>
@@ -181,10 +408,10 @@
                         <i class="bi bi-pencil-square"></i> Enter Grades
                     </a>
                     <a href="{% url 'school_admin:reports' %}" class="quick-action-btn">
-                        <i class="bi bi-file-earmark-bar-graph"></i> View Reports
+                        <i class="bi bi-file-earmark-bar-graph"></i> Reports
                     </a>
                     <a href="{% url 'school_admin:settings' %}" class="quick-action-btn">
-                        <i class="bi bi-gear-fill"></i> School Settings
+                        <i class="bi bi-gear-fill"></i> Settings
                     </a>
                 </div>
             </div>
@@ -196,25 +423,49 @@
         <!-- Recent Students -->
         <div class="col-md-6 mb-4">
             <div class="recent-activity">
-                <h5 class="section-title">Recently Admitted Students</h5>
+                <h5 class="section-title">
+                    <i class="bi bi-person-check-fill"></i> Recently Admitted Students
+                </h5>
                 {% if recent_students %}
                 <div class="list-group list-group-flush">
                     {% for student in recent_students %}
                     <div class="list-group-item d-flex justify-content-between align-items-center">
-                        <div>
-                            <strong>{{ student.user.get_full_name }}</strong>
-                            <br>
-                            <small class="text-muted">
-                                {{ student.admission_number }} - 
-                                {% if student.current_class %}{{ student.current_class.name }}{% else %}No Class{% endif %}
-                            </small>
+                        <div class="d-flex align-items-center">
+                            <div class="stat-icon me-3" style="width: 40px; height: 40px; font-size: 1rem;">
+                                <i class="bi bi-person-circle"></i>
+                            </div>
+                            <div>
+                                <strong class="d-block">{{ student.user.get_full_name }}</strong>
+                                <small class="text-muted">
+                                    <i class="bi bi-hash"></i> {{ student.admission_number }} 
+                                    <span class="mx-1">•</span>
+                                    {% if student.current_class %}
+                                        <i class="bi bi-mortarboard"></i> {{ student.current_class.name }}
+                                    {% else %}
+                                        <i class="bi bi-exclamation-circle"></i> No Class
+                                    {% endif %}
+                                </small>
+                            </div>
                         </div>
-                        <small class="text-muted">{{ student.date_of_admission }}</small>
+                        <div class="text-end">
+                            <small class="text-muted d-block">
+                                <i class="bi bi-calendar-event"></i>
+                            </small>
+                            <small class="text-muted">{{ student.date_of_admission }}</small>
+                        </div>
                     </div>
                     {% endfor %}
                 </div>
+                <div class="mt-3 text-center">
+                    <a href="{% url 'school_admin:students' %}" class="btn btn-sm btn-outline-primary">
+                        View All Students <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
                 {% else %}
-                <p class="text-muted">No recent students</p>
+                <div class="text-center py-4">
+                    <i class="bi bi-inbox" style="font-size: 3rem; color: #cbd5e1;"></i>
+                    <p class="text-muted mt-2">No recent students</p>
+                </div>
                 {% endif %}
             </div>
         </div>
@@ -222,22 +473,44 @@
         <!-- Recent Grades -->
         <div class="col-md-6 mb-4">
             <div class="recent-activity">
-                <h5 class="section-title">Recent Grade Entries</h5>
+                <h5 class="section-title">
+                    <i class="bi bi-clipboard-data-fill"></i> Recent Grade Entries
+                </h5>
                 {% if recent_grades %}
                 <div class="list-group list-group-flush">
                     {% for grade in recent_grades %}
                     <div class="list-group-item d-flex justify-content-between align-items-center">
-                        <div>
-                            <strong>{{ grade.student.user.get_full_name }}</strong>
-                            <br>
-                            <small class="text-muted">{{ grade.subject.name }} - {{ grade.get_term_display }}</small>
+                        <div class="d-flex align-items-center">
+                            <div class="stat-icon me-3" style="width: 40px; height: 40px; font-size: 1rem;">
+                                <i class="bi bi-trophy-fill"></i>
+                            </div>
+                            <div>
+                                <strong class="d-block">{{ grade.student.user.get_full_name }}</strong>
+                                <small class="text-muted">
+                                    <i class="bi bi-book"></i> {{ grade.subject.name }} 
+                                    <span class="mx-1">•</span>
+                                    <i class="bi bi-calendar3"></i> {{ grade.get_term_display }}
+                                </small>
+                            </div>
                         </div>
-                        <span class="badge bg-primary rounded-pill">{{ grade.total_score }}%</span>
+                        <div>
+                            <span class="badge bg-primary rounded-pill" style="font-size: 0.9rem; padding: 0.5rem 0.75rem;">
+                                {{ grade.total_score }}%
+                            </span>
+                        </div>
                     </div>
                     {% endfor %}
                 </div>
+                <div class="mt-3 text-center">
+                    <a href="{% url 'teachers:enter_grades' %}" class="btn btn-sm btn-outline-primary">
+                        View All Grades <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
                 {% else %}
-                <p class="text-muted">No recent grades</p>
+                <div class="text-center py-4">
+                    <i class="bi bi-clipboard-x" style="font-size: 3rem; color: #cbd5e1;"></i>
+                    <p class="text-muted mt-2">No recent grades</p>
+                </div>
                 {% endif %}
             </div>
         </div>
@@ -247,37 +520,50 @@
     <div class="row">
         <div class="col-12 mb-4">
             <div class="recent-activity">
-                <h5 class="section-title">Class Overview</h5>
+                <h5 class="section-title">
+                    <i class="bi bi-diagram-3-fill"></i> Class Overview
+                </h5>
                 {% if classes_data %}
                 <div class="table-responsive">
                     <table class="table table-hover">
                         <thead>
                             <tr>
-                                <th>Class Name</th>
-                                <th>Academic Year</th>
-                                <th>Class Teacher</th>
-                                <th>Student Count</th>
-                                <th>Actions</th>
+                                <th><i class="bi bi-mortarboard me-2"></i>Class Name</th>
+                                <th><i class="bi bi-calendar-range me-2"></i>Academic Year</th>
+                                <th><i class="bi bi-person-badge me-2"></i>Class Teacher</th>
+                                <th><i class="bi bi-people me-2"></i>Students</th>
+                                <th class="text-center">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for class in classes_data %}
                             <tr>
-                                <td><strong>{{ class.name }}</strong></td>
-                                <td>{{ class.academic_year.name }}</td>
+                                <td>
+                                    <strong class="text-primary">{{ class.name }}</strong>
+                                </td>
+                                <td>
+                                    <span class="badge bg-light text-dark">
+                                        {{ class.academic_year.name }}
+                                    </span>
+                                </td>
                                 <td>
                                     {% if class.class_teacher %}
-                                    {{ class.class_teacher.user.get_full_name }}
+                                        <i class="bi bi-check-circle-fill text-success me-1"></i>
+                                        {{ class.class_teacher.user.get_full_name }}
                                     {% else %}
-                                    <span class="text-muted">Not assigned</span>
+                                        <i class="bi bi-exclamation-circle text-warning me-1"></i>
+                                        <span class="text-muted">Not assigned</span>
                                     {% endif %}
                                 </td>
                                 <td>
-                                    <span class="badge bg-info">{{ class.student_count }} students</span>
+                                    <span class="badge bg-info rounded-pill">
+                                        <i class="bi bi-people-fill me-1"></i>
+                                        {{ class.student_count }}
+                                    </span>
                                 </td>
-                                <td>
+                                <td class="text-center">
                                     <a href="{% url 'school_admin:classes' %}" class="btn btn-sm btn-outline-primary">
-                                        <i class="bi bi-list"></i> Manage
+                                        <i class="bi bi-gear-fill"></i> Manage
                                     </a>
                                 </td>
                             </tr>
@@ -285,8 +571,19 @@
                         </tbody>
                     </table>
                 </div>
+                <div class="mt-3 text-center">
+                    <a href="{% url 'school_admin:classes' %}" class="btn btn-primary">
+                        <i class="bi bi-plus-circle"></i> View All Classes
+                    </a>
+                </div>
                 {% else %}
-                <p class="text-muted">No classes available</p>
+                <div class="text-center py-5">
+                    <i class="bi bi-building-slash" style="font-size: 4rem; color: #cbd5e1;"></i>
+                    <p class="text-muted mt-3">No classes available</p>
+                    <a href="{% url 'school_admin:classes' %}" class="btn btn-primary mt-2">
+                        <i class="bi bi-plus-circle"></i> Add Your First Class
+                    </a>
+                </div>
                 {% endif %}
             </div>
         </div>
@@ -296,39 +593,84 @@
     <div class="row">
         <div class="col-md-6 mb-4">
             <div class="chart-container">
-                <h6 class="fw-bold mb-3">Attendance Summary (Last 7 Days)</h6>
-                <div class="row text-center">
-                    <div class="col-3">
-                        <div class="text-success fw-bold fs-4">{{ attendance_stats.present }}</div>
-                        <small class="text-muted">Present</small>
+                <h6 class="chart-title">
+                    <i class="bi bi-calendar-check-fill me-2"></i>Attendance Summary (Last 7 Days)
+                </h6>
+                <div class="row g-3">
+                    <div class="col-6 col-md-3">
+                        <div class="attendance-stat" style="border-left: 4px solid #22c55e;">
+                            <i class="bi bi-check-circle-fill text-success mb-2" style="font-size: 2rem;"></i>
+                            <div class="fw-bold fs-3 text-success">{{ attendance_stats.present }}</div>
+                            <small class="text-muted d-block mt-1">Present</small>
+                        </div>
                     </div>
-                    <div class="col-3">
-                        <div class="text-danger fw-bold fs-4">{{ attendance_stats.absent }}</div>
-                        <small class="text-muted">Absent</small>
+                    <div class="col-6 col-md-3">
+                        <div class="attendance-stat" style="border-left: 4px solid #ef4444;">
+                            <i class="bi bi-x-circle-fill text-danger mb-2" style="font-size: 2rem;"></i>
+                            <div class="fw-bold fs-3 text-danger">{{ attendance_stats.absent }}</div>
+                            <small class="text-muted d-block mt-1">Absent</small>
+                        </div>
                     </div>
-                    <div class="col-3">
-                        <div class="text-warning fw-bold fs-4">{{ attendance_stats.late }}</div>
-                        <small class="text-muted">Late</small>
+                    <div class="col-6 col-md-3">
+                        <div class="attendance-stat" style="border-left: 4px solid #f59e0b;">
+                            <i class="bi bi-clock-fill text-warning mb-2" style="font-size: 2rem;"></i>
+                            <div class="fw-bold fs-3 text-warning">{{ attendance_stats.late }}</div>
+                            <small class="text-muted d-block mt-1">Late</small>
+                        </div>
                     </div>
-                    <div class="col-3">
-                        <div class="text-info fw-bold fs-4">{{ attendance_stats.excused }}</div>
-                        <small class="text-muted">Excused</small>
+                    <div class="col-6 col-md-3">
+                        <div class="attendance-stat" style="border-left: 4px solid #3b82f6;">
+                            <i class="bi bi-info-circle-fill text-info mb-2" style="font-size: 2rem;"></i>
+                            <div class="fw-bold fs-3 text-info">{{ attendance_stats.excused }}</div>
+                            <small class="text-muted d-block mt-1">Excused</small>
+                        </div>
                     </div>
+                </div>
+                <div class="mt-4 text-center">
+                    <a href="{% url 'school_admin:attendance' %}" class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-graph-up"></i> View Detailed Report
+                    </a>
                 </div>
             </div>
         </div>
         
         <div class="col-md-6 mb-4">
             <div class="chart-container">
-                <h6 class="fw-bold mb-3">Academic Performance</h6>
-                <div class="text-center">
-                    <div class="display-4 fw-bold" style="color: {{ school.primary_color|default:'#2563eb' }}">
-                        {{ avg_performance }}%
+                <h6 class="chart-title">
+                    <i class="bi bi-graph-up-arrow me-2"></i>Academic Performance
+                </h6>
+                <div class="text-center py-4">
+                    <div class="position-relative d-inline-block">
+                        <div class="display-3 fw-bold" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+                            {{ avg_performance }}%
+                        </div>
+                        <i class="bi bi-trophy-fill position-absolute" style="font-size: 1.5rem; color: #fbbf24; top: -10px; right: -30px;"></i>
                     </div>
-                    <p class="text-muted mb-0">Average Score</p>
+                    <p class="text-muted mb-1 mt-3 fw-semibold">Average Score</p>
                     {% if current_year %}
-                    <small class="text-muted">{{ current_year.name }}</small>
+                    <span class="badge bg-light text-dark">
+                        <i class="bi bi-calendar-event"></i> {{ current_year.name }}
+                    </span>
                     {% endif %}
+                </div>
+                <div class="mt-4">
+                    <div class="d-flex justify-content-between mb-2">
+                        <small class="text-muted">Performance Indicator</small>
+                        <small class="text-muted">{{ avg_performance }}%</small>
+                    </div>
+                    <div class="progress" style="height: 10px; border-radius: 10px;">
+                        <div class="progress-bar" role="progressbar" 
+                             style="width: {{ avg_performance }}%; background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);" 
+                             aria-valuenow="{{ avg_performance }}" 
+                             aria-valuemin="0" 
+                             aria-valuemax="100">
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-4 text-center">
+                    <a href="{% url 'school_admin:reports' %}" class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-file-earmark-bar-graph"></i> View Full Analytics
+                    </a>
                 </div>
             </div>
         </div>
@@ -340,5 +682,43 @@
 <script>
     // Add any interactive JavaScript here
     console.log('School Admin Dashboard loaded for {{ school.name }}');
+    
+    // Smooth scroll for internal links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+    });
+    
+    // Add animation on stat cards when they come into view
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -100px 0px'
+    };
+    
+    const observer = new IntersectionObserver(function(entries) {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '0';
+                entry.target.style.transform = 'translateY(20px)';
+                entry.target.style.transition = 'all 0.6s ease-out';
+                
+                setTimeout(() => {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }, 100);
+                
+                observer.unobserve(entry.target);
+            }
+        });
+    }, observerOptions);
+    
+    document.querySelectorAll('.stat-card, .recent-activity, .chart-container').forEach(el => {
+        observer.observe(el);
+    });
 </script>
 {% endblock %}

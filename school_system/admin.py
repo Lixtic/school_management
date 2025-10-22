@@ -10,12 +10,6 @@ class DynamicAdminSite(admin.AdminSite):
     index_template = 'admin/index.html'
     base_site_template = 'admin/base_site.html'
     
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.site_title = "School Management System"
-        self.site_header = "School Management System Administration"
-        self.index_title = "Welcome to School Management System"
-    
     def each_context(self, request):
         """Add dynamic context to every admin page"""
         context = super().each_context(request)
@@ -33,26 +27,16 @@ class DynamicAdminSite(admin.AdminSite):
                 school = user.school
         
         if school:
-            # School-specific admin
+            # School-specific admin - set context variables
             context['school'] = school
             context['site_header'] = f"{school.name} - Administration Panel"
             context['site_title'] = f"{school.name} Admin"
             context['index_title'] = f"Welcome to {school.name} Management"
-            
-            # Update the admin site properties
-            self.site_header = context['site_header']
-            self.site_title = context['site_title']
-            self.index_title = context['index_title']
         else:
             # Super admin or system-wide view
             context['site_header'] = "School Management System - Administration"
             context['site_title'] = "School Management System"
             context['index_title'] = "Welcome to School Management System"
-            
-            # Update the admin site properties
-            self.site_header = context['site_header']
-            self.site_title = context['site_title']
-            self.index_title = context['index_title']
         
         return context
     
@@ -76,9 +60,9 @@ class DynamicAdminSite(admin.AdminSite):
         if school:
             # School-specific admin
             extra_context['school'] = school
-            self.site_header = f"{school.name} - Administration Panel"
-            self.site_title = f"{school.name} Admin"
-            self.index_title = f"Welcome to {school.name} Management"
+            extra_context['site_header'] = f"{school.name} - Administration Panel"
+            extra_context['site_title'] = f"{school.name} Admin"
+            extra_context['index_title'] = f"Welcome to {school.name} Management"
             
             # Add school-specific statistics
             from students.models import Student
@@ -105,9 +89,9 @@ class DynamicAdminSite(admin.AdminSite):
             }
         else:
             # Super admin or system-wide view
-            self.site_header = "School Management System - Administration"
-            self.site_title = "School Management System"
-            self.index_title = "Welcome to School Management System"
+            extra_context['site_header'] = "School Management System - Administration"
+            extra_context['site_title'] = "School Management System"
+            extra_context['index_title'] = "Welcome to School Management System"
             
             # Add system-wide statistics
             from students.models import Student
@@ -122,19 +106,12 @@ class DynamicAdminSite(admin.AdminSite):
                 'total_classes': Class.objects.count(),
             }
         
-        extra_context['site_header'] = self.site_header
-        extra_context['site_title'] = self.site_title
-        extra_context['index_title'] = self.index_title
-        
         return super().index(request, extra_context=extra_context)
 
 
 # Use the custom admin site
 admin.site.__class__ = DynamicAdminSite
 
-# Set initial values
-admin.site.site_header = "School Management System Administration"
-admin.site.site_title = "School Management System"
-admin.site.index_title = "Welcome to School Management System"
+# Set custom templates
 admin.site.index_template = 'admin/index.html'
 admin.site.base_site_template = 'admin/base_site.html'

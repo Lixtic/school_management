@@ -1,9 +1,13 @@
 from django.urls import path
+from django.views.generic import RedirectView
 from . import views
 
 app_name = 'academics'
 
 urlpatterns = [
+    # Redirect base academics/ to classes list
+    path('', RedirectView.as_view(pattern_name='academics:class_list', permanent=False), name='index'),
+    
     # Timetable views
     path('timetable/', views.view_timetable, name='view_timetable'),
     path('timetable/class/<int:class_id>/', views.class_timetable, name='class_timetable'),

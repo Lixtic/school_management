@@ -331,7 +331,7 @@
 <div class="container">
     <!-- Statistics Cards -->
     <div class="row g-4 mb-4">
-        <div class="col-md-3">
+        <div class="col-md-4 col-lg-2">
             <div class="stat-card">
                 <div class="stat-icon">
                     <i class="bi bi-people-fill"></i>
@@ -339,12 +339,12 @@
                 <div class="stat-label">Total Students</div>
                 <p class="stat-number">{{ total_students }}</p>
                 <a href="{% url 'school_admin:students' %}" class="stat-link">
-                    View All Students <i class="bi bi-arrow-right"></i>
+                    View All <i class="bi bi-arrow-right"></i>
                 </a>
             </div>
         </div>
         
-        <div class="col-md-3">
+        <div class="col-md-4 col-lg-2">
             <div class="stat-card">
                 <div class="stat-icon">
                     <i class="bi bi-person-badge-fill"></i>
@@ -352,12 +352,12 @@
                 <div class="stat-label">Total Teachers</div>
                 <p class="stat-number">{{ total_teachers }}</p>
                 <a href="{% url 'school_admin:teachers' %}" class="stat-link">
-                    View All Teachers <i class="bi bi-arrow-right"></i>
+                    View All <i class="bi bi-arrow-right"></i>
                 </a>
             </div>
         </div>
         
-        <div class="col-md-3">
+        <div class="col-md-4 col-lg-2">
             <div class="stat-card">
                 <div class="stat-icon">
                     <i class="bi bi-person-hearts"></i>
@@ -365,12 +365,38 @@
                 <div class="stat-label">Total Parents</div>
                 <p class="stat-number">{{ total_parents }}</p>
                 <a href="{% url 'school_admin:parents' %}" class="stat-link">
-                    View All Parents <i class="bi bi-arrow-right"></i>
+                    View All <i class="bi bi-arrow-right"></i>
                 </a>
             </div>
         </div>
         
-        <div class="col-md-3">
+        <div class="col-md-4 col-lg-2">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="bi bi-diagram-3-fill"></i>
+                </div>
+                <div class="stat-label">Total Classes</div>
+                <p class="stat-number">{{ total_classes }}</p>
+                <a href="{% url 'school_admin:classes' %}" class="stat-link">
+                    View All <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+        
+        <div class="col-md-4 col-lg-2">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="bi bi-book-fill"></i>
+                </div>
+                <div class="stat-label">Total Subjects</div>
+                <p class="stat-number">{{ total_subjects }}</p>
+                <a href="{% url 'academics:subject_list' %}" class="stat-link">
+                    View All <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+        
+        <div class="col-md-4 col-lg-2">
             <div class="stat-card">
                 <div class="stat-icon">
                     <i class="bi bi-calendar-check-fill"></i>
@@ -378,7 +404,7 @@
                 <div class="stat-label">Attendance Rate</div>
                 <p class="stat-number">{{ attendance_percentage }}%</p>
                 <a href="{% url 'school_admin:attendance' %}" class="stat-link">
-                    View Attendance <i class="bi bi-arrow-right"></i>
+                    View Details <i class="bi bi-arrow-right"></i>
                 </a>
             </div>
         </div>

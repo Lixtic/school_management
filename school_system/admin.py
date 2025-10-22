@@ -6,14 +6,50 @@ from schools.models import School
 class DynamicAdminSite(admin.AdminSite):
     """Admin site with dynamic headers based on user's school"""
     
-    # Point to our custom template
+    # Point to our custom templates
     index_template = 'admin/index.html'
+    base_site_template = 'admin/base_site.html'
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.site_title = "School Management System"
         self.site_header = "School Management System Administration"
         self.index_title = "Welcome to School Management System"
+    
+    def each_context(self, request):
+        """Add dynamic context to every admin page"""
+        context = super().each_context(request)
+        
+        user = request.user
+        school = None
+        
+        # Get school for the current user
+        if not user.is_superuser:
+            school = School.objects.filter(admin_user=user).first()
+        
+        if school:
+            # School-specific admin
+            context['school'] = school
+            context['site_header'] = f"{school.name} - Administration Panel"
+            context['site_title'] = f"{school.name} Admin"
+            context['index_title'] = f"Welcome to {school.name} Management"
+            
+            # Update the admin site properties
+            self.site_header = context['site_header']
+            self.site_title = context['site_title']
+            self.index_title = context['index_title']
+        else:
+            # Super admin or system-wide view
+            context['site_header'] = "School Management System - Administration"
+            context['site_title'] = "School Management System"
+            context['index_title'] = "Welcome to School Management System"
+            
+            # Update the admin site properties
+            self.site_header = context['site_header']
+            self.site_title = context['site_title']
+            self.index_title = context['index_title']
+        
+        return context
     
     def index(self, request, extra_context=None):
         """Customize admin index with dynamic headers and statistics"""
@@ -67,10 +103,10 @@ class DynamicAdminSite(admin.AdminSite):
             from students.models import Student
             from teachers.models import Teacher
             from academics.models import Class
-            from schools.models import School
+            from schools.models import School as SchoolModel
             
             extra_context['system_stats'] = {
-                'total_schools': School.objects.count(),
+                'total_schools': SchoolModel.objects.count(),
                 'total_students': Student.objects.count(),
                 'total_teachers': Teacher.objects.count(),
                 'total_classes': Class.objects.count(),
@@ -88,6 +124,7 @@ admin.site.__class__ = DynamicAdminSite
 
 # Set initial values
 admin.site.site_header = "School Management System Administration"
-admin.site.site_title = "School Admin"
+admin.site.site_title = "School Management System"
 admin.site.index_title = "Welcome to School Management System"
 admin.site.index_template = 'admin/index.html'
+admin.site.base_site_template = 'admin/base_site.html'

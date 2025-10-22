@@ -1,0 +1,47 @@
+{% extends "admin/base.html" %}
+{% load i18n static %}
+
+{% block title %}{{ site_title|default:_('Django administration') }} - {{ site_header|default:'School Management System' }}{% endblock %}
+
+{% block extrastyle %}
+    <style>
+        .dynamic-header-banner {
+            background: linear-gradient(135deg, #417690 0%, #2c4f66 100%);
+            color: white;
+            padding: 15px 20px;
+            margin-bottom: 10px;
+            border-radius: 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .dynamic-header-banner h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        .dynamic-header-banner p {
+            margin: 5px 0 0 0;
+            font-size: 13px;
+            opacity: 0.9;
+        }
+        .dynamic-header-banner .school-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-size: 11px;
+            margin-left: 10px;
+        }
+    </style>
+{% endblock %}
+
+{% block branding %}
+<div class="dynamic-header-banner">
+    <h1>
+        {{ site_header|default:'School Management System' }}
+        {% if school %}<span class="school-badge">📊 {{ school.name }}</span>{% endif %}
+    </h1>
+    {% if school %}<p>Logged in as: {{ user.get_full_name|default:user.username }}</p>{% endif %}
+</div>
+<h1 id="site-name"><a href="{% url 'admin:index' %}">{{ site_title|default:_('Django administration') }}</a></h1>
+{% endblock %}
+

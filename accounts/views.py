@@ -71,40 +71,8 @@ def dashboard(request):
     context = {'widgets': widgets}
 
     if user.user_type == 'admin':
-        from students.models import Student, Attendance
-        from teachers.models import Teacher
-        from academics.models import Class, Subject
-        from django.db.models import Count, Q
-        import json
-        from datetime import datetime, timedelta
-
-        school = user.school
-        context['total_students'] = Student.objects.filter(school=school).count()
-        context['total_teachers'] = Teacher.objects.filter(school=school).count()
-        context['total_classes'] = Class.objects.filter(school=school).count()
-        context['total_subjects'] = Subject.objects.filter(school=school).count()
-
-        students_by_class = Class.objects.filter(school=school).annotate(
-            student_count=Count('student')
-        ).values('name', 'student_count').order_by('name')
-        
-        context['class_names'] = json.dumps([c['name'] for c in students_by_class])
-        context['student_counts'] = json.dumps([c['student_count'] for c in students_by_class])
-
-        seven_days_ago = datetime.now().date() - timedelta(days=7)
-        attendance_data = Attendance.objects.filter(
-            student__school=school,
-            date__gte=seven_days_ago
-        ).values('date').annotate(
-            present=Count('id', filter=Q(status='present')),
-            absent=Count('id', filter=Q(status='absent'))
-        ).order_by('date')
-        
-        context['attendance_labels'] = json.dumps([a['date'].strftime('%Y-%m-%d') for a in attendance_data])
-        context['present_count'] = json.dumps([a['present'] for a in attendance_data])
-        context['absent_count'] = json.dumps([a['absent'] for a in attendance_data])
-        
-        return render(request, 'dashboard/admin_dashboard.html', context)
+        # Redirect school admins to the dedicated school admin dashboard
+        return redirect('school_admin:dashboard')
     
     elif user.user_type == 'teacher':
         # ... existing teacher dashboard logic ...

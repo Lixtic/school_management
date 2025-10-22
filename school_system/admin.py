@@ -25,7 +25,12 @@ class DynamicAdminSite(admin.AdminSite):
         
         # Get school for the current user
         if not user.is_superuser:
+            # First try to get school as admin_user
             school = School.objects.filter(admin_user=user).first()
+            
+            # If not found, try to get from user.school field
+            if not school and hasattr(user, 'school') and user.school:
+                school = user.school
         
         if school:
             # School-specific admin
@@ -61,7 +66,12 @@ class DynamicAdminSite(admin.AdminSite):
         
         # Get school for the current user
         if not user.is_superuser:
+            # First try to get school as admin_user
             school = School.objects.filter(admin_user=user).first()
+            
+            # If not found, try to get from user.school field
+            if not school and hasattr(user, 'school') and user.school:
+                school = user.school
         
         if school:
             # School-specific admin

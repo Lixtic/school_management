@@ -25,9 +25,9 @@
                         <tr>
                             <th>Employee ID</th>
                             <th>Name</th>
+                            <th>Email</th>
                             <th>Subjects</th>
                             <th>Date of Joining</th>
-                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -35,6 +35,7 @@
                         <tr>
                             <td><strong>{{ teacher.employee_id }}</strong></td>
                             <td>{{ teacher.user.get_full_name }}</td>
+                            <td>{{ teacher.user.email }}</td>
                             <td>
                                 {% for subject in teacher.subjects.all %}
                                 <span class="badge bg-success">{{ subject.name }}</span>
@@ -43,11 +44,6 @@
                                 {% endfor %}
                             </td>
                             <td>{{ teacher.date_of_joining|date:"M d, Y" }}</td>
-                            <td>
-                                <a href="{% url 'teachers:teacher_detail' teacher.id %}" class="btn btn-sm btn-outline-primary">
-                                    <i class="bi bi-eye"></i> View
-                                </a>
-                            </td>
                         </tr>
                         {% empty %}
                         <tr>

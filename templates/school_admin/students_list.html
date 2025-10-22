@@ -27,8 +27,8 @@
                             <th>Name</th>
                             <th>Class</th>
                             <th>Gender</th>
+                            <th>Email</th>
                             <th>Date of Admission</th>
-                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -44,12 +44,8 @@
                                 {% endif %}
                             </td>
                             <td>{{ student.get_gender_display }}</td>
+                            <td>{{ student.user.email|default:"-" }}</td>
                             <td>{{ student.date_of_admission|date:"M d, Y" }}</td>
-                            <td>
-                                <a href="{% url 'students:student_detail' student.id %}" class="btn btn-sm btn-outline-primary">
-                                    <i class="bi bi-eye"></i> View
-                                </a>
-                            </td>
                         </tr>
                         {% empty %}
                         <tr>

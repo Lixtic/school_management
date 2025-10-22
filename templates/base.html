@@ -736,7 +736,7 @@
                 {% endif %}
                 
                 <div class="nav-item">
-                    <a href="{% url 'inbox' %}" class="nav-link {% if 'messages' in request.path %}active{% endif %}">
+                    <a href="{% url 'messages:inbox' %}" class="nav-link {% if 'messages' in request.path %}active{% endif %}">
                         <i class="bi bi-envelope"></i>
                         <span class="nav-text">Messages</span>
                     </a>

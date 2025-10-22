@@ -23,7 +23,7 @@ def view_message(request, message_id):
     # Check if the user is either the sender or recipient
     if request.user != message.sender and request.user != message.recipient:
         messages.error(request, "You do not have permission to view this message.")
-        return redirect('inbox')
+        return redirect('messages:inbox')
 
     if message.recipient == request.user and not message.is_read:
         message.is_read = True
@@ -41,7 +41,7 @@ def compose_message(request, recipient_id=None):
             message.sender = request.user
             message.save()
             messages.success(request, "Message sent successfully!")
-            return redirect('inbox')
+            return redirect('messages:inbox')
     else:
         initial_data = {}
         if recipient_id:

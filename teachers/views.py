@@ -49,7 +49,12 @@ def enter_grades(request):
         return redirect('dashboard')
     
     school = request.user.school
-    teacher = Teacher.objects.get(user=request.user, school=school)
+    try:
+        teacher = Teacher.objects.get(user=request.user, school=school)
+    except Teacher.DoesNotExist:
+        messages.error(request, 'You are not registered as a teacher in this school.')
+        return redirect('dashboard')
+    
     class_subjects = ClassSubject.objects.filter(
         teacher=teacher,
         school=school

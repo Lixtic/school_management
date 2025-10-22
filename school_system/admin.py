@@ -6,6 +6,9 @@ from schools.models import School
 class DynamicAdminSite(admin.AdminSite):
     """Admin site with dynamic headers based on user's school"""
     
+    # Point to our custom template
+    index_template = 'admin/index.html'
+    
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.site_title = "School Management System"
@@ -35,13 +38,20 @@ class DynamicAdminSite(admin.AdminSite):
             from students.models import Student
             from teachers.models import Teacher
             from academics.models import Class
-            from accounts.models import User
+            from communications.models import Message
+            
+            unread_messages = Message.objects.filter(
+                school=school,
+                recipient=user,
+                is_read=False
+            ).count()
             
             extra_context['school_stats'] = {
                 'school_name': school.name,
                 'total_students': Student.objects.filter(school=school).count(),
                 'total_teachers': Teacher.objects.filter(school=school).count(),
                 'total_classes': Class.objects.filter(school=school).count(),
+                'unread_messages': unread_messages,
                 'subscription_status': school.get_subscription_status_display() if hasattr(school, 'get_subscription_status_display') else school.subscription_status,
                 'is_active': school.is_active,
                 'primary_color': school.primary_color,
@@ -80,3 +90,4 @@ admin.site.__class__ = DynamicAdminSite
 admin.site.site_header = "School Management System Administration"
 admin.site.site_title = "School Admin"
 admin.site.index_title = "Welcome to School Management System"
+admin.site.index_template = 'admin/index.html'

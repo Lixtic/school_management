@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}School Settings - {{ school.name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="bi bi-gear-fill"></i> School Settings</h2>
+        <a href="{% url 'school_admin:dashboard' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Dashboard
+        </a>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">School Information</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="name" class="form-label">School Name</label>
+                            <input type="text" class="form-control" id="name" name="name" value="{{ school.name }}" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" name="email" value="{{ school.email }}" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="phone" class="form-label">Phone</label>
+                            <input type="text" class="form-control" id="phone" name="phone" value="{{ school.phone }}">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="website" class="form-label">Website</label>
+                            <input type="url" class="form-control" id="website" name="website" value="{{ school.website|default:'' }}" placeholder="https://www.example.com">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="address" class="form-label">Address</label>
+                            <textarea class="form-control" id="address" name="address" rows="3">{{ school.address }}</textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="logo" class="form-label">School Logo</label>
+                            {% if school.logo %}
+                            <div class="mb-2">
+                                <img src="{{ school.logo.url }}" alt="Current Logo" style="max-height: 100px;" class="img-thumbnail">
+                            </div>
+                            {% endif %}
+                            <input type="file" class="form-control" id="logo" name="logo" accept="image/*">
+                            <small class="text-muted">Upload a new logo to replace the current one</small>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-save"></i> Save Changes
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card mb-3">
+                <div class="card-header bg-info text-white">
+                    <h6 class="mb-0">School Status</h6>
+                </div>
+                <div class="card-body">
+                    <p><strong>Status:</strong> 
+                        {% if school.is_active %}
+                        <span class="badge bg-success">Active</span>
+                        {% else %}
+                        <span class="badge bg-danger">Inactive</span>
+                        {% endif %}
+                    </p>
+                    <p><strong>Subscription:</strong> 
+                        <span class="badge bg-primary">{{ school.get_subscription_status_display }}</span>
+                    </p>
+                    <p><strong>Created:</strong> {{ school.created_at|date:"M d, Y" }}</p>
+                    <p class="mb-0"><strong>Last Updated:</strong> {{ school.updated_at|date:"M d, Y" }}</p>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header bg-secondary text-white">
+                    <h6 class="mb-0">Branding Colors</h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label">Primary Color</label>
+                        <div class="d-flex align-items-center">
+                            <div style="width: 40px; height: 40px; background: {{ school.primary_color }}; border-radius: 4px; border: 1px solid #ddd;"></div>
+                            <span class="ms-2">{{ school.primary_color }}</span>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="form-label">Secondary Color</label>
+                        <div class="d-flex align-items-center">
+                            <div style="width: 40px; height: 40px; background: {{ school.secondary_color }}; border-radius: 4px; border: 1px solid #ddd;"></div>
+                            <span class="ms-2">{{ school.secondary_color }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

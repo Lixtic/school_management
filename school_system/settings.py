@@ -80,6 +80,7 @@ INSTALLED_APPS = [
     'communications',       # Teacher-parent messaging
     'attendance_tracking',  # Attendance management
     'user_dashboard',       # Customizable user dashboards
+    'school_admin',         # School admin dashboard (separate from Django admin)
 ]
 
 # =====================

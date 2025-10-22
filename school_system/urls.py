@@ -13,6 +13,7 @@ admin.site.index_title = "Welcome to Girls Model JHS Management System"
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('school/admin/', include('school_admin.urls')),  # School admin dashboard
     path('', account_views.home_view, name='home'),
     path('dashboard/', lambda request: redirect('accounts:dashboard'), name='dashboard'),
     path('api/global-search/', search_views.global_search_api, name='global_search_api'),

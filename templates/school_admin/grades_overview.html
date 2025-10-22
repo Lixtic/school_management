@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}Grades Overview - School Admin{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="bi bi-trophy"></i> Grades Overview</h2>
+        <a href="{% url 'school_admin:dashboard' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Dashboard
+        </a>
+    </div>
+    
+    {% if current_year %}
+    <div class="alert alert-info">
+        <strong>Current Academic Year:</strong> {{ current_year.name }}
+    </div>
+    
+    <!-- Subject Performance -->
+    <div class="card mb-4">
+        <div class="card-header bg-success text-white">
+            <h5 class="mb-0">Subject-wise Performance</h5>
+        </div>
+        <div class="card-body">
+            {% if subject_performance %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Subject</th>
+                            <th>Average Score</th>
+                            <th>Total Students</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for perf in subject_performance %}
+                        <tr>
+                            <td><strong>{{ perf.subject__name }}</strong></td>
+                            <td>
+                                <span class="badge bg-primary">{{ perf.avg_score|floatformat:1 }}%</span>
+                            </td>
+                            <td>{{ perf.student_count }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-muted">No performance data available</p>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Recent Grades -->
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Recent Grade Entries</h5>
+        </div>
+        <div class="card-body">
+            {% if grades %}
+            <div class="table-responsive">
+                <table class="table table-sm table-hover">
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Subject</th>
+                            <th>Term</th>
+                            <th>Score</th>
+                            <th>Grade</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for grade in grades %}
+                        <tr>
+                            <td>{{ grade.student.user.get_full_name }}</td>
+                            <td>{{ grade.subject.name }}</td>
+                            <td>{{ grade.get_term_display }}</td>
+                            <td><span class="badge bg-info">{{ grade.total_score }}%</span></td>
+                            <td><span class="badge bg-success">Grade {{ grade.grade }}</span></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-muted">No recent grades</p>
+            {% endif %}
+        </div>
+    </div>
+    
+    {% else %}
+    <div class="alert alert-warning">
+        <strong>Notice:</strong> No current academic year is set. Please set an academic year first.
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -400,17 +400,31 @@
     <div class="report-card">
         <!-- Header Section -->
         <div class="header-section">
-            <div>
-                <div class="header-title">GHANA EDUCATION SERVICE</div>
-                <div class="header-school">DABOYA GIRLS MODEL JUNIOR HIGH SCHOOL</div>
-                <div class="header-contact">P.O. Box 6, Daboya, North Gonja District</div>
-                <div class="header-contact">Tel: 024-0852910</div>
-            </div> <span>
-                {% comment %} <div class="photo-placeholder">
-                <div>Student</div>
-                <div>Photo</div>
-            </div> {% endcomment %}
-            </span>
+            {% if student.school.logo %}
+            <div style="flex-shrink: 0;">
+                <img src="{{ student.school.logo.url }}" alt="{{ student.school.name }} Logo" 
+                     style="width: 80px; height: 80px; object-fit: contain; background: white; border-radius: 8px; padding: 5px;">
+            </div>
+            {% endif %}
+            <div style="flex: 1;">
+                <div class="header-title">{{ student.school.name|upper }}</div>
+                <div class="header-school">{{ student.school.name|upper }}</div>
+                {% if student.school.address %}
+                <div class="header-contact">{{ student.school.address }}{% if student.school.city %}, {{ student.school.city }}{% endif %}</div>
+                {% endif %}
+                {% if student.school.phone %}
+                <div class="header-contact">Tel: {{ student.school.phone }}</div>
+                {% endif %}
+                {% if student.school.email %}
+                <div class="header-contact">Email: {{ student.school.email }}</div>
+                {% endif %}
+            </div>
+            {% if student.school.logo %}
+            <div style="flex-shrink: 0;">
+                <img src="{{ student.school.logo.url }}" alt="{{ student.school.name }} Logo" 
+                     style="width: 80px; height: 80px; object-fit: contain; background: white; border-radius: 8px; padding: 5px;">
+            </div>
+            {% endif %}
 
             
         </div>

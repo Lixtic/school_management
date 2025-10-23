@@ -8,11 +8,38 @@ from .utils import get_timetable_slots
 
 @login_required
 def view_timetable(request):
-    """View class schedule for teachers and students"""
+    """View class schedule for teachers, students, and admins"""
     user = request.user
     context = {}
     
-    if user.user_type == 'teacher':
+    if user.user_type == 'admin':
+        # School admins can view all classes in their school
+        classes = Class.objects.filter(school=user.school).prefetch_related(
+            Prefetch(
+                'classsubject_set',
+                queryset=ClassSubject.objects.select_related('subject', 'teacher', 'teacher__user')
+            )
+        )
+        
+        # Get all schedules for the school
+        schedules = Schedule.objects.filter(
+            class_subject__school=user.school
+        ).select_related(
+            'class_subject',
+            'class_subject__subject',
+            'class_subject__class_name',
+            'class_subject__teacher',
+            'class_subject__teacher__user'
+        )
+        
+        context.update({
+            'classes': classes,
+            'schedules': schedules,
+            'days': Schedule.DAYS_OF_WEEK
+        })
+        template = 'academics/admin_timetable.html'
+        
+    elif user.user_type == 'teacher':
         # Get all classes where this teacher teaches
         class_subjects = ClassSubject.objects.filter(
             teacher__user=user
@@ -89,7 +116,12 @@ def class_timetable(request, class_id):
         class_obj = Class.objects.get(id=class_id)
         
         # Check if user has permission to view this class's timetable
-        if request.user.user_type == 'teacher':
+        if request.user.user_type == 'admin':
+            # Admins can view any class in their school
+            if class_obj.school_id != request.user.school_id:
+                messages.error(request, 'Access denied.')
+                return redirect('dashboard')
+        elif request.user.user_type == 'teacher':
             if not ClassSubject.objects.filter(
                 class_name=class_obj,
                 teacher__user=request.user

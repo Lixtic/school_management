@@ -379,6 +379,16 @@
 </head>
 <body>
     <div class="no-print">
+        <div class="row g-2 mb-3">
+            <div class="col-md-6">
+                <label for="termSelect" class="form-label" style="font-weight: 600;">Select Term:</label>
+                <select id="termSelect" class="form-select" onchange="changeTerm()">
+                    <option value="first" {% if term == 'first' %}selected{% endif %}>First Term</option>
+                    <option value="second" {% if term == 'second' %}selected{% endif %}>Second Term</option>
+                    <option value="third" {% if term == 'third' %}selected{% endif %}>Third Term</option>
+                </select>
+            </div>
+        </div>
         <button onclick="window.print()" class="btn btn-primary me-3">
             <i class="bi bi-printer"></i> Print Report Card
         </button>
@@ -436,10 +446,15 @@
             </tr>
             <tr>
                 <td>{{ report_date|date:"d/m/Y" }}</td>
-                <td>First Term</td>
+                <td>
+                    {% if term == 'first' %}First Term
+                    {% elif term == 'second' %}Second Term
+                    {% elif term == 'third' %}Third Term
+                    {% else %}{{ term }}{% endif %}
+                </td>
                 <td>{{ academic_year.name }}</td>
                 <td>{{ student.admission_number }}</td>
-                <td>{{ student.roll_number|default:"-" }}</td>
+                <td>{{ class_position|default:"-" }}</td>
             </tr>
         </table>
 
@@ -657,6 +672,14 @@
     </div>
 
     <script>
+        // Term change functionality
+        function changeTerm() {
+            const term = document.getElementById('termSelect').value;
+            const currentUrl = new URL(window.location.href);
+            currentUrl.searchParams.set('term', term);
+            window.location.href = currentUrl.toString();
+        }
+        
         // Print functionality
         document.querySelector('.btn-primary').addEventListener('click', function() {
             window.print();

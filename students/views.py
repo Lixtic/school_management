@@ -336,14 +336,19 @@ def generate_report_card(request, student_id):
     # Get current academic year
     academic_year = AcademicYear.objects.filter(is_current=True).first()
     
-    # Get term from request, default to First Term
-    term = request.GET.get('term', 'First Term')
+    if not academic_year:
+        messages.error(request, 'No active academic year found')
+        return redirect('dashboard')
+    
+    # Get term from request, default to 'first'
+    term = request.GET.get('term', 'first')
     
     # Get all grades for current academic year and term
     grades = Grade.objects.filter(
         student=student,
         academic_year=academic_year,
-        term=term
+        term=term,
+        school=student.school
     ).select_related('subject').order_by('subject__name')
     
     # Calculate statistics

@@ -65,7 +65,20 @@ def enter_grades(request):
         subject_id = request.POST.get('subject_id')
         student_ids = request.POST.getlist('student_id[]')
         
+        # Validation
+        if not term:
+            messages.error(request, 'Term is required')
+            return redirect('teachers:enter_grades')
+        
+        if not subject_id:
+            messages.error(request, 'Subject is required')
+            return redirect('teachers:enter_grades')
+        
         academic_year = AcademicYear.objects.filter(school=school, is_current=True).first()
+        
+        if not academic_year:
+            messages.error(request, 'No active academic year found. Please contact administrator.')
+            return redirect('teachers:enter_grades')
         
         for student_id in student_ids:
             class_score = request.POST.get(f'class_score_{student_id}')
@@ -77,11 +90,11 @@ def enter_grades(request):
                 subject_id=subject_id,
                 academic_year=academic_year,
                 term=term,
+                school=school,
                 defaults={
-                    'class_score': class_score,
-                    'exams_score': exams_score,
+                    'class_score': class_score or 0,
+                    'exams_score': exams_score or 0,
                     'created_by': request.user,
-                    'school': school  # Set school on grade
                 }
             )
         

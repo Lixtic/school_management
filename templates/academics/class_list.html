@@ -83,6 +83,17 @@
                                     </td>
                                     <td class="text-end">
                                         <div class="btn-group btn-group-sm" role="group">
+                                            <a href="{% url 'students:class_report_cards' class.pk %}" 
+                                               class="btn btn-outline-success" 
+                                               title="Print Class Report Cards"
+                                               {% if class.students.count == 0 %}disabled{% endif %}>
+                                                <i class="bi bi-file-earmark-text"></i>
+                                            </a>
+                                            <a href="{% url 'academics:class_timetable' class.pk %}" 
+                                               class="btn btn-outline-info" 
+                                               title="View Timetable">
+                                                <i class="bi bi-calendar3"></i>
+                                            </a>
                                             <a href="{% url 'academics:update_class' class.pk %}" 
                                                class="btn btn-outline-primary" 
                                                title="Edit">

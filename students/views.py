@@ -442,6 +442,145 @@ def generate_report_card(request, student_id):
 
 
 @login_required
+def class_report_cards(request, class_id):
+    """Generate printable report cards for an entire class"""
+    
+    # Check permissions - only admin and teachers can access
+    if request.user.user_type not in ['admin', 'teacher']:
+        messages.error(request, 'Access denied')
+        return redirect('dashboard')
+    
+    # Get the class and verify it belongs to user's school
+    class_obj = get_object_or_404(Class, id=class_id, school=request.user.school)
+    
+    # Get current academic year
+    academic_year = AcademicYear.objects.filter(is_current=True).first()
+    
+    if not academic_year:
+        messages.error(request, 'No active academic year found')
+        return redirect('dashboard')
+    
+    # Get term from request, default to 'first'
+    term = request.GET.get('term', 'first')
+    
+    # Get all students in the class
+    students = Student.objects.filter(
+        current_class=class_obj,
+        school=request.user.school
+    ).select_related('user').order_by('roll_number', 'user__first_name')
+    
+    if not students.exists():
+        messages.warning(request, f'No students found in {class_obj.name}')
+        return redirect('academics:class_list')
+    
+    # Build report data for each student
+    student_reports = []
+    
+    for student in students:
+        # Get all grades for current academic year and term
+        grades = Grade.objects.filter(
+            student=student,
+            academic_year=academic_year,
+            term=term,
+            school=student.school
+        ).select_related('subject').order_by('subject__name')
+        
+        # Calculate statistics
+        total_subjects = grades.count()
+        
+        # Calculate totals
+        total_class_work = 0
+        total_exams = 0
+        grand_total = 0
+        
+        if grades.exists():
+            for grade in grades:
+                total_class_work += float(grade.class_score)
+                total_exams += float(grade.exams_score)
+                grand_total += float(grade.total_score)
+            
+            average_percentage = grand_total / total_subjects if total_subjects > 0 else 0
+        else:
+            average_percentage = 0
+        
+        # Calculate overall grade based on average
+        if average_percentage >= 80:
+            overall_grade = '1'
+            overall_remarks = 'Highest'
+        elif average_percentage >= 70:
+            overall_grade = '2'
+            overall_remarks = 'Higher'
+        elif average_percentage >= 65:
+            overall_grade = '3'
+            overall_remarks = 'High'
+        elif average_percentage >= 60:
+            overall_grade = '4'
+            overall_remarks = 'High Average'
+        elif average_percentage >= 55:
+            overall_grade = '5'
+            overall_remarks = 'Average'
+        elif average_percentage >= 50:
+            overall_grade = '6'
+            overall_remarks = 'Low Average'
+        elif average_percentage >= 45:
+            overall_grade = '7'
+            overall_remarks = 'Low'
+        elif average_percentage >= 40:
+            overall_grade = '8'
+            overall_remarks = 'Lower'
+        else:
+            overall_grade = '9'
+            overall_remarks = 'Lowest'
+        
+        # Calculate class position
+        from students.utils import calculate_class_position
+        class_position = calculate_class_position(student, academic_year, term)
+        
+        # Get attendance stats
+        total_attendance = Attendance.objects.filter(student=student).count()
+        present_count = Attendance.objects.filter(student=student, status='present').count()
+        absent_count = Attendance.objects.filter(student=student, status='absent').count()
+        late_count = Attendance.objects.filter(student=student, status='late').count()
+        
+        attendance_percentage = 0
+        if total_attendance > 0:
+            attendance_percentage = round((present_count / total_attendance) * 100, 2)
+        
+        attendance_stats = {
+            'present': present_count,
+            'absent': absent_count,
+            'late': late_count,
+            'total': total_attendance,
+            'percentage': attendance_percentage
+        }
+        
+        student_reports.append({
+            'student': student,
+            'grades': grades,
+            'total_subjects': total_subjects,
+            'total_class_work': total_class_work,
+            'total_exams': total_exams,
+            'grand_total': grand_total,
+            'average_percentage': average_percentage,
+            'overall_grade': overall_grade,
+            'overall_remarks': overall_remarks,
+            'class_position': class_position,
+            'attendance_stats': attendance_stats,
+        })
+    
+    context = {
+        'class_obj': class_obj,
+        'academic_year': academic_year,
+        'term': term,
+        'student_reports': student_reports,
+        'report_date': date.today(),
+        'total_students': students.count(),
+    }
+    
+    return render(request, 'students/class_report_cards.html', context)
+
+
+@login_required
 def register_student(request):
     """View for registering a new student - Admin only"""
     if request.user.user_type != 'admin':

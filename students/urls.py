@@ -10,6 +10,7 @@ urlpatterns = [
     path('get-class-students/<int:class_id>/', views.get_class_students, name='get_class_students'),
     path('dashboard/', views.student_dashboard_view, name='student_dashboard'),
     path('report-card/<int:student_id>/', views.generate_report_card, name='report_card'),
+    path('class-report-cards/<int:class_id>/', views.class_report_cards, name='class_report_cards'),
     path('details/<int:student_id>/', views.student_details_ajax, name='student_details'),
     path('bulk-assign-class/', views.bulk_assign_class, name='bulk_assign_class'),
     path('export/', views.export_students, name='export_students'),

@@ -20,10 +20,11 @@ DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 # =====================
 ALLOWED_HOSTS = ['*']  # Allow all hosts for now
 
-# CSRF Trusted Origins for Railway
+# CSRF Trusted Origins
 CSRF_TRUSTED_ORIGINS = [
     'https://*.railway.app',
-    'https://*.up.railway.app',
+    'https://*.vercel.app',
+    'https://school-portal-inky.vercel.app',
 ]
 
 # Application definition

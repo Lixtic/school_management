@@ -3,8 +3,9 @@
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2>Class Timetable</h2>
+    <h2>{% if is_teacher_schedule %}My Timetable{% else %}Class Timetable{% endif %}</h2>
     
+    {% if not is_teacher_schedule %}
     <form class="d-flex gap-2" method="get">
         <select name="class_id" class="form-select" onchange="this.form.submit()">
             <option value="">Select Class...</option>
@@ -15,12 +16,19 @@
             {% endfor %}
         </select>
     </form>
+    {% endif %}
 </div>
 
-{% if selected_class %}
+{% if selected_class or is_teacher_schedule %}
 <div class="card">
     <div class="card-header bg-white py-3">
-        <h5 class="mb-0 text-primary fw-bold">{{ selected_class.name }} Schedule</h5>
+        <h5 class="mb-0 text-primary fw-bold">
+            {% if is_teacher_schedule %}
+                My Weekly Schedule
+            {% else %}
+                {{ selected_class.name }} Schedule
+            {% endif %}
+        </h5>
     </div>
     <div class="card-body p-0">
         <div class="table-responsive">
@@ -44,10 +52,16 @@
                                         <div class="text-muted small">
                                             <i class="bi bi-clock"></i> {{ entry.start_time|time:"H:i" }} - {{ entry.end_time|time:"H:i" }}
                                         </div>
-                                        {% if entry.class_subject.teacher %}
-                                        <div class="text-muted small mt-1">
-                                            <i class="bi bi-person"></i> {{ entry.class_subject.teacher.user.get_full_name }}
+                                        {% if is_teacher_schedule %}
+                                        <div class="text-dark small mt-1">
+                                            <i class="bi bi-people"></i> {{ entry.class_subject.class_name.name }}
                                         </div>
+                                        {% else %}
+                                            {% if entry.class_subject.teacher %}
+                                            <div class="text-muted small mt-1">
+                                                <i class="bi bi-person"></i> {{ entry.class_subject.teacher.user.get_full_name }}
+                                            </div>
+                                            {% endif %}
                                         {% endif %}
                                     </div>
                                     {% endfor %}

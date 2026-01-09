@@ -107,47 +107,54 @@ def timetable_view(request):
         return redirect('dashboard')
 
     classes = Class.objects.filter(academic_year__is_current=True)
-    selected_class_id = request.GET.get('class_id')
-    
-    # Auto-select class for students/teachers if not specified
-    if not selected_class_id:
-        if request.user.user_type == 'student':
-            student = getattr(request.user, 'student', None)
-            if student and student.current_class:
-                selected_class_id = student.current_class.id
-        elif request.user.user_type == 'teacher':
-            # Pick first class where they teach
-            teacher_classes = ClassSubject.objects.filter(teacher__user=request.user)
-            if teacher_classes.exists():
-                selected_class_id = teacher_classes.first().class_name.id
-            elif classes.exists():
-                selected_class_id = classes.first().id
+    days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
+    timetable_grid = {day: [] for day in days}
     
     selected_class = None
-    timetable_grid = None
+    is_teacher_schedule = False
     
-    if selected_class_id:
-        selected_class = get_object_or_404(Class, id=selected_class_id)
-        entries = Timetable.objects.filter(class_subject__class_name=selected_class).select_related('class_subject__subject', 'class_subject__teacher')
-        
-        # Structure for grid: {day: {start_time: entry}}
-        # But simpler: grouped by day
-        days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
-        timetable_grid = {day: [] for day in days}
+    if request.user.user_type == 'teacher':
+        is_teacher_schedule = True
+        # Teacher sees their own schedule across all classes
+        entries = Timetable.objects.filter(
+            class_subject__teacher__user=request.user,
+            class_subject__class_name__academic_year__is_current=True
+        ).select_related('class_subject__subject', 'class_subject__class_name')
         
         for entry in entries:
             day_name = entry.get_day_display()
             if day_name in timetable_grid:
                 timetable_grid[day_name].append(entry)
+                
+    else:
+        # Admin and Student see Class Timetables
+        selected_class_id = request.GET.get('class_id')
+        
+        # Auto-select class for students
+        if not selected_class_id:
+            if request.user.user_type == 'student':
+                student = getattr(request.user, 'student', None)
+                if student and student.current_class:
+                    selected_class_id = student.current_class.id
+        
+        if selected_class_id:
+            selected_class = get_object_or_404(Class, id=selected_class_id)
+            entries = Timetable.objects.filter(class_subject__class_name=selected_class).select_related('class_subject__subject', 'class_subject__teacher')
+            
+            for entry in entries:
+                day_name = entry.get_day_display()
+                if day_name in timetable_grid:
+                    timetable_grid[day_name].append(entry)
         
         # Sort each day by start time
-        for day in days:
-            timetable_grid[day].sort(key=lambda x: x.start_time)
+    for day in days:
+        timetable_grid[day].sort(key=lambda x: x.start_time)
 
     context = {
         'classes': classes,
         'selected_class': selected_class,
         'timetable': timetable_grid,
-        'days': ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
+        'days': days,
+        'is_teacher_schedule': is_teacher_schedule,
     }
     return render(request, 'academics/timetable.html', context)

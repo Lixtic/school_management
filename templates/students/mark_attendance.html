@@ -243,10 +243,15 @@
 <script>
 document.getElementById('loadStudents').addEventListener('click', function() {
     const classId = document.getElementById('classSelect').value;
+    const dateVal = document.querySelector('input[name="date"]').value;
     
     if (!classId) {
-        // Simple alert replacement or toast if available
         alert('Please select a class first');
+        return;
+    }
+
+    if (!dateVal) {
+        alert('Please select a date');
         return;
     }
     
@@ -254,7 +259,7 @@ document.getElementById('loadStudents').addEventListener('click', function() {
     document.getElementById('loadingAttendance').style.display = 'block';
     document.getElementById('studentList').style.display = 'none';
     
-    fetch(`/students/get-class-students/${classId}/`)
+    fetch(`/students/get-class-students/${classId}/?date=${dateVal}`)
         .then(response => {
             if (!response.ok) throw new Error('Network response was not ok');
             return response.json();
@@ -276,8 +281,23 @@ document.getElementById('loadStudents').addEventListener('click', function() {
                 return;
             }
 
+            // Check if we are editing existing records
+            const existingCount = students.filter(s => s.existing_status).length;
+            if (existingCount > 0) {
+                 const alertHtml = `
+                    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        <strong>Attention:</strong> Attendance for this date has already been marked. You are currently <strong>updating</strong> existing records.
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>`;
+                container.insertAdjacentHTML('beforeend', alertHtml);
+            }
+
             students.forEach((student, index) => {
                 const sn = index + 1;
+                // Default to 'present' if new, otherwise use existing status
+                const currentStatus = student.existing_status || 'present';
+
                 // Render Template
                 const cardHtml = `
                     <div class="student-card">
@@ -299,15 +319,15 @@ document.getElementById('loadStudents').addEventListener('click', function() {
                         <!-- Status Selector (Responsive) -->
                         <div class="col-status student-col w-100">
                              <div class="status-group">
-                                ${renderStatusOption(student.id, 'present', 'Present', 'bi-check-circle-fill')}
-                                ${renderStatusOption(student.id, 'absent', 'Absent', 'bi-x-circle-fill')}
-                                ${renderStatusOption(student.id, 'late', 'Late', 'bi-clock-fill')}
-                                ${renderStatusOption(student.id, 'excused', 'Excused', 'bi-file-medical-fill')}
+                                ${renderStatusOption(student.id, 'present', 'Present', 'bi-check-circle-fill', currentStatus)}
+                                ${renderStatusOption(student.id, 'absent', 'Absent', 'bi-x-circle-fill', currentStatus)}
+                                ${renderStatusOption(student.id, 'late', 'Late', 'bi-clock-fill', currentStatus)}
+                                ${renderStatusOption(student.id, 'excused', 'Excused', 'bi-file-medical-fill', currentStatus)}
                              </div>
                         </div>
                     </div>
                 `;
-                container.innerHTML += cardHtml;
+                container.insertAdjacentHTML('beforeend',  cardHtml);
             });
             
             document.getElementById('studentList').style.display = 'block';
@@ -318,19 +338,21 @@ document.getElementById('loadStudents').addEventListener('click', function() {
         });
 });
 
-function renderStatusOption(studentId, value, label, iconClass) {
-    const isChecked = value === 'present' ? 'checked' : '';
+function renderStatusOption(studentId, value, label, iconClass, currentStatus) {
+    const isChecked = value === currentStatus ? 'checked' : '';
+    const uniqueId = `status_${studentId}_${value}`;
     return `
         <div class="status-option">
             <input type="radio" 
+                   id="${uniqueId}"
                    name="status_${studentId}" 
                    value="${value}" 
                    class="status-radio-${value}" 
                    ${isChecked}>
-            <div class="status-label ${value}">
+            <label class="status-label ${value}" for="${uniqueId}">
                 <i class="bi ${iconClass}"></i>
                 <span class="text">${label}</span>
-            </div>
+            </label>
         </div>
     `;
 }

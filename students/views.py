@@ -227,12 +227,21 @@ def get_class_students(request, class_id):
             return JsonResponse({'error': 'Forbidden'}, status=403)
 
     students = Student.objects.filter(current_class=class_obj).select_related('user')
+    
+    # Check for date parameter to pre-fill attendance
+    date_str = request.GET.get('date')
+    attendance_map = {}
+    if date_str:
+        attendances = Attendance.objects.filter(student__current_class=class_obj, date=date_str)
+        attendance_map = {a.student_id: a.status for a in attendances}
+
     data = [
         {
             'id': s.id,
             'name': s.user.get_full_name(),
             'admission_number': s.admission_number,
-            'roll_number': s.roll_number
+            'roll_number': s.roll_number,
+            'existing_status': attendance_map.get(s.id) # Will be None if not marked
         }
         for s in students
     ]

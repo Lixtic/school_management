@@ -79,9 +79,13 @@ def logout_view(request):
 @login_required
 def dashboard(request):
     user = request.user
-    notices = Announcement.objects.filter(is_active=True).order_by('-created_at')[:5]
+    # Base query without slicing
+    base_notices = Announcement.objects.filter(is_active=True).order_by('-created_at')
     
     if user.user_type == 'admin':
+        # Admin gets top 5 of all active notices
+        notices = base_notices[:5]
+        
         # Analytics Data
         
         # 1. Students per Class (Top 5 largest classes)
@@ -144,7 +148,7 @@ def dashboard(request):
         class_ids.update(class_teacher_classes.values_list('id', flat=True))
         
         # Filter notices for teacher
-        teacher_notices = notices.filter(target_audience__in=['all', 'staff', 'teachers'])
+        teacher_notices = base_notices.filter(target_audience__in=['all', 'staff', 'teachers'])[:5]
 
         teacher_context = {
             'user': user,

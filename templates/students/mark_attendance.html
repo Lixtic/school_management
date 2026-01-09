@@ -246,12 +246,14 @@ document.getElementById('loadStudents').addEventListener('click', function() {
     const dateVal = document.querySelector('input[name="date"]').value;
     
     if (!classId) {
-        alert('Please select a class first');
+        if(window.showToast) showToast('Please select a class first', 'warning');
+        else alert('Please select a class first');
         return;
     }
 
     if (!dateVal) {
-        alert('Please select a date');
+        if(window.showToast) showToast('Please select a date', 'warning');
+        else alert('Please select a date');
         return;
     }
     
@@ -268,7 +270,8 @@ document.getElementById('loadStudents').addEventListener('click', function() {
             document.getElementById('loadingAttendance').style.display = 'none';
             
             if (students.error) {
-                alert(students.error);
+                if(window.showToast) showToast(students.error, 'danger');
+                else alert(students.error);
                 return;
             }
             
@@ -334,7 +337,8 @@ document.getElementById('loadStudents').addEventListener('click', function() {
         })
         .catch(error => {
             document.getElementById('loadingAttendance').style.display = 'none';
-            alert('Error loading students: ' + error.message);
+            if(window.showToast) showToast('Error loading students: ' + error.message, 'danger');
+            else alert('Error loading students: ' + error.message);
         });
 });
 

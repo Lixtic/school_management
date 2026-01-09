@@ -764,6 +764,21 @@
         
         window.showLoader = showLoader;
         window.hideLoader = hideLoader;
+        
+        // Django Messages to Toasts
+        {% if messages %}
+            {% for message in messages %}
+                {% if message.tags == 'error' %}
+                    showToast("{{ message|escapejs }}", "danger");
+                {% elif message.tags == 'warning' %}
+                    showToast("{{ message|escapejs }}", "warning");
+                {% elif message.tags == 'success' %}
+                    showToast("{{ message|escapejs }}", "success");
+                {% else %}
+                    showToast("{{ message|escapejs }}", "info");
+                {% endif %}
+            {% endfor %}
+        {% endif %}
     </script>
     {% else %}
     {% block login_content %}

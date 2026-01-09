@@ -16,33 +16,45 @@
         <form method="post" id="gradeForm">
             {% csrf_token %}
             
-            <div class="row mb-3">
-                <div class="col-md-4">
-                    <label class="form-label">Select Class & Subject</label>
-                    <select name="class_subject" id="classSubjectSelect" class="form-select" required>
-                        <option value="">-- Select Class & Subject --</option>
-                        {% for cs in class_subjects %}
-                            <option value="{{ cs.class_name.id }}" 
-                                    data-subject="{{ cs.subject.id }}"
-                                    data-subject-name="{{ cs.subject.name }}">
-                                {{ cs.class_name }} - {{ cs.subject }}
-                            </option>
+            <div class="row g-2 mb-3 align-items-end">
+                <div class="col-12 col-md-5">
+                    <label class="form-label mb-1">Class & Subject</label>
+                    <div class="input-group mb-2">
+                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                        <input type="text" class="form-control" id="classSubjectFilter" placeholder="Search..." aria-label="Filter class or subject">
+                    </div>
+                    <select name="class_subject_id" id="classSubjectSelect" class="form-select select-flat" required>
+                        <option value="" disabled {% if not selected_cs_id %}selected{% endif %}>Select...</option>
+                        {% regroup class_subjects by class_name as class_groups %}
+                        {% for group in class_groups %}
+                            <optgroup label="{{ group.grouper }}">
+                                {% for cs in group.list %}
+                                    <option value="{{ cs.id }}"
+                                            data-class-id="{{ cs.class_name.id }}"
+                                            data-subject="{{ cs.subject.id }}"
+                                            data-subject-name="{{ cs.subject.name }}"
+                                            data-label="{{ group.grouper }} {{ cs.subject.name }}"
+                                            {% if cs.id|stringformat:'s' == selected_cs_id %}selected{% endif %}>
+                                        {{ cs.subject.name }}
+                                    </option>
+                                {% endfor %}
+                            </optgroup>
                         {% endfor %}
                     </select>
                 </div>
                 
-                <div class="col-md-4">
-                    <label class="form-label">Term</label>
-                    <select name="term" class="form-select" required>
-                        <option value="First Term">First Term</option>
-                        <option value="Second Term">Second Term</option>
-                        <option value="Third Term">Third Term</option>
+                <div class="col-6 col-md-3">
+                    <label class="form-label mb-1">Term</label>
+                    <select name="term" class="form-select select-flat select-flat--accent" required>
+                        <option value="first">First Term</option>
+                        <option value="second">Second Term</option>
+                        <option value="third">Third Term</option>
                     </select>
                 </div>
 
-                <div class="col-md-4">
-                    <label class="form-label">&nbsp;</label>
-                    <button type="button" id="loadStudents" class="btn btn-primary w-100">
+                <div class="col-6 col-md-4">
+                    <label class="form-label mb-1">&nbsp;</label>
+                    <button type="button" id="loadStudents" class="btn btn-outline-primary w-100">
                         <i class="bi bi-people"></i> Load Students
                     </button>
                 </div>
@@ -54,12 +66,13 @@
                 </div>
                 
                 <div class="table-responsive">
-                    <table class="table table-bordered table-hover">
-                        <thead class="table-dark">
+                    <table class="table table-bordered table-hover align-middle">
+                        <thead>
                             <tr>
                                 <th>SN</th>
                                 <th>Admission No</th>
                                 <th>Student Name</th>
+                                <th>Overall<br><small>(Out of 100)</small></th>
                                 <th>Class Work<br><small>(Max: 30)</small></th>
                                 <th>Exams<br><small>(Max: 70)</small></th>
                                 <th>Total<br><small>(Auto)</small></th>
@@ -71,7 +84,7 @@
                     </table>
                 </div>
                 
-                <button type="submit" class="btn btn-success btn-lg">
+                <button type="submit" class="btn btn-gradient btn-lg mt-2">
                     <i class="bi bi-check-circle"></i> Submit Grades
                 </button>
             </div>
@@ -82,29 +95,38 @@
 <script>
 document.getElementById('loadStudents').addEventListener('click', function() {
     const select = document.getElementById('classSubjectSelect');
-    const classId = select.value;
-    const subjectId = select.options[select.selectedIndex].dataset.subject;
+    const selectedOption = select.options[select.selectedIndex];
+    const csId = select.value;
+    const classId = selectedOption?.dataset.classId;
+    const subjectId = selectedOption?.dataset.subject;
+    const term = document.querySelector('select[name="term"]').value;
     
-    if (!classId || !subjectId) {
-        alert('Please select a class and subject first');
+    if (!csId || !classId || !subjectId) {
+        showToast('Please select a class and subject first', 'warning');
         return;
     }
-    
-    fetch(`/teachers/get-students/${classId}/`)
+    fetch(`/teachers/get-students/${classId}/?subject_id=${subjectId}&term=${term}`)
         .then(response => response.json())
         .then(students => {
             const tbody = document.getElementById('studentTableBody');
             tbody.innerHTML = '';
             
             students.forEach((student, index) => {
-                const row = `
-                    <tr>
+                const row = document.createElement('tr');
+                row.innerHTML = `
                         <td>${index + 1}</td>
                         <td>${student.admission_number}</td>
                         <td>${student.name}</td>
                         <td>
                             <input type="hidden" name="student_id[]" value="${student.id}">
-                            <input type="hidden" name="subject_id" value="${subjectId}">
+                            <input type="number" name="overall_score_${student.id}"
+                                class="form-control overall-score"
+                                min="0" max="100" step="0.1"
+                                data-row="${student.id}"
+                                placeholder="0-100"
+                                required>
+                           </td>
+                           <td>
                             <input type="number" name="class_score_${student.id}" 
                                    class="form-control class-score" 
                                    min="0" max="30" step="0.1" 
@@ -127,9 +149,18 @@ document.getElementById('loadStudents').addEventListener('click', function() {
                         <td>
                             <span id="grade_${student.id}" class="badge bg-secondary">-</span>
                         </td>
-                    </tr>
                 `;
-                tbody.innerHTML += row;
+                tbody.appendChild(row);
+
+                if (student.class_score !== '' && student.exams_score !== '') {
+                    const classInput = document.querySelector(`input[name="class_score_${student.id}"]`);
+                    const examInput = document.querySelector(`input[name="exams_score_${student.id}"]`);
+                    classInput.value = parseFloat(student.class_score).toFixed(1);
+                    examInput.value = parseFloat(student.exams_score).toFixed(1);
+                    const totalVal = student.total_score ? parseFloat(student.total_score) : (parseFloat(student.class_score) + parseFloat(student.exams_score));
+                    document.querySelector(`input[name="overall_score_${student.id}"]`).value = totalVal.toFixed(1);
+                    calculateTotal(student.id);
+                }
             });
             
             // Add event listeners for auto-calculation
@@ -138,12 +169,36 @@ document.getElementById('loadStudents').addEventListener('click', function() {
                     calculateTotal(this.dataset.row);
                 });
             });
+
+            // Auto-split overall into class/exam scores
+            document.querySelectorAll('.overall-score').forEach(input => {
+                input.addEventListener('input', function() {
+                    const rowId = this.dataset.row;
+                    const totalRaw = parseFloat(this.value) || 0;
+                    const classVal = Math.min(Math.max(totalRaw * 0.3, 0), 30);
+                    const examVal = Math.min(Math.max(totalRaw * 0.7, 0), 70);
+                    document.querySelector(`input[name="class_score_${rowId}"]`).value = classVal.toFixed(1);
+                    document.querySelector(`input[name="exams_score_${rowId}"]`).value = examVal.toFixed(1);
+                    calculateTotal(rowId);
+                });
+            });
             
             document.getElementById('studentList').style.display = 'block';
         })
         .catch(error => {
-            alert('Error loading students: ' + error);
+            showToast('Error loading students: ' + error, 'danger');
         });
+});
+
+// Filter class/subject options
+document.getElementById('classSubjectFilter').addEventListener('input', function() {
+    const term = this.value.toLowerCase();
+    const select = document.getElementById('classSubjectSelect');
+    Array.from(select.options).forEach(opt => {
+        if (!opt.value) return;
+        const label = (opt.dataset.label || '').toLowerCase();
+        opt.hidden = term && !label.includes(term);
+    });
 });
 
 function calculateTotal(studentId) {
@@ -152,13 +207,13 @@ function calculateTotal(studentId) {
     
     // Validate max scores
     if (classScore > 30) {
-        alert('Class work score cannot exceed 30 marks');
+        showToast('Class work score cannot exceed 30 marks', 'warning');
         document.querySelector(`input[name="class_score_${studentId}"]`).value = 30;
         return;
     }
     
     if (examsScore > 70) {
-        alert('Exams score cannot exceed 70 marks');
+        showToast('Exams score cannot exceed 70 marks', 'warning');
         document.querySelector(`input[name="exams_score_${studentId}"]`).value = 70;
         return;
     }
@@ -201,5 +256,14 @@ function calculateTotal(studentId) {
     gradeBadge.textContent = grade;
     gradeBadge.className = `badge ${gradeClass}`;
 }
+
+// Preselect and optionally load students based on query params
+(function preselectFromQuery() {
+    const select = document.getElementById('classSubjectSelect');
+    const presetCs = '{{ selected_cs_id|default:"" }}';
+    if (presetCs) {
+        select.value = presetCs;
+    }
+})();
 </script>
 {% endblock %}

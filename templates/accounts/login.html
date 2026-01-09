@@ -1,23 +1,284 @@
 {% extends 'base.html' %}
 
+{% block title %}Welcome | Girls Model JHS{% endblock %}
+
 {% block login_content %}
-<div class="min-vh-100 d-flex align-items-center justify-content-center bg-primary">
-    <div class="card shadow-lg" style="width: 400px;">
-        <div class="card-body p-5">
-            <h3 class="text-center mb-4">School Login</h3>
-            
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+
+:root {
+    --primary-dark: #0f3b57;
+    --primary-teal: #026e56;
+    --accent-blue: #0b9cc7;
+    --surface-light: #f7f9fb;
+    --text-main: #0f172a;
+    --text-muted: #4b5565;
+}
+
+body {
+    font-family: 'Manrope', sans-serif;
+    background: var(--primary-dark);
+    color: var(--text-main);
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* Background Elements */
+.page-wrapper {
+    min-height: 100vh;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    padding: 2rem;
+}
+
+.page-wrapper::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(11,156,199,0.15) 0%, transparent 60%);
+    pointer-events: none;
+}
+
+/* Split Layout */
+.login-container {
+    background: #fff;
+    border-radius: 24px;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.15);
+    overflow: hidden;
+    width: 100%;
+    max-width: 1000px;
+    display: flex;
+    position: relative;
+    z-index: 10;
+}
+
+.login-side {
+    flex: 1;
+    padding: 48px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.brand-showcase {
+    flex: 1;
+    background: linear-gradient(135deg, var(--primary-dark), #1d5f85);
+    position: relative;
+    overflow: hidden;
+    padding: 48px;
+    color: #fff;
+    display: none;
+}
+
+@media (min-width: 992px) {
+    .brand-showcase {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+}
+
+/* Brand Side */
+.brand-showcase::after {
+    content: '';
+    position: absolute;
+    bottom: -100px;
+    right: -100px;
+    width: 400px;
+    height: 400px;
+    border-radius: 50%;
+    background: rgba(2, 110, 86, 0.4);
+    filter: blur(60px);
+}
+
+.brand-icon {
+    width: 60px;
+    height: 60px;
+    background: #fff;
+    color: var(--primary-teal);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin-bottom: 24px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+.showcase-title {
+    font-size: 2.2rem;
+    font-weight: 800;
+    line-height: 1.2;
+    margin-bottom: 16px;
+}
+
+.showcase-text {
+    font-size: 1.1rem;
+    color: rgba(255,255,255,0.8);
+    line-height: 1.6;
+}
+
+/* Login Form Side */
+.login-brand-mobile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 32px;
+}
+
+.login-brand-mobile .icon {
+    width: 40px;
+    height: 40px;
+    background: var(--primary-dark);
+    color: #fff;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+}
+
+.form-title {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: var(--primary-dark);
+    margin-bottom: 8px;
+}
+
+.form-subtitle {
+    color: var(--text-muted);
+    margin-bottom: 32px;
+}
+
+.form-floating .form-control {
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    padding: 1rem 0.75rem;
+    color: var(--text-main);
+}
+
+.form-floating .form-control:focus {
+    border-color: var(--primary-teal);
+    box-shadow: 0 0 0 4px rgba(2, 110, 86, 0.1);
+    outline: none;
+}
+
+.form-floating label {
+    color: var(--text-muted);
+}
+
+.btn-login {
+    background: var(--primary-teal);
+    color: #fff;
+    font-weight: 700;
+    padding: 14px;
+    border-radius: 12px;
+    width: 100%;
+    border: none;
+    transition: all 0.2s;
+    font-size: 1.1rem;
+}
+
+.btn-login:hover {
+    background: #025a46;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(2, 110, 86, 0.2);
+}
+
+.text-link {
+    color: var(--primary-teal);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.text-link:hover {
+    text-decoration: underline;
+}
+
+.feature-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,255,255,0.1);
+    padding: 8px 16px;
+    border-radius: 30px;
+    border: 1px solid rgba(255,255,255,0.2);
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-top: 24px;
+}
+</style>
+
+<div class="page-wrapper">
+    <div class="login-container">
+        <!-- Login Side -->
+        <div class="login-side">
+            <div class="d-lg-none login-brand-mobile">
+                <div class="icon">GM</div>
+                <div class="fw-bold fs-5 text-dark">Girls Model JHS</div>
+            </div>
+
+            <a href="{% url 'home' %}" class="btn btn-light btn-sm align-self-start mb-4 rounded-pill px-3 border"><i class="bi bi-arrow-left me-1"></i> Back to Home</a>
+
+            <h1 class="form-title">Welcome back</h1>
+            <p class="form-subtitle">Please sign in to access your dashboard.</p>
+
+            {% if messages %}
+            <div class="mb-4">
+                {% for message in messages %}
+                <div class="alert alert-danger d-flex align-items-center gap-2 border-0 rounded-4 p-3" style="background: #fff5f5; color: #c53030;">
+                    <i class="bi bi-exclamation-circle-fill"></i>
+                    <div>{{ message }}</div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
             <form method="post">
                 {% csrf_token %}
-                <div class="mb-3">
-                    <label class="form-label">Username</label>
-                    <input type="text" name="username" class="form-control" required>
+                <div class="form-floating mb-3">
+                    <input type="text" class="form-control" id="username" name="username" placeholder="Username" required autocomplete="username">
+                    <label for="username">Username</label>
                 </div>
-                <div class="mb-3">
-                    <label class="form-label">Password</label>
-                    <input type="password" name="password" class="form-control" required>
+                <div class="form-floating mb-4">
+                    <input type="password" class="form-control" id="password" name="password" placeholder="Password" required autocomplete="current-password">
+                    <label for="password">Password</label>
                 </div>
-                <button type="submit" class="btn btn-primary w-100">Login</button>
+                <button type="submit" class="btn btn-login mb-4">
+                    Sign In <i class="bi bi-arrow-right ms-2"></i>
+                </button>
             </form>
+
+            <div class="text-center">
+                <p class="text-muted small">Forgot your password? <a href="#" class="text-link">Contact Admin</a></p>
+                <p class="text-muted small mt-2">Parent Portal Access <a href="#" class="text-link">Help</a></p>
+            </div>
+        </div>
+
+        <!-- Brand Side -->
+        <div class="brand-showcase">
+            <div>
+                <div class="brand-icon">GM</div>
+                <h2 class="showcase-title">Empowering Young Minds to Lead & Excel.</h2>
+                <p class="showcase-text">Access your personalized portal to track attendance, grades, and upcoming school activities in real-time.</p>
+                
+                <div class="feature-pill">
+                    <i class="bi bi-shield-check"></i> Secure Access
+                </div>
+            </div>
+            
+            <div class="d-flex gap-3 align-items-center opacity-75">
+                <small>&copy; Girls Model JHS</small>
+                <small class="mx-2">•</small>
+                <small>Excellence & Integrity</small>
+            </div>
         </div>
     </div>
 </div>

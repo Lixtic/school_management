@@ -82,7 +82,7 @@
                     </div>
                     <div class="col-md-3">
                         <label class="form-label">Class</label>
-                        <select name="class" class="form-select">
+                        <select name="class" class="form-select select-flat">
                             <option value="">All Classes</option>
                             {% for class in classes %}
                                 <option value="{{ class.id }}" 
@@ -94,7 +94,7 @@
                     </div>
                     <div class="col-md-3">
                         <label class="form-label">Sort By</label>
-                        <select name="sort" class="form-select">
+                        <select name="sort" class="form-select select-flat select-flat--accent">
                             <option value="name" {% if request.GET.sort == 'name' %}selected{% endif %}>
                                 Name (A-Z)
                             </option>
@@ -346,19 +346,19 @@ function executeBulkAction() {
     const action = document.getElementById('bulkAction').value;
     
     if (selectedStudents.length === 0) {
-        alert('Please select at least one student');
+        showToast('Please select at least one student', 'warning');
         return;
     }
     
     if (!action) {
-        alert('Please select an action');
+        showToast('Please select an action', 'warning');
         return;
     }
     
     if (action === 'assign_class') {
         const classId = document.getElementById('bulkClass').value;
         if (!classId) {
-            alert('Please select a class');
+            showToast('Please select a class', 'warning');
             return;
         }
         
@@ -376,7 +376,7 @@ function executeBulkAction() {
         })
         .then(response => response.json())
         .then(data => {
-            alert(data.message);
+            showToast(data.message, data.status === 'success' ? 'success' : 'danger');
             location.reload();
         });
     } else if (action === 'export') {
@@ -386,7 +386,7 @@ function executeBulkAction() {
 
 function exportSelected() {
     if (selectedStudents.length === 0) {
-        alert('Please select at least one student');
+        showToast('Please select at least one student', 'warning');
         return;
     }
     

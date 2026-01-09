@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2 class="mb-4">My Classes & Subjects</h2>
+
+{% if class_subjects %}
+<div class="card">
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-striped mb-0">
+        <thead class="table-dark">
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Class</th>
+            <th scope="col">Subject</th>
+            <th scope="col" style="width: 1%; white-space: nowrap;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for cs in class_subjects %}
+          <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ cs.class_name }}</td>
+            <td>{{ cs.subject }}</td>
+            <td>
+              <a class="btn btn-sm btn-primary" href="{% url 'teachers:enter_grades' %}?class_id={{ cs.class_name.id }}&subject_id={{ cs.subject.id }}">
+                Enter Grades
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% else %}
+<div class="alert alert-info">No class assignments found.</div>
+{% endif %}
+{% endblock %}

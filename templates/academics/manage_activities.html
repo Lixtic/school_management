@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Activities{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center mb-4">
+    <div>
+        <div class="badge-soft mb-2">Activities</div>
+        <h2 class="page-title mb-1">School Activities</h2>
+        <p class="text-muted mb-0">Create and update upcoming school activities.</p>
+    </div>
+</div>
+
+<div class="content-wrapper mb-4">
+    <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="activity_id" id="activity_id">
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label">Title</label>
+                <input type="text" name="title" id="title" class="form-control" required>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Date</label>
+                <input type="date" name="date" id="date" class="form-control" required>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Tag</label>
+                <input type="text" name="tag" id="tag" class="form-control" placeholder="e.g. Community">
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="is_active" id="is_active" checked>
+                    <label class="form-check-label" for="is_active">Active</label>
+                </div>
+            </div>
+            {% if is_admin %}
+            <div class="col-md-6">
+                <label class="form-label">Assigned Staff</label>
+                <select name="assigned_staff" id="assigned_staff" class="form-select select-flat" multiple>
+                    {% for staff in staff_queryset %}
+                        <option value="{{ staff.id }}">{{ staff.get_full_name }} ({{ staff.user_type }})</option>
+                    {% endfor %}
+                </select>
+                <small class="text-muted">Admins can assign multiple staff. Teachers default to themselves.</small>
+            </div>
+            {% endif %}
+            <div class="col-12">
+                <label class="form-label">Summary</label>
+                <textarea name="summary" id="summary" rows="3" class="form-control" placeholder="Brief description"></textarea>
+            </div>
+            <div class="col-12 d-flex justify-content-end">
+                <button type="submit" class="btn btn-gradient px-4">Save Activity</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div class="content-wrapper">
+    <h5 class="mb-3">Your Activities</h5>
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Date</th>
+                    <th>Tag</th>
+                    <th>Status</th>
+                    <th>Assigned</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for activity in activities %}
+                <tr>
+                    <td>{{ activity.title }}</td>
+                    <td>{{ activity.date }}</td>
+                    <td>{{ activity.tag }}</td>
+                    <td>
+                        {% if activity.is_active %}
+                            <span class="badge bg-success">Active</span>
+                        {% else %}
+                            <span class="badge bg-secondary">Inactive</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% with staff_list=activity.assigned_staff.all %}
+                            {% if staff_list %}
+                                {{ staff_list|join:', ' }}
+                            {% else %}
+                                <span class="text-muted">None</span>
+                            {% endif %}
+                        {% endwith %}
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-gradient" type="button"
+                            onclick="prefillActivity('{{ activity.id }}','{{ activity.title|escapejs }}','{{ activity.date }}','{{ activity.tag|escapejs }}','{{ activity.summary|escapejs }}', {{ activity.is_active|yesno:'true,false' }}, [{% for s in activity.assigned_staff.all %}'{{ s.id }}'{% if not forloop.last %},{% endif %}{% endfor %}])">
+                            Edit
+                        </button>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center text-muted">No activities yet.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+function prefillActivity(id, title, date, tag, summary, isActive, staffIds) {
+    document.getElementById('activity_id').value = id;
+    document.getElementById('title').value = title;
+    document.getElementById('date').value = date;
+    document.getElementById('tag').value = tag;
+    document.getElementById('summary').value = summary;
+    document.getElementById('is_active').checked = isActive;
+    const staffSelect = document.getElementById('assigned_staff');
+    if (staffSelect) {
+        Array.from(staffSelect.options).forEach(opt => {
+            opt.selected = staffIds.includes(opt.value);
+        });
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+{% endblock %}

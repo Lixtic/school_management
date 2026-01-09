@@ -1,4 +1,5 @@
 from django.db import models
+from accounts.models import User
 
 class AcademicYear(models.Model):
     name = models.CharField(max_length=20)
@@ -25,6 +26,24 @@ class Class(models.Model):
     class Meta:
         verbose_name_plural = "Classes"
         unique_together = ['name', 'academic_year']
+
+
+class Activity(models.Model):
+    title = models.CharField(max_length=120)
+    summary = models.TextField(blank=True)
+    date = models.DateField()
+    tag = models.CharField(max_length=50, blank=True)
+    is_active = models.BooleanField(default=True)
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='created_activities')
+    assigned_staff = models.ManyToManyField(User, blank=True, related_name='assigned_activities')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.title} ({self.date})"
+
+    class Meta:
+        ordering = ['date', '-created_at']
 
 
 class Subject(models.Model):

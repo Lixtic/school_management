@@ -6,7 +6,9 @@ from django.db.models import Q, Count, Avg
 from datetime import date, timedelta
 import csv
 from .models import Student, Attendance, Grade
+from .utils import calculate_class_position, normalize_term, term_filter_values
 from academics.models import Class, AcademicYear
+from teachers.models import Teacher
 
 @login_required
 def student_list(request):
@@ -155,14 +157,39 @@ def mark_attendance(request):
     if request.user.user_type not in ['admin', 'teacher']:
         messages.error(request, 'You do not have permission to mark attendance')
         return redirect('dashboard')
+
+    # Limit teachers to the classes they manage/teach
+    classes_qs = Class.objects.filter(academic_year__is_current=True)
+    allowed_classes = classes_qs
+    teacher_profile = None
+    if request.user.user_type == 'teacher':
+        teacher_profile = Teacher.objects.filter(user=request.user).first()
+        allowed_classes = classes_qs.filter(
+            Q(class_teacher=teacher_profile) | Q(classsubject__teacher=teacher_profile)
+        ).distinct()
+        if not allowed_classes.exists():
+            messages.error(request, 'You are not assigned to any class to mark attendance')
+            return redirect('dashboard')
     
     if request.method == 'POST':
         date_str = request.POST.get('date')
         student_ids = request.POST.getlist('students')
+        class_id = request.POST.get('class_id')
+
+        if not class_id:
+            messages.error(request, 'Select a class before submitting attendance')
+            return redirect('students:mark_attendance')
+
+        class_obj = get_object_or_404(classes_qs, id=class_id)
+        if request.user.user_type == 'teacher' and class_obj not in allowed_classes:
+            messages.error(request, 'You are not assigned to this class')
+            return redirect('students:mark_attendance')
         
         for student_id in student_ids:
             status = request.POST.get(f'status_{student_id}')
-            student = Student.objects.get(id=student_id)
+            student = Student.objects.filter(id=student_id, current_class=class_obj).first()
+            if not student:
+                continue
             
             Attendance.objects.update_or_create(
                 student=student,
@@ -176,7 +203,7 @@ def mark_attendance(request):
         messages.success(request, f'Attendance marked successfully for {len(student_ids)} students')
         return redirect('students:mark_attendance')
     
-    classes = Class.objects.filter(academic_year__is_current=True)
+    classes = allowed_classes
     return render(request, 'students/mark_attendance.html', {
         'classes': classes,
         'today': date.today()
@@ -185,7 +212,21 @@ def mark_attendance(request):
 
 @login_required
 def get_class_students(request, class_id):
-    students = Student.objects.filter(current_class_id=class_id).select_related('user')
+    if request.user.user_type not in ['admin', 'teacher']:
+        return JsonResponse({'error': 'Forbidden'}, status=403)
+
+    classes_qs = Class.objects.filter(academic_year__is_current=True)
+    class_obj = get_object_or_404(classes_qs, id=class_id)
+
+    if request.user.user_type == 'teacher':
+        teacher_profile = Teacher.objects.filter(user=request.user).first()
+        allowed = classes_qs.filter(
+            Q(class_teacher=teacher_profile) | Q(classsubject__teacher=teacher_profile)
+        ).distinct()
+        if class_obj not in allowed:
+            return JsonResponse({'error': 'Forbidden'}, status=403)
+
+    students = Student.objects.filter(current_class=class_obj).select_related('user')
     data = [
         {
             'id': s.id,
@@ -278,15 +319,17 @@ def generate_report_card(request, student_id):
     
     # Get current academic year
     academic_year = AcademicYear.objects.filter(is_current=True).first()
-    
-    # Get term from request, default to First Term
-    term = request.GET.get('term', 'First Term')
-    
-    # Get all grades for current academic year and term
+
+    # Normalize term value from request (accept legacy labels)
+    raw_term = request.GET.get('term', 'first')
+    term = normalize_term(raw_term)
+    term_values = term_filter_values(term)
+
+    # Get all grades for current academic year and term (canonical + legacy labels)
     grades = Grade.objects.filter(
         student=student,
         academic_year=academic_year,
-        term=term
+        term__in=term_values
     ).select_related('subject').order_by('subject__name')
     
     # Calculate statistics
@@ -337,7 +380,6 @@ def generate_report_card(request, student_id):
         overall_remarks = 'Lowest'
     
     # Calculate class position
-    from students.utils import calculate_class_position
     class_position = calculate_class_position(student, academic_year, term)
     
     # Get attendance stats
@@ -362,6 +404,7 @@ def generate_report_card(request, student_id):
         'student': student,
         'academic_year': academic_year,
         'term': term,
+        'term_display': dict(Grade.TERM_CHOICES).get(term, raw_term),
         'grades': grades,
         'total_subjects': total_subjects,
         'total_class_work': total_class_work,

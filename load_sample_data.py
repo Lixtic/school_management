@@ -199,7 +199,7 @@ for student, subject, class_score, exam_score in sample_grades:
         student=student,
         subject=subject,
         academic_year=ay,
-        term='First Term',
+        term='first',
         defaults={
             'class_score': class_score,
             'exams_score': exam_score,

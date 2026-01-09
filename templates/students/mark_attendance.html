@@ -11,10 +11,10 @@
             <div class="row mb-4">
                 <div class="col-md-4">
                     <label class="form-label">Select Class</label>
-                    <select name="class_id" id="classSelect" class="form-select" required>
+                    <select name="class_id" id="classSelect" class="form-select select-flat" required>
                         <option value="">-- Select Class --</option>
                         {% for class in classes %}
-                            <option value="{{ class.id }}">{{ class }}</option>
+                                <option value="{{ class.id }}">{{ class }}</option>
                         {% endfor %}
                     </select>
                 </div>
@@ -76,13 +76,22 @@ document.getElementById('loadStudents').addEventListener('click', function() {
     const classId = document.getElementById('classSelect').value;
     
     if (!classId) {
-        alert('Please select a class first');
+        showToast('Please select a class first', 'warning');
         return;
     }
     
     fetch(`/students/get-class-students/${classId}/`)
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Not allowed to load this class');
+            }
+            return response.json();
+        })
         .then(students => {
+            if (students.error) {
+                showToast(students.error, 'danger');
+                return;
+            }
             const tbody = document.getElementById('studentTableBody');
             tbody.innerHTML = '';
             
@@ -110,7 +119,7 @@ document.getElementById('loadStudents').addEventListener('click', function() {
             document.getElementById('studentList').style.display = 'block';
         })
         .catch(error => {
-            alert('Error loading students: ' + error);
+            showToast('Error loading students: ' + error, 'danger');
         });
 });
 

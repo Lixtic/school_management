@@ -9,7 +9,7 @@ from django.db import connection
 with connection.cursor() as cursor:
     # Add term column
     try:
-        cursor.execute("ALTER TABLE students_grade ADD COLUMN term VARCHAR(20) DEFAULT 'First Term';")
+        cursor.execute("ALTER TABLE students_grade ADD COLUMN term VARCHAR(20) DEFAULT 'first';")
         print("Added term column")
     except:
         print("term column already exists")

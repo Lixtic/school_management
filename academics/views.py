@@ -29,18 +29,14 @@ def gallery_view(request):
 
 @login_required
 def manage_activities(request):
-	if request.user.user_type not in ['admin', 'teacher']:
-		messages.error(request, 'Access denied')
+	if request.user.user_type != 'admin':
+		messages.error(request, 'Access denied. Admins only.')
 		return redirect('dashboard')
 
-	is_admin = request.user.user_type == 'admin'
 	staff_queryset = User.objects.filter(user_type__in=['admin', 'teacher']).order_by('first_name', 'last_name')
 
-	# Determine which activities the user can see
-	if is_admin:
-		activities = Activity.objects.all()
-	else:
-		activities = Activity.objects.filter(Q(created_by=request.user) | Q(assigned_staff=request.user)).distinct()
+	# Admins see all activities
+	activities = Activity.objects.all()
 
 	if request.method == 'POST':
 		activity_id = request.POST.get('activity_id')
@@ -56,9 +52,6 @@ def manage_activities(request):
 
 		if activity_id:
 			activity = get_object_or_404(Activity, id=activity_id)
-			if not is_admin and request.user not in activity.assigned_staff.all() and activity.created_by != request.user:
-				messages.error(request, 'You are not allowed to update this activity')
-				return redirect('academics:manage_activities')
 		else:
 			activity = Activity(created_by=request.user)
 
@@ -69,8 +62,8 @@ def manage_activities(request):
 		activity.is_active = is_active
 		activity.save()
 
-		# Assign staff: admins can pick; teachers default to themselves
-		assigned_ids = request.POST.getlist('assigned_staff') if is_admin else [request.user.id]
+		# Assign staff: admins can pick
+		assigned_ids = request.POST.getlist('assigned_staff')
 		assigned_users = staff_queryset.filter(id__in=assigned_ids)
 		activity.assigned_staff.set(assigned_users)
 
@@ -80,7 +73,7 @@ def manage_activities(request):
 	context = {
 		'activities': activities.order_by('-date'),
 		'staff_queryset': staff_queryset,
-		'is_admin': is_admin,
+		'is_admin': True,
 	}
 	return render(request, 'academics/manage_activities.html', context)
 

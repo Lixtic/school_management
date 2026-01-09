@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block title %}Server Error - 500{% endblock %}
+
+{% block content %}
+<div class="container d-flex flex-column justify-content-center align-items-center" style="min-height: 60vh;">
+    <div class="text-center">
+        <h1 class="display-1 fw-bold text-danger opacity-25" style="font-size: 8rem;">500</h1>
+        <h2 class="display-6 fw-bold text-dark mb-3">Server Error</h2>
+        <p class="lead text-muted mb-4">
+            Oops! Something went wrong on our end. We are working to fix this.
+        </p>
+        <div class="d-flex justify-content-center gap-3">
+            <a href="{% url 'dashboard' %}" class="btn btn-primary">
+                <i class="bi bi-house-door me-2"></i>Return to Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

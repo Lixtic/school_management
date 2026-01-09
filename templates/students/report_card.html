@@ -385,16 +385,20 @@
                 <!-- Header -->
                 <div class="row align-items-center mb-4 border-bottom pb-3 school-header-row">
                     <div class="col-2 text-center">
-                        <img src="{% static 'img/logo.png' %}" alt="School Logo" style="max-height: 120px; width: auto;">
+                        {% if school_logo %}
+                            <img src="{{ school_logo.url }}" alt="School Logo" style="max-height: 120px; width: auto;">
+                        {% else %}
+                            <img src="{% static 'img/logo.png' %}" alt="School Logo" style="max-height: 120px; width: auto;">
+                        {% endif %}
                     </div>
                     <div class="col-8 text-center">
                         <div class="school-header text-center border-0 mb-0 pb-0">
-                            <div class="school-name mb-1">DABOYA GIRLS MODEL JUNIOR HIGH SCHOOL</div>
+                            <div class="school-name mb-1">{{ school_name }}</div>
                             <div class="school-info">
                                 <div class="fw-bold">GHANA EDUCATION SERVICE</div>
-                                <div>P.O. Box 6, Daboya, North Gonja District</div>
-                                <div>Tel: 024-0852910</div>
-                                <div class="mt-2 fst-italic fw-bold text-primary">"SUCCESS, OUR CONCERN"</div>
+                                <div>{{ school_address }}</div>
+                                <div>Tel: {{ school_phone }}</div>
+                                <div class="mt-2 fst-italic fw-bold text-primary">"{{ school_motto }}"</div>
                             </div>
                         </div>
                     </div>
@@ -615,10 +619,7 @@
                 <!-- Footer -->
                 <div class="text-center mt-5 text-muted" style="font-size: 0.8rem;">
                     <p class="mb-0">This report is computer generated and requires no physical seal.</p>
-                    <p>Generated on {{ report_date|date:"F j, Y" }} | Daboya Girls Model JHS</p>
-                </div>
-
-            </div>
+                    <p>Generated on {{ report_date|date:"F j, Y" }} | {{ school_name }}</p>
         </div>
     </div>
     

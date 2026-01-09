@@ -13,6 +13,26 @@ class AcademicYear(models.Model):
     class Meta:
         ordering = ['-start_date']
 
+class SchoolInfo(models.Model):
+    name = models.CharField(max_length=200, default="Daboya Girls Model JHS")
+    address = models.TextField(default="P.O. Box 6, Daboya, North Gonja District")
+    phone = models.CharField(max_length=50, default="024-0852910")
+    email = models.EmailField(default="info@daboyagirlsmodel.edu.gh")
+    motto = models.CharField(max_length=200, default="Success, Our Concern")
+    logo = models.ImageField(upload_to='school_logo/', null=True, blank=True)
+    
+    def save(self, *args, **kwargs):
+        if not self.pk and SchoolInfo.objects.exists():
+            # If valid, just update the first one instead of creating new
+            self.pk = SchoolInfo.objects.first().pk
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name_plural = "School Information"
+
 
 class Class(models.Model):
     name = models.CharField(max_length=50)  # e.g., "Grade 10A", "Grade 9B"

@@ -1,11 +1,19 @@
 from django.contrib import admin
-from .models import AcademicYear, Class, Subject, ClassSubject, Activity, Timetable
+from .models import AcademicYear, Class, Subject, ClassSubject, Activity, Timetable, SchoolInfo
 
 @admin.register(AcademicYear)
 class AcademicYearAdmin(admin.ModelAdmin):
     list_display = ['name', 'start_date', 'end_date', 'is_current']
     list_filter = ['is_current']
     list_editable = ['is_current']
+
+@admin.register(SchoolInfo)
+class SchoolInfoAdmin(admin.ModelAdmin):
+    # Only allow one instance
+    def has_add_permission(self, request):
+        if self.model.objects.exists():
+            return False
+        return True
 
 @admin.register(Class)
 class ClassAdmin(admin.ModelAdmin):

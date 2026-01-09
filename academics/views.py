@@ -3,7 +3,26 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q
 from accounts.models import User
-from .models import Activity
+from .models import Activity, GalleryImage
+
+
+def gallery_view(request):
+    images = GalleryImage.objects.all()
+    
+    # Filter by category if requested
+    category = request.GET.get('category')
+    if category and category != 'all':
+        images = images.filter(category=category)
+        
+    categories = GalleryImage.CATEGORY_CHOICES
+        
+    context = {
+        'images': images,
+        'categories': categories,
+        'current_category': category
+    }
+    return render(request, 'gallery.html', context)
+
 
 
 @login_required

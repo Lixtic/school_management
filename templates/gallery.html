@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Gallery - {{ school_name }}{% endblock %}
+
+{% block content %}
+    {% include 'gallery_inner.html' %}
+{% endblock %}
+
+{% block login_content %}
+    <div style="min-height: 100vh; background: #f8f9fa;">
+        {% include 'gallery_inner.html' %}
+    </div>
+{% endblock %}

@@ -110,3 +110,24 @@ class Timetable(models.Model):
     def __str__(self):
         day_name = self.get_day_display()
         return f"{self.class_subject} on {day_name} ({self.start_time.strftime('%H:%M')} - {self.end_time.strftime('%H:%M')})"
+
+class GalleryImage(models.Model):
+    CATEGORY_CHOICES = [
+        ('campus', 'Campus'),
+        ('events', 'Events'),
+        ('sports', 'Sports'),
+        ('academics', 'Academics'),
+        ('others', 'Others'),
+    ]
+    
+    title = models.CharField(max_length=100)
+    caption = models.TextField(blank=True)
+    image = models.ImageField(upload_to='gallery/')
+    category = models.CharField(max_length=50, choices=CATEGORY_CHOICES, default='events')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title
+
+    class Meta:
+        ordering = ['-created_at']

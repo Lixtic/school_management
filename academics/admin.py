@@ -1,5 +1,11 @@
 from django.contrib import admin
-from .models import AcademicYear, Class, Subject, ClassSubject, Activity, Timetable, SchoolInfo
+from .models import AcademicYear, Class, Subject, ClassSubject, Activity, Timetable, SchoolInfo, GalleryImage
+
+@admin.register(GalleryImage)
+class GalleryImageAdmin(admin.ModelAdmin):
+    list_display = ['title', 'category', 'created_at']
+    list_filter = ['category', 'created_at']
+    search_fields = ['title', 'caption']
 
 @admin.register(AcademicYear)
 class AcademicYearAdmin(admin.ModelAdmin):

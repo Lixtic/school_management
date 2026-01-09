@@ -308,6 +308,153 @@
         .badge-7, .badge-8 { background: #fee2e2; color: #b91c1c; border-color: #fecaca; } /* D/E */
         .badge-9 { background: #fecaca; color: #991b1b; border-color: #f87171; } /* F */
 
+        /* Mobile Styles */
+        @media screen and (max-width: 768px) {
+            .container {
+                padding-left: 0.5rem;
+                padding-right: 0.5rem;
+            }
+            
+            .actions-bar {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: stretch;
+                text-align: center;
+            }
+            
+            .actions-bar .d-flex {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .actions-bar .btn {
+                width: 100%;
+            }
+
+            .report-card {
+                padding: 1rem;
+                width: 100%;
+                max-width: 100%;
+                box-shadow: none;
+                margin: 0;
+            }
+
+            .report-card::before { 
+                display: none; 
+            }
+
+            /* Info Grid Stacking */
+            .info-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+                padding: 1rem;
+            }
+            
+            .info-label {
+                width: 110px;
+                min-width: 110px;
+            }
+
+            /* Card View for Table */
+            .grade-table thead {
+                display: none;
+            }
+            
+            .grade-table, .grade-table tbody, .grade-table tr, .grade-table td {
+                display: block;
+                width: 100%;
+            }
+            
+            .grade-table tr {
+                margin-bottom: 1.5rem;
+                border: 1px solid #e5e7eb;
+                border-radius: 0.5rem;
+                background: #fff;
+                box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+                overflow: hidden;
+            }
+            
+            .grade-table td {
+                text-align: right;
+                padding: 0.75rem 1rem;
+                position: relative;
+                border-bottom: 1px solid #f3f4f6;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                min-height: 45px;
+            }
+            
+            .grade-table td:last-child {
+                border-bottom: none;
+            }
+
+            .grade-table td::before {
+                content: attr(data-label);
+                font-weight: 700;
+                font-size: 0.85rem;
+                color: #6b7280;
+                text-transform: uppercase;
+                text-align: left;
+                margin-right: 1rem;
+            }
+            
+            /* SN column - Hide on mobile */
+            .grade-table td[data-label="SN"] {
+                display: none;
+            }
+            
+            /* Subject Header Style */
+            .grade-table td[data-label="Subject"] {
+                background: var(--primary-color);
+                color: white;
+                justify-content: center;
+                text-align: center;
+                font-size: 1.1rem;
+                font-weight: 800;
+                padding: 1rem;
+            }
+            
+            .grade-table td[data-label="Subject"]::before {
+                display: none;
+            }
+
+            /* Remarks - allow it to wrap nicely */
+            .grade-table td[data-label="Remarks"] {
+                display: block;
+                text-align: left;
+            }
+            .grade-table td[data-label="Remarks"]::before {
+                display: block;
+                margin-bottom: 0.25rem;
+            }
+
+            /* Summary Row Special Handling */
+            .grade-table tr.summary-row-table td.summary-label-cell {
+                text-align: left; /* Reset align */
+                display: block;
+                width: 100%;
+                background: #f3f4f6;
+                font-weight: 800;
+                color: var(--secondary-color);
+            }
+             
+            .grade-table tr.summary-row-table {
+                background: #f9fafb !important;
+                border: 2px solid var(--primary-color);
+            }
+
+            .signatures-grid {
+                grid-template-columns: 1fr;
+                gap: 3rem;
+            }
+            
+            .summary-grid {
+                grid-template-columns: 1fr !important;
+                gap: 1rem;
+            }
+        }
+
         /* Print Styles */
         @media print {
             body {
@@ -384,14 +531,14 @@
             <div class="report-content">
                 <!-- Header -->
                 <div class="row align-items-center mb-4 border-bottom pb-3 school-header-row">
-                    <div class="col-2 text-center">
+                    <div class="col-12 col-md-2 text-center mb-3 mb-md-0">
                         {% if school_logo %}
                             <img src="{{ school_logo.url }}" alt="School Logo" style="max-height: 120px; width: auto;">
                         {% else %}
                             <img src="{% static 'img/logo.png' %}" alt="School Logo" style="max-height: 120px; width: auto;">
                         {% endif %}
                     </div>
-                    <div class="col-8 text-center">
+                    <div class="col-12 col-md-8 text-center mb-3 mb-md-0">
                         <div class="school-header text-center border-0 mb-0 pb-0">
                             <div class="school-name mb-1">{{ school_name }}</div>
                             <div class="school-info">
@@ -402,7 +549,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-2 text-center">
+                    <div class="col-12 col-md-2 text-center">
                          <div style="width: 100px; height: 120px; border: 1px solid #ccc; margin: 0 auto; overflow: hidden; background: #f8f9fa;">
                             {% if student.user.profile_picture %}
                                 <img src="{{ student.user.profile_picture.url }}" alt="Student" style="width: 100%; height: 100%; object-fit: cover;">
@@ -468,18 +615,18 @@
                         <tbody>
                             {% for grade in grades %}
                             <tr>
-                                <td>{{ forloop.counter }}</td>
-                                <td class="subject-col">{{ grade.subject.name }}</td>
-                                <td>{{ grade.class_score }}</td>
-                                <td>{{ grade.exams_score }}</td>
-                                <td class="fw-bold">{{ grade.total_score }}</td>
-                                <td>
+                                <td data-label="SN">{{ forloop.counter }}</td>
+                                <td class="subject-col" data-label="Subject">{{ grade.subject.name }}</td>
+                                <td data-label="Class Score">{{ grade.class_score }}</td>
+                                <td data-label="Exam Score">{{ grade.exams_score }}</td>
+                                <td class="fw-bold" data-label="Total">{{ grade.total_score }}</td>
+                                <td data-label="Grade">
                                     <span class="badge-grade badge-{{ grade.grade }}">
                                         {{ grade.grade }}
                                     </span>
                                 </td>
-                                <td>{{ grade.subject_position|default:"-" }}</td>
-                                <td class="text-start ps-2" style="font-size: 0.8rem;">{{ grade.remarks }}</td>
+                                <td data-label="Pos">{{ grade.subject_position|default:"-" }}</td>
+                                <td class="text-start ps-2" style="font-size: 0.8rem;" data-label="Remarks">{{ grade.remarks }}</td>
                             </tr>
                             {% empty %}
                             <tr>
@@ -490,12 +637,12 @@
                             {% endfor %}
                             
                             {% if grades %}
-                            <tr>
-                                <td colspan="2" class="text-end pe-3 text-uppercase">Summary Average</td>
-                                <td>{{ total_class_work|floatformat:1 }}</td>
-                                <td>{{ total_exams|floatformat:1 }}</td>
-                                <td class="fw-bold">{{ average_percentage|floatformat:1 }}%</td>
-                                <td>
+                            <tr class="summary-row-table">
+                                <td colspan="2" class="text-end pe-3 text-uppercase summary-label-cell">Summary Average</td>
+                                <td data-label="Avg Class Score">{{ total_class_work|floatformat:1 }}</td>
+                                <td data-label="Avg Exam Score">{{ total_exams|floatformat:1 }}</td>
+                                <td class="fw-bold" data-label="Avg %">{{ average_percentage|floatformat:1 }}%</td>
+                                <td data-label="Overall Grade">
                                     <span class="badge-grade badge-{{ overall_grade }}">
                                         {{ overall_grade|default:"-" }}
                                     </span>

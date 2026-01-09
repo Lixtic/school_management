@@ -49,22 +49,78 @@ body {
 /* Hero Section */
 .hero-wrapper {
     position: relative;
-    background-color: var(--primary-dark);
-    padding-top: 60px;
-    padding-bottom: 140px; /* Space for the wave and overlap */
+    /* background-color: var(--primary-dark); REMOVED: Managed by slideshow */
+    padding-top: 120px; /* Increased padding for better centering */
+    padding-bottom: 180px; 
     color: #fff;
     overflow: hidden;
+    background: #000; /* Fallback */
+}
+
+/* Slideshow Styles */
+.hero-slideshow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+}
+
+.hero-slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    opacity: 0;
+    animation: heroSlideFade 18s infinite;
+}
+
+/* Three slides sharing the 18s loop */
+.hero-slide:nth-child(1) { 
+    background-image: url('https://images.unsplash.com/photo-1546410531-bb4caa6b424d?q=80&w=1920&auto=format&fit=crop'); 
+    animation-delay: 0s; 
+}
+.hero-slide:nth-child(2) { 
+    background-image: url('https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=1920&auto=format&fit=crop'); 
+    animation-delay: 6s; 
+}
+.hero-slide:nth-child(3) { 
+    background-image: url('https://images.unsplash.com/photo-1509062522246-3755977927d7?q=80&w=1920&auto=format&fit=crop'); 
+    animation-delay: 12s; 
+}
+
+@keyframes heroSlideFade {
+    0% { opacity: 0; transform: scale(1.05); }
+    10% { opacity: 1; }
+    33% { opacity: 1; }
+    43% { opacity: 0; transform: scale(1); }
+    100% { opacity: 0; }
+}
+
+/* Overlay to darken images for text readability */
+.hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(15, 59, 87, 0.9) 0%, rgba(2, 110, 86, 0.85) 100%);
+    z-index: 1;
+}
+
+/* Content needs to be above the overlay */
+.hero-wrapper .container {
+    position: relative;
+    z-index: 2;
 }
 
 .hero-wrapper::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(circle, rgba(11,156,199,0.15) 0%, transparent 60%);
-    pointer-events: none;
+    /* Removed old radial gradient in favor of the overlay */
+    display: none;
 }
 
 .hero-wave {
@@ -74,6 +130,7 @@ body {
     width: 100%;
     overflow: hidden;
     line-height: 0;
+    z-index: 3; /* Above everything */
 }
 
 .hero-wave svg {
@@ -315,16 +372,21 @@ body {
 </style>
 
 <!-- Navbar -->
-<div class="top-nav px-3 py-3">
+<div class="top-nav px-3 py-3 position-relative z-3">
     <div class="container d-flex justify-content-between align-items-center">
         <div class="d-flex align-items-center gap-3">
+            {% if school_logo %}
+            <img src="{{ school_logo.url }}" alt="Logo" style="width: 48px; height: 48px; object-fit: contain;" class="rounded-3 shadow-sm bg-white p-1">
+            {% else %}
             <div class="brand-logo">GM</div>
+            {% endif %}
             <div style="line-height: 1.2;">
-                <div class="fw-bold fs-5 text-dark">Girls Model JHS</div>
-                <small class="text-muted d-block" style="font-size: 0.75rem;">Excellence & Integrity</small>
+                <div class="fw-bold fs-5 text-dark">{{ school_name|default:"Girls Model JHS" }}</div>
+                <small class="text-muted d-block" style="font-size: 0.75rem;">{{ school_motto|default:"Excellence & Integrity" }}</small>
             </div>
         </div>
-        <div>
+        <div class="d-flex gap-3 align-items-center">
+            <a href="{% url 'academics:gallery' %}" class="btn btn-outline-dark rounded-pill px-3 fw-bold border-0 bg-white bg-opacity-50">Gallery</a>
             <a href="{% url 'login' %}" class="btn btn-dark rounded-pill px-4 fw-bold">Login</a>
         </div>
     </div>
@@ -332,6 +394,16 @@ body {
 
 <!-- Hero Section -->
 <div class="hero-wrapper text-center text-lg-start">
+    <!-- Background Slideshow -->
+    <div class="hero-slideshow">
+        <div class="hero-slide"></div>
+        <div class="hero-slide"></div>
+        <div class="hero-slide"></div>
+    </div>
+    
+    <!-- Dark Overlay -->
+    <div class="hero-overlay"></div>
+
     <div class="container position-relative z-2">
         <div class="row align-items-center">
             <div class="col-lg-7 mb-5 mb-lg-0">
@@ -340,7 +412,7 @@ body {
                 </div>
                 <h1 class="hero-title">Empowering Young Minds to Lead & Excel.</h1>
                 <p class="hero-subtitle">
-                    Welcome to the official digital hub of Girls Model JHS. Track student progress, view upcoming school activities, and stay connected with our vibrant learning community.
+                    Welcome to the official digital hub of {{ school_name }}. Track student progress, view upcoming school activities, and stay connected with our vibrant learning community.
                 </p>
                 <div class="d-flex flex-wrap gap-3 justify-content-center justify-content-lg-start">
                     <a href="#activities" class="btn-primary-custom text-decoration-none">
@@ -481,8 +553,12 @@ body {
         <div class="row g-4 mb-4">
             <div class="col-lg-4">
                 <div class="d-flex align-items-center gap-2 mb-3">
+                    {% if school_logo %}
+                    <img src="{{ school_logo.url }}" alt="Logo" style="width: 32px; height: 32px; object-fit: contain;" class="rounded bg-white p-1">
+                    {% else %}
                     <div class="brand-logo text-white" style="width: 32px; height: 32px; font-size: 0.9rem;">GM</div>
-                    <span class="fw-bold text-dark fs-5">Girls Model JHS</span>
+                    {% endif %}
+                    <span class="fw-bold text-dark fs-5">{{ school_name }}</span>
                 </div>
                 <p class="text-muted small">Nurturing the next generation of female leaders through academic excellence and character development.</p>
             </div>
@@ -499,18 +575,18 @@ body {
                 <ul class="list-unstyled d-flex flex-column gap-2 small">
                     <li><a href="{% url 'login' %}" class="text-decoration-none text-muted" title="Login to view">Academic Calendar</a></li>
                     <li><a href="{% url 'login' %}" class="text-decoration-none text-muted">Parent Portal</a></li>
-                    <li><a href="mailto:staff@girlsmodeljhs.edu.gh" class="text-decoration-none text-muted">Staff Email</a></li>
+                    <li><a href="mailto:{{ school_email }}" class="text-decoration-none text-muted">Staff Email</a></li>
                 </ul>
             </div>
             <div class="col-lg-4">
                 <h6 class="fw-bold mb-3">Contact</h6>
-                <p class="small text-muted mb-1"><i class="bi bi-geo-alt me-2"></i> 123 Education Drive, Cityville</p>
-                <p class="small text-muted mb-1"><i class="bi bi-telephone me-2"></i> +233 123 456 789</p>
-                <p class="small text-muted"><i class="bi bi-envelope me-2"></i> info@girlsmodeljhs.edu.gh</p>
+                <p class="small text-muted mb-1"><i class="bi bi-geo-alt me-2"></i> {{ school_address }}</p>
+                <p class="small text-muted mb-1"><i class="bi bi-telephone me-2"></i> {{ school_phone }}</p>
+                <p class="small text-muted"><i class="bi bi-envelope me-2"></i> {{ school_email }}</p>
             </div>
         </div>
         <div class="border-top pt-3 text-center">
-            <small class="text-muted">&copy; {% now 'Y' %} Girls Model Junior High School. All rights reserved.</small>
+            <small class="text-muted">&copy; {% now 'Y' %} {{ school_name }}. All rights reserved.</small>
         </div>
     </div>
 </footer>

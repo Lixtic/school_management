@@ -1,4 +1,6 @@
-{% load static %}
+
+with open(r'd:/school_management/templates/base.html', 'w', encoding='utf-8') as f:
+    f.write(r'''{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -376,7 +378,7 @@
                         <span>Girls Model JHS</span>
                     </div>
                     <div>
-                        <a href="{% url 'dashboard' %}" class="user-info">
+                        <a href="#" class="user-info">
                             <div class="user-avatar">
                                 {{ user.get_full_name|first|upper }}
                             </div>
@@ -626,3 +628,4 @@
     {% endif %}
 </body>
 </html>
+''')

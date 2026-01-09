@@ -37,7 +37,7 @@
             {% if is_admin %}
             <div class="col-md-6">
                 <label class="form-label">Assigned Staff</label>
-                <select name="assigned_staff" id="assigned_staff" class="form-select select-flat" multiple>
+                <select name="assigned_staff" id="assigned_staff" class="select-flat w-100" multiple>
                     {% for staff in staff_queryset %}
                         <option value="{{ staff.id }}">{{ staff.get_full_name }} ({{ staff.user_type }})</option>
                     {% endfor %}

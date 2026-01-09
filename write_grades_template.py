@@ -1,4 +1,6 @@
-{% extends 'base.html' %}
+
+with open(r'd:/school_management/templates/teachers/enter_grades.html', 'w', encoding='utf-8') as f:
+    f.write(r'''{% extends 'base.html' %}
 {% load static %}
 
 {% block content %}
@@ -303,3 +305,4 @@ function calculateTotal(studentId) {
 })();
 </script>
 {% endblock %}
+''')

@@ -425,17 +425,17 @@ body {
         <p class="section-subtitle mx-auto">Explore the diverse activities that enrich our curriculum and build character.</p>
     </div>
 
-    <!-- Filter/Tabs (Visual only for now) -->
-    <div class="d-flex justify-content-center gap-2 mb-4">
-        <span class="badge rounded-pill bg-dark px-3 py-2">All Events</span>
-        <span class="badge rounded-pill bg-white text-dark border px-3 py-2">Sports</span>
-        <span class="badge rounded-pill bg-white text-dark border px-3 py-2">Academic</span>
-        <span class="badge rounded-pill bg-white text-dark border px-3 py-2">Arts</span>
+    <!-- Filter/Tabs -->
+    <div class="d-flex justify-content-center gap-2 mb-4" id="homeEventsFilter">
+        <button class="btn rounded-pill px-3 py-2 btn-dark fw-medium border-0 filter-btn" data-filter="all">All Events</button>
+        <button class="btn rounded-pill px-3 py-2 btn-light bg-white fw-medium border filter-btn" data-filter="Sports">Sports</button>
+        <button class="btn rounded-pill px-3 py-2 btn-light bg-white fw-medium border filter-btn" data-filter="Academic">Academic</button>
+        <button class="btn rounded-pill px-3 py-2 btn-light bg-white fw-medium border filter-btn" data-filter="Arts">Arts</button>
     </div>
 
-    <div class="row g-4">
+    <div class="row g-4" id="homeEventsGrid">
         {% for activity in activities %}
-        <div class="col-md-6 col-lg-3">
+        <div class="col-md-6 col-lg-3 activity-item" data-tag="{{ activity.tag }}">
             <div class="activity-card h-100 d-flex flex-column">
                 <div class="activity-date">
                     <i class="bi bi-calendar3"></i> {{ activity.date|date:"M d, Y" }}
@@ -489,7 +489,7 @@ body {
             <div class="col-6 col-lg-2">
                 <h6 class="fw-bold mb-3">Quick Links</h6>
                 <ul class="list-unstyled d-flex flex-column gap-2 small">
-                    <li><a href="#" class="text-decoration-none text-muted">Home</a></li>
+                    <li><a href="{% url 'home' %}" class="text-decoration-none text-muted">Home</a></li>
                     <li><a href="#activities" class="text-decoration-none text-muted">Activities</a></li>
                     <li><a href="{% url 'login' %}" class="text-decoration-none text-muted">Login</a></li>
                 </ul>
@@ -497,9 +497,9 @@ body {
             <div class="col-6 col-lg-2">
                 <h6 class="fw-bold mb-3">Resources</h6>
                 <ul class="list-unstyled d-flex flex-column gap-2 small">
-                    <li><a href="#" class="text-decoration-none text-muted">Academic Calendar</a></li>
-                    <li><a href="#" class="text-decoration-none text-muted">Parent Portal</a></li>
-                    <li><a href="#" class="text-decoration-none text-muted">Staff Email</a></li>
+                    <li><a href="{% url 'login' %}" class="text-decoration-none text-muted" title="Login to view">Academic Calendar</a></li>
+                    <li><a href="{% url 'login' %}" class="text-decoration-none text-muted">Parent Portal</a></li>
+                    <li><a href="mailto:staff@girlsmodeljhs.edu.gh" class="text-decoration-none text-muted">Staff Email</a></li>
                 </ul>
             </div>
             <div class="col-lg-4">
@@ -514,6 +514,42 @@ body {
         </div>
     </div>
 </footer>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const filters = document.querySelectorAll('#homeEventsFilter .filter-btn');
+        const items = document.querySelectorAll('#homeEventsGrid .activity-item');
+
+        filters.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Remove active class from all
+                filters.forEach(b => {
+                    b.classList.remove('btn-dark', 'text-white');
+                    b.classList.add('btn-light', 'bg-white', 'text-dark');
+                });
+                
+                // Add active class to clicked
+                btn.classList.remove('btn-light', 'bg-white', 'text-dark');
+                btn.classList.add('btn-dark', 'text-white');
+
+                const filter = btn.getAttribute('data-filter');
+
+                items.forEach(item => {
+                    if (filter === 'all' || item.getAttribute('data-tag') === filter) {
+                        item.classList.remove('d-none');
+                        // Simple entry animation
+                        item.animate([
+                            { opacity: 0, transform: 'translateY(10px)' },
+                            { opacity: 1, transform: 'translateY(0)' }
+                        ], { duration: 300, easing: 'ease-out', fill: 'forwards' });
+                    } else {
+                        item.classList.add('d-none');
+                    }
+                });
+            });
+        });
+    });
+</script>
 {% endblock %}
 
 {% block content %}

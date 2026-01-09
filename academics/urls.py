@@ -6,4 +6,6 @@ app_name = 'academics'
 urlpatterns = [
     path('activities/manage/', views.manage_activities, name='manage_activities'),
     path('gallery/', views.gallery_view, name='gallery'),
+    path('settings/', views.school_settings_view, name='school_settings'),
+    path('timetable/', views.timetable_view, name='timetable'),
 ]

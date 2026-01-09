@@ -28,7 +28,23 @@ def student_list(request):
         )
     
     # Filter by class
-    class_filter = request.GET.get('class', '')
+    # Logic: 
+    # 1. If 'class' params in GET, use it and update session
+    # 2. If no 'class' param in GET, check session
+    # 3. If 'class' param is empty string (User selected "All"), clear session
+    
+    if 'class' in request.GET:
+        class_filter = request.GET.get('class')
+        if class_filter:
+            request.session['student_filter_class'] = class_filter
+        else:
+            # User cleared filter
+            if 'student_filter_class' in request.session:
+                del request.session['student_filter_class']
+    else:
+        # No param, check session
+        class_filter = request.session.get('student_filter_class', '')
+
     if class_filter:
         students = students.filter(current_class_id=class_filter)
     
@@ -55,6 +71,7 @@ def student_list(request):
         'active_students': active_students,
         'total_classes': total_classes,
         'classes': classes,
+        'current_class_filter': class_filter,  # Pass explicit filter state for template
     }
     
     return render(request, 'students/student_list.html', context)
@@ -284,11 +301,32 @@ def student_dashboard_view(request):
     # Get all grades
     grades = Grade.objects.filter(student=student).select_related('subject').order_by('-created_at')
     
+    # Get announcements
+    from announcements.models import Announcement
+    from finance.models import StudentFee
+    
+    notices = Announcement.objects.filter(
+        is_active=True, 
+        target_audience__in=['all', 'students']
+    ).order_by('-created_at')[:3]
+
+    # Calculate finance stats
+    student_fees = StudentFee.objects.filter(student=student)
+    total_payable = sum(fee.amount_payable for fee in student_fees)
+    total_paid = sum(fee.total_paid for fee in student_fees)
+    balance = val = total_payable - total_paid
+    
     context = {
         'student': student,
         'recent_attendance': recent_attendance,
         'attendance_stats': attendance_stats,
         'grades': grades,
+        'notices': notices,
+        'finance_stats': {
+            'payable': total_payable,
+            'paid': total_paid,
+            'balance': balance
+        }
     }
     
     return render(request, 'dashboard/student_dashboard.html', context)
@@ -407,6 +445,10 @@ def generate_report_card(request, student_id):
         'percentage': attendance_percentage
     }
     
+    # Get School Info for the header
+    from academics.models import SchoolInfo
+    school_info = SchoolInfo.objects.first()
+
     context = {
         'student': student,
         'academic_year': academic_year,
@@ -424,6 +466,12 @@ def generate_report_card(request, student_id):
         'attendance_stats': attendance_stats,
         'report_date': date.today(),
         'remarks': '',
+        'school_name': school_info.name if school_info else "St. Peter's Methodist Junior High School",
+        'school_address': school_info.address if school_info else "P.O. Box 123, Kumasi, Ghana",
+        'school_phone': school_info.phone if school_info else "+233 123 456 789",
+        'school_email': school_info.email if school_info else "info@spswjh.edu.gh",
+        'school_motto': school_info.motto if school_info else "Knowledge is Power",
+        'school_logo': school_info.logo if school_info else None,
     }
     
     return render(request, 'students/report_card.html', context)

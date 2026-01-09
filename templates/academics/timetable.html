@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% load academic_tags %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Class Timetable</h2>
+    
+    <form class="d-flex gap-2" method="get">
+        <select name="class_id" class="form-select" onchange="this.form.submit()">
+            <option value="">Select Class...</option>
+            {% for cls in classes %}
+            <option value="{{ cls.id }}" {% if selected_class.id == cls.id %}selected{% endif %}>
+                {{ cls.name }}
+            </option>
+            {% endfor %}
+        </select>
+    </form>
+</div>
+
+{% if selected_class %}
+<div class="card">
+    <div class="card-header bg-white py-3">
+        <h5 class="mb-0 text-primary fw-bold">{{ selected_class.name }} Schedule</h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-bordered mb-0 text-center">
+                <thead class="bg-light">
+                    <tr>
+                        <th style="width: 15%;">Day</th>
+                        <th>Schedule</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for day in days %}
+                    <tr>
+                        <td class="fw-bold bg-light align-middle">{{ day }}</td>
+                        <td class="text-start p-3">
+                            {% if timetable|get_item:day %}
+                                <div class="d-flex flex-wrap gap-3">
+                                    {% for entry in timetable|get_item:day %}
+                                    <div class="border rounded p-2 bg-white shadow-sm" style="min-width: 150px;">
+                                        <div class="fw-bold text-primary">{{ entry.class_subject.subject.name }}</div>
+                                        <div class="text-muted small">
+                                            <i class="bi bi-clock"></i> {{ entry.start_time|time:"H:i" }} - {{ entry.end_time|time:"H:i" }}
+                                        </div>
+                                        {% if entry.class_subject.teacher %}
+                                        <div class="text-muted small mt-1">
+                                            <i class="bi bi-person"></i> {{ entry.class_subject.teacher.user.get_full_name }}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <span class="text-muted fst-italic">No classes scheduled</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="alert alert-info py-5 text-center">
+    <i class="bi bi-calendar-range fs-1 d-block mb-3"></i>
+    <h5>No Class Selected</h5>
+    <p>Please select a class from the dropdown to view the timetable.</p>
+</div>
+{% endif %}
+{% endblock %}

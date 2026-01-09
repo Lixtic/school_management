@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card bg-gradient-primary text-white mb-4">
+            <div class="card-body">
+                <h4 class="card-title fw-bold"><i class="bi bi-megaphone-fill"></i> New Notice</h4>
+                <p>Post a new announcement to the school portal.</p>
+                <hr class="bg-white">
+                <form method="post" class="text-white">
+                    {% csrf_token %}
+                    {{ form|crispy }}
+                    <div class="d-grid mt-3">
+                        <button class="btn btn-light text-primary fw-bold" type="submit">
+                            Post Announcement
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        <h4 class="mb-3">Active Announcements</h4>
+        
+        {% for notice in announcements %}
+        <div class="card mb-3 border-start border-4 border-primary shadow-sm hover-shadow">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <h5 class="fw-bold mb-1">{{ notice.title }}</h5>
+                        <div class="d-flex gap-2 mb-2">
+                             <span class="badge bg-primary rounded-pill">{{ notice.get_target_audience_display }}</span>
+                             <span class="badge bg-light text-dark border">{{ notice.created_at|date:"M d, Y" }}</span>
+                             {% if not notice.is_active %}<span class="badge bg-secondary">Inactive</span>{% endif %}
+                        </div>
+                    </div>
+                    
+                     <div class="dropdown">
+                        <button class="btn btn-sm btn-link text-muted" type="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-three-dots-vertical"></i>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <form method="post" onsubmit="return confirm('Delete this notice?');">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="delete" value="{{ notice.id }}">
+                                    <button class="dropdown-item text-danger" type="submit">Delete</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <p class="card-text text-muted">{{ notice.content|linebreaks }}</p>
+                
+                <small class="text-muted fst-italic">Posted by: {{ notice.created_by.get_full_name }}</small>
+            </div>
+        </div>
+        {% empty %}
+        <div class="alert alert-info text-center py-5">
+            <i class="bi bi-inbox fs-1 d-block mb-3"></i>
+            No announcements found
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -1,19 +1,20 @@
 # Copilot Instructions for this Project
 
-- **Stack**: Django 5 with custom user model, crispy-forms + bootstrap5, WhiteNoise static serving. Apps: accounts (auth + dashboards), students (attendance, grades, reports), teachers (class/grade entry), academics (years/classes/subjects), parents (child access/homework).
+- **Stack**: Django 5 with custom user model, crispy-forms + bootstrap5, WhiteNoise static serving. Apps: accounts (auth + dashboards), students (attendance, grades, reports), teachers (class/grade entry), academics (years/classes/subjects), parents (child access/homework), announcements (notices), finance (fees).
 - **Auth & roles**: Custom user `accounts.User` with `user_type` field (admin/teacher/student/parent) and profile models per role. Dashboards route by role in [accounts/views.py](accounts/views.py) via `dashboard` view.
-- **URLs**: Root login at `/`, dashboards at `/dashboard/`, role modules mounted under `/students/`, `/teachers/`, `/parents/`, admin at `/admin/` as set in [school_system/urls.py](school_system/urls.py).
+- **URLs**: Root login at `/`, dashboards at `/dashboard/`, role modules mounted under `/students/`, `/teachers/`, `/parents/`, `/finance/`, `/announcements/`, admin at `/admin/` as set in [school_system/urls.py](school_system/urls.py).
 - **Templates & forms**: Templates live under `templates/`; role dashboards under `templates/dashboard/`. Forms lean on crispy-bootstrap5; keep Bootstrap 5 classes consistent.
-- **Key models**: Academic calendar in [academics/models.py](academics/models.py) (`AcademicYear.is_current` drives filters). Classes link to academic year and optional class teacher. Subjects linked to classes via `ClassSubject` (teacher assignment). Students link to custom User and current class. Grades tie `Student` + `Subject` + `AcademicYear` + `term` with derived totals/rankings. Attendance is unique per student/date. Parents map to children many-to-many; Homework ties class/subject/teacher with optional attachment.
-- **Grade logic & term strings**: In [students/models.py](students/models.py) `Grade.save` coerces scores to Decimal, caps total at 100, assigns grade/remarks, and updates per-subject rankings. Canonical `term` values are `first|second|third`; term normalization + aliases live in [students/utils.py](students/utils.py) so legacy labels like "First Term" still resolve when querying.
-- **Ranking helpers**: `Grade.update_subject_rankings()` ranks classmates for a subject/term. Overall class position per term is computed in [students/utils.py](students/utils.py) `calculate_class_position` by summing `total_score` across subjects.
-- **Student-facing flows**: `student_dashboard_view` aggregates attendance + grades; report cards via `generate_report_card` enforce role checks (student/parent/teacher/admin) before rendering [students/report_card.html](templates/students/report_card.html). Parent views re-check child ownership in [parents/views.py](parents/views.py).
-- **Teacher flows (preconditions)**: `enter_grades` in [teachers/views.py](teachers/views.py) filters `ClassSubject` by logged-in teacher and `update_or_create`s grades for the current academic year. `teacher_classes` lists assignments. Both require an `AcademicYear` with `is_current=True` and `ClassSubject` rows assigning the teacher.
-- **Attendance**: `mark_attendance` updates/creates `Attendance` per student/date; unique_together enforces one record per day. AJAX helpers `get_class_students` and `student_details_ajax` return JSON for modals/tables.
-- **Data consistency**: Ensure exactly one `AcademicYear.is_current=True`. Uniqueness: `Class` (name, academic_year); `ClassSubject` (class, subject); `Grade` (student, subject, academic_year, term); `Attendance` (student, date). Fixtures and bulk inserts must respect these.
-- **Settings & security**: DB uses `DATABASE_URL` (PostgreSQL via dj-database-url) else SQLite fallback. Static via WhiteNoise; templates root at `templates/`. Auth redirects configured to `login`/`dashboard` in [school_system/settings.py](school_system/settings.py). Production should set `SECRET_KEY`, tighten `ALLOWED_HOSTS`, and set `DEBUG=False`.
-- **Dev runbook**: Create venv, `pip install -r requirements.txt`, set `DEBUG=True`, `python manage.py migrate`, optionally `python load_sample_data.py`, then `python manage.py runserver`.
-- **Sample data**: `python load_sample_data.py` seeds users/classes/subjects/grades/attendance/parents using canonical term strings. Legacy `add_term_field.py` runs raw SQL—only for legacy DBs without migrations.
+- **Key models**: 
+  - [academics/models.py](academics/models.py): `AcademicYear.is_current` drives filters. `SchoolInfo` stores global branding. `Timetable` links Class/Subject to Day/Time.
+  - [students/models.py](students/models.py): `Attendance` is unique per student/date.
+  - [finance/models.py](finance/models.py): `FeeStructure` defines charges; `StudentFee` tracks individual liability; `Payment` records receipts.
+  - [announcements/models.py](announcements/models.py): `Announcement` targets audience groups (Staff, Parents, All).
+- **Dashboard Logic**: Admin dashboard (`admin_dashboard.html`) layout is grid-based with quick links to Timetable, Finance, Notices, Settings. Includes Chart.js analytics for attendance/class size.
+- **Grade logic**: `Grade.save` coerces scores, caps at 100, assigns grade/remarks. `term` values are `first|second|third`.
+- **Finance**: Admin manages fees (`finance:manage_fees`); payments handled via `finance:record_payment` with receipt generation at `finance:print_receipt`.
+- **Reporting**: Report cards (`students:report_card`) fetch dynamic branding from `SchoolInfo` model.
+- **Data seeding**: `load_sample_data.py` populates Users, Classes, Subjects, Fees, Announcements, and Timetable.
+- **Dev runbook**: Create venv, `pip install -r requirements.txt`, `migrate`, `python load_sample_data.py` (seeds full test set), `runserver`.
 - **Static/media**: User avatars and homework files stored under `media/`; ensure `MEDIA_ROOT` writable. When `DEBUG=True`, static/media served via `django.conf.urls.static` in [school_system/urls.py](school_system/urls.py).
 - **Tests**: No custom tests present; add Django `TestCase`s per app in `tests.py` files if extending behavior.
 - **Conventions**: Guard privileged views with `user.user_type` checks; prefer `select_related` on user/class for listings; preserve Decimal score handling and ranking side-effects in `Grade.save`.

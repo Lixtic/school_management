@@ -1,17 +1,37 @@
 import os
 import django
 from datetime import date, timedelta
+import random
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'school_system.settings')
 django.setup()
 
 from accounts.models import User
-from academics.models import AcademicYear, Class, Subject, ClassSubject
+from academics.models import AcademicYear, Class, Subject, ClassSubject, SchoolInfo, Timetable
 from students.models import Student, Attendance, Grade
 from teachers.models import Teacher
 from parents.models import Parent
+from finance.models import FeeHead, FeeStructure, StudentFee, Payment
+from announcements.models import Announcement
 
 print("🚀 Starting to load sample data...")
+
+# Create School Info
+print("\n🏫 Configuring School Info...")
+info, created = SchoolInfo.objects.get_or_create(
+    id=1,
+    defaults={
+        'name': "St. Peter's Methodist Junior High School",
+        'address': "P.O. Box 77, Kumasi, Ghana",
+        'phone': "+233 24 000 0000",
+        'email': "info@stpetermethodist.edu.gh",
+        'motto': "Knowledge, Character & Service"
+    }
+)
+if created:
+    print("✅ Created School Info")
+else:
+    print("ℹ️  School Info already exists")
 
 # Create Academic Year
 print("\n📅 Creating Academic Year...")
@@ -264,6 +284,103 @@ for username, fname, lname, email, relation, child_usernames in parents_data:
     
     if created:
         print(f"✅ Created Parent Profile: {fname} {lname}")
+
+# Create Admin if needed for finance/announcements (ensure consistency)
+admin_user = User.objects.filter(username='admin').first()
+if not admin_user:
+    # Fallback to creating one if missing (though usually created via createsuperuser)
+    try:
+        admin_user = User.objects.create_superuser('admin', 'admin@school.com', 'admin123', user_type='admin')
+        print("✅ Created fallback Admin User for records")
+    except Exception:
+        # If admin exists but username logic failed or other issue, grab first superuser
+        admin_user = User.objects.filter(is_superuser=True).first()
+
+# Create Finance Data
+print("\n💰 Creating Finance Data...")
+
+# Fee Heads
+fee_heads = {}
+for name, desc in [("Tuition Fee", "Basic tuition per term"), ("PTA Dues", "Parent-Teacher Association Levies"), ("ICT Fee", "Computer Lab Maintenance")]:
+    head, created = FeeHead.objects.get_or_create(name=name, defaults={'description': desc})
+    fee_heads[name] = head
+    if created:
+        print(f"✅ Created Fee Head: {name}")
+
+# Fee Structures (for all classes)
+fee_structures = []
+for cls_name, cls in classes.items():
+    # Tuition
+    fs_tuition, created = FeeStructure.objects.get_or_create(
+        head=fee_heads["Tuition Fee"],
+        class_level=cls,
+        academic_year=ay,
+        term='first',
+        defaults={'amount': 450.00, 'due_date': date(2024, 9, 30)}
+    )
+    
+    # PTA
+    fs_pta, created = FeeStructure.objects.get_or_create(
+        head=fee_heads["PTA Dues"],
+        class_level=cls,
+        academic_year=ay,
+        term='first',
+        defaults={'amount': 50.00, 'due_date': date(2024, 9, 30)}
+    )
+    
+    fee_structures.extend([fs_tuition, fs_pta])
+
+print(f"✅ Created/Verified Fee Structures for {len(classes)} classes")
+
+# Assign Fees to Students & Make Payments
+for username, student in students.items():
+    # Assign all fees for their class
+    student_fees = []
+    class_fees = FeeStructure.objects.filter(class_level=student.current_class, academic_year=ay, term='first')
+    
+    for structure in class_fees:
+        sf, created = StudentFee.objects.get_or_create(
+            student=student,
+            fee_structure=structure,
+            defaults={'amount_payable': structure.amount}
+        )
+        student_fees.append(sf)
+    
+    # Record a random payment for student1
+    if username == 'student1' and student_fees:
+        fee_to_pay = student_fees[0] # Pay Tuition
+        # Check if already paid to avoid dupes on re-run
+        if fee_to_pay.balance > 0 and not fee_to_pay.payments.exists():
+            Payment.objects.create(
+                student_fee=fee_to_pay,
+                amount=200.00,
+                date=date.today(),
+                method='Cash',
+                recorded_by=admin_user,
+                reference=f"REC-{random.randint(1000, 9999)}"
+            )
+            print(f"✅ Recorded part-payment for {username}")
+
+# Create Announcements
+print("\n📢 Creating Announcements...")
+announcements_data = [
+    ("Welcome Back!", "We are excited to start the new academic year. Please refer to the notice board for the term schedule.", "all"),
+    ("PTA Meeting", "The first PTA meeting will be held on Friday, 15th September.", "parents"),
+    ("Staff Meeting", "All teachers are to attend a mandatory briefing on Monday morning.", "staff"),
+    ("Exam Schedule Out", "The mid-term exam timetable has been released.", "students"),
+]
+
+for title, content, target in announcements_data:
+    ann, created = Announcement.objects.get_or_create(
+        title=title,
+        defaults={
+            'content': content,
+            'target_audience': target,
+            'created_by': admin_user
+        }
+    )
+    if created:
+        print(f"✅ Created Announcement: {title}")
 
 print("\n" + "="*60)
 print("🎉 SAMPLE DATA LOADED SUCCESSFULLY!")

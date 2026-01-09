@@ -4,7 +4,12 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from academics.models import Class, AcademicYear, ClassSubject, Activity
 from teachers.models import Teacher
+from students.models import Student, Attendance
+from announcements.models import Announcement
+from django.db.models import Q, Count
+from django.utils import timezone
 import datetime
+import json
 
 def homepage(request):
     activities_qs = Activity.objects.filter(is_active=True).order_by('date')[:12]
@@ -74,9 +79,56 @@ def logout_view(request):
 @login_required
 def dashboard(request):
     user = request.user
+    notices = Announcement.objects.filter(is_active=True).order_by('-created_at')[:5]
     
     if user.user_type == 'admin':
-        return render(request, 'dashboard/admin_dashboard.html', {'user': user})
+        # Analytics Data
+        
+        # 1. Students per Class (Top 5 largest classes)
+        # Using current academic year would be precise, but for now simple grouping
+        students_per_class = Student.objects.values('current_class__name').annotate(
+            count=Count('id')
+        ).order_by('-count')[:5]
+        
+        chart_labels_classes = [item['current_class__name'] or 'Unassigned' for item in students_per_class]
+        chart_data_classes = [item['count'] for item in students_per_class]
+
+        # 2. Daily Attendance (Last 7 days)
+        today = timezone.now().date()
+        date_7_days_ago = today - datetime.timedelta(days=6)
+        
+        attendance_stats = Attendance.objects.filter(
+            date__gte=date_7_days_ago, 
+            status='present'
+        ).values('date').annotate(
+            present_count=Count('id')
+        ).order_by('date')
+
+        # Fill in missing dates with 0
+        daily_presence = {}
+        for item in attendance_stats:
+            daily_presence[item['date']] = item['present_count']
+        
+        chart_labels_attendance = []
+        chart_data_attendance = []
+        
+        for i in range(7):
+            d = date_7_days_ago + datetime.timedelta(days=i)
+            chart_labels_attendance.append(d.strftime("%a")) # Mon, Tue...
+            chart_data_attendance.append(daily_presence.get(d, 0))
+
+        context = {
+            'user': user,
+            'notices': notices,
+            'chart_labels_classes': json.dumps(chart_labels_classes),
+            'chart_data_classes': json.dumps(chart_data_classes),
+            'chart_labels_attendance': json.dumps(chart_labels_attendance),
+            'chart_data_attendance': json.dumps(chart_data_attendance),
+            'total_students': Student.objects.count(),
+            'total_teachers': Teacher.objects.count(),
+        }
+
+        return render(request, 'dashboard/admin_dashboard.html', context)
     elif user.user_type == 'teacher':
         teacher_profile = Teacher.objects.filter(user=user).first()
         current_year = AcademicYear.objects.filter(is_current=True).first()
@@ -90,11 +142,15 @@ def dashboard(request):
 
         class_ids = set(class_subjects.values_list('class_name_id', flat=True))
         class_ids.update(class_teacher_classes.values_list('id', flat=True))
+        
+        # Filter notices for teacher
+        teacher_notices = notices.filter(target_audience__in=['all', 'staff', 'teachers'])
 
         teacher_context = {
             'user': user,
             'teacher_has_classes': len(class_ids) > 0,
             'teacher_class_count': len(class_ids),
+            'notices': teacher_notices
         }
 
         return render(request, 'dashboard/teacher_dashboard.html', teacher_context)
@@ -102,6 +158,30 @@ def dashboard(request):
         # Redirect to enhanced student dashboard
         return redirect('students:student_dashboard')
     elif user.user_type == 'parent':
-        return render(request, 'dashboard/parent_dashboard.html', {'user': user})
+        from finance.models import StudentFee
+        parent_notices = notices.filter(target_audience__in=['all', 'parents'])
+        
+        # Calculate fees for all children
+        parent_profile = user.parent_profile
+        children = parent_profile.children.all()
+        
+        total_outstanding = 0
+        total_paid = 0
+        
+        for child in children:
+            fees = StudentFee.objects.filter(student=child)
+            for fee in fees:
+                total_outstanding += fee.balance
+                total_paid += fee.total_paid
+
+        return render(request, 'dashboard/parent_dashboard.html', {
+            'user': user, 
+            'notices': parent_notices,
+            'children': children,
+            'finance_stats': {
+                'outstanding': total_outstanding,
+                'paid': total_paid
+            }
+        })
     
     return redirect('login')

@@ -3,7 +3,9 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q
 from accounts.models import User
-from .models import Activity, GalleryImage
+from .models import Activity, GalleryImage, SchoolInfo, Class, Timetable, ClassSubject
+from .forms import SchoolInfoForm
+
 
 
 def gallery_view(request):
@@ -81,3 +83,78 @@ def manage_activities(request):
 		'is_admin': is_admin,
 	}
 	return render(request, 'academics/manage_activities.html', context)
+
+
+@login_required
+def school_settings_view(request):
+    if request.user.user_type != 'admin':
+        messages.error(request, 'Access denied')
+        return redirect('dashboard')
+    
+    info = SchoolInfo.objects.first()
+    if not info:
+        info = SchoolInfo()
+        
+    if request.method == 'POST':
+        form = SchoolInfoForm(request.POST, request.FILES, instance=info)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'School settings updated successfully')
+            return redirect('academics:school_settings')
+    else:
+        form = SchoolInfoForm(instance=info)
+        
+    return render(request, 'academics/school_settings.html', {'form': form})
+
+
+@login_required
+def timetable_view(request):
+    if request.user.user_type not in ['admin', 'teacher', 'student']:
+        messages.error(request, 'Access denied')
+        return redirect('dashboard')
+
+    classes = Class.objects.filter(academic_year__is_current=True)
+    selected_class_id = request.GET.get('class_id')
+    
+    # Auto-select class for students/teachers if not specified
+    if not selected_class_id:
+        if request.user.user_type == 'student':
+            student = getattr(request.user, 'student', None)
+            if student and student.current_class:
+                selected_class_id = student.current_class.id
+        elif request.user.user_type == 'teacher':
+            # Pick first class where they teach
+            teacher_classes = ClassSubject.objects.filter(teacher__user=request.user)
+            if teacher_classes.exists():
+                selected_class_id = teacher_classes.first().class_name.id
+            elif classes.exists():
+                selected_class_id = classes.first().id
+    
+    selected_class = None
+    timetable_grid = None
+    
+    if selected_class_id:
+        selected_class = get_object_or_404(Class, id=selected_class_id)
+        entries = Timetable.objects.filter(class_subject__class_name=selected_class).select_related('class_subject__subject', 'class_subject__teacher')
+        
+        # Structure for grid: {day: {start_time: entry}}
+        # But simpler: grouped by day
+        days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
+        timetable_grid = {day: [] for day in days}
+        
+        for entry in entries:
+            day_name = entry.get_day_display()
+            if day_name in timetable_grid:
+                timetable_grid[day_name].append(entry)
+        
+        # Sort each day by start time
+        for day in days:
+            timetable_grid[day].sort(key=lambda x: x.start_time)
+
+    context = {
+        'classes': classes,
+        'selected_class': selected_class,
+        'timetable': timetable_grid,
+        'days': ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
+    }
+    return render(request, 'academics/timetable.html', context)

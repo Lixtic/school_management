@@ -73,9 +73,9 @@
         /* Header */
         .school-header {
             text-align: center;
-            margin-bottom: 2rem;
+            margin-bottom: 1rem;
             border-bottom: 2px solid var(--primary-color);
-            padding-bottom: 1.5rem;
+            padding-bottom: 1rem;
         }
         
         .school-name {
@@ -97,22 +97,23 @@
             background: var(--primary-color);
             color: white;
             text-align: center;
-            padding: 0.75rem;
+            padding: 0.5rem;
             font-weight: 700;
             text-transform: uppercase;
             border-radius: 4px;
-            margin-bottom: 2rem;
+            margin-bottom: 1rem;
             letter-spacing: 1px;
+            font-size: 0.9rem;
         }
 
         /* Info Grid */
         .info-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 2rem;
-            margin-bottom: 2rem;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
             background: #fcfcfc;
-            padding: 1.5rem;
+            padding: 1rem;
             border: 1px solid #e5e7eb;
             border-radius: 4px;
         }
@@ -343,6 +344,21 @@
                 display: none; 
             }
 
+            /* Header Adjustments for Mobile */
+            .report-logo {
+                max-height: 50px !important;
+            }
+            .school-name {
+                font-size: 1rem !important;
+            }
+            .school-info {
+                font-size: 0.65rem !important;
+            }
+            .student-photo-box {
+                width: 60px !important;
+                height: 75px !important;
+            }
+
             /* Info Grid Stacking */
             .info-grid {
                 grid-template-columns: 1fr;
@@ -530,33 +546,32 @@
         <div class="report-card">
             <div class="report-content">
                 <!-- Header -->
-                <div class="row align-items-center mb-4 border-bottom pb-3 school-header-row">
-                    <div class="col-12 col-md-2 text-center mb-3 mb-md-0">
+                <div class="row align-items-center mb-2 border-bottom pb-2 school-header-row">
+                    <div class="col-3 col-md-2 text-center">
                         {% if school_logo %}
-                            <img src="{{ school_logo.url }}" alt="School Logo" style="max-height: 120px; width: auto;">
+                            <img src="{{ school_logo.url }}" alt="School Logo" class="report-logo" style="max-height: 80px; width: auto;">
                         {% else %}
-                            <img src="{% static 'img/logo.png' %}" alt="School Logo" style="max-height: 120px; width: auto;">
+                            <img src="{% static 'img/logo.png' %}" alt="School Logo" class="report-logo" style="max-height: 80px; width: auto;">
                         {% endif %}
                     </div>
-                    <div class="col-12 col-md-8 text-center mb-3 mb-md-0">
-                        <div class="school-header text-center border-0 mb-0 pb-0">
-                            <div class="school-name mb-1">{{ school_name }}</div>
-                            <div class="school-info">
-                                <div class="fw-bold">GHANA EDUCATION SERVICE</div>
+                    <div class="col-6 col-md-8 text-center">
+                        <div class="school-header text-center border-0 mb-0 pb-0" style="margin-bottom: 0 !important; border-bottom: none !important; padding-bottom: 0 !important;">
+                            <div class="school-name mb-0" style="font-size: 1.4rem; margin-bottom: 0 !important;">{{ school_name }}</div>
+                            <div class="school-info" style="font-size: 0.8rem; line-height: 1.2;">
+                                <div class="fw-bold text-dark small">GHANA EDUCATION SERVICE</div>
                                 <div>{{ school_address }}</div>
                                 <div>Tel: {{ school_phone }}</div>
-                                <div class="mt-2 fst-italic fw-bold text-primary">"{{ school_motto }}"</div>
+                                <div class="mt-1 fst-italic fw-bold text-primary small">"{{ school_motto }}"</div>
                             </div>
                         </div>
                     </div>
-                    <div class="col-12 col-md-2 text-center">
-                         <div style="width: 100px; height: 120px; border: 1px solid #ccc; margin: 0 auto; overflow: hidden; background: #f8f9fa;">
+                    <div class="col-3 col-md-2 text-center">
+                         <div class="student-photo-box" style="width: 85px; height: 100px; border: 1px solid #ccc; margin: 0 auto; overflow: hidden; background: #f8f9fa;">
                             {% if student.user.profile_picture %}
                                 <img src="{{ student.user.profile_picture.url }}" alt="Student" style="width: 100%; height: 100%; object-fit: cover;">
                             {% else %}
                                 <div class="d-flex flex-column align-items-center justify-content-center h-100 text-muted small">
-                                    <i class="bi bi-person-fill fs-1"></i>
-                                    <span>Photo</span>
+                                    <i class="bi bi-person-fill fs-2"></i>
                                 </div>
                             {% endif %}
                          </div>

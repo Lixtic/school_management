@@ -164,11 +164,11 @@ def mark_attendance(request):
     teacher_profile = None
     if request.user.user_type == 'teacher':
         teacher_profile = Teacher.objects.filter(user=request.user).first()
-        allowed_classes = classes_qs.filter(
-            Q(class_teacher=teacher_profile) | Q(classsubject__teacher=teacher_profile)
-        ).distinct()
+        # ONLY Class Teachers can mark attendance
+        allowed_classes = classes_qs.filter(class_teacher=teacher_profile)
+        
         if not allowed_classes.exists():
-            messages.error(request, 'You are not assigned to any class to mark attendance')
+            messages.error(request, 'You must be a Class Teacher to mark attendance')
             return redirect('dashboard')
     
     if request.method == 'POST':
@@ -220,11 +220,9 @@ def get_class_students(request, class_id):
 
     if request.user.user_type == 'teacher':
         teacher_profile = Teacher.objects.filter(user=request.user).first()
-        allowed = classes_qs.filter(
-            Q(class_teacher=teacher_profile) | Q(classsubject__teacher=teacher_profile)
-        ).distinct()
+        allowed = classes_qs.filter(class_teacher=teacher_profile)
         if class_obj not in allowed:
-            return JsonResponse({'error': 'Forbidden'}, status=403)
+            return JsonResponse({'error': 'Forbidden: You are not the class teacher for this class'}, status=403)
 
     students = Student.objects.filter(current_class=class_obj).select_related('user')
     

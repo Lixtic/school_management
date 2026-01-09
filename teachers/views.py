@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.http import JsonResponse
 from decimal import Decimal, InvalidOperation
 from teachers.models import Teacher
-from academics.models import ClassSubject, AcademicYear
+from academics.models import ClassSubject, AcademicYear, Timetable
 from students.models import Student, Grade
 from students.utils import normalize_term
 
@@ -133,3 +133,36 @@ def get_students(request, class_id):
         })
 
     return JsonResponse(data, safe=False)
+
+
+@login_required
+def teacher_schedule(request):
+    if request.user.user_type != 'teacher':
+        messages.error(request, 'Access denied')
+        return redirect('dashboard')
+    
+    try:
+        teacher = Teacher.objects.get(user=request.user)
+    except Teacher.DoesNotExist:
+        messages.error(request, 'Teacher profile not found.')
+        return redirect('dashboard')
+
+    # Get all schedule entries for this teacher/class-subject
+    timetable_qs = Timetable.objects.filter(class_subject__teacher=teacher).select_related(
+        'class_subject', 'class_subject__class_name', 'class_subject__subject'
+    ).order_by('day', 'start_time')
+    
+    # Organize by day for simpler template loop
+    days_data = []
+    # Timetable.DAY_CHOICES is ((0,'Monday'), ...)
+    for code, name in Timetable.DAY_CHOICES:
+        # Filter in python to avoid N queries, 
+        # or just filter in loop if list is short. 
+        # Since timetable_qs is likely small ( < 50 items), list filter is fine.
+        entries = [t for t in timetable_qs if t.day == code]
+        days_data.append({
+            'name': name,
+            'entries': entries
+        })
+            
+    return render(request, 'teachers/schedule.html', {'days': days_data})

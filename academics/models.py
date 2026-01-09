@@ -65,3 +65,28 @@ class ClassSubject(models.Model):
     
     class Meta:
         unique_together = ['class_name', 'subject']
+
+
+class Timetable(models.Model):
+    DAY_CHOICES = (
+        (0, 'Monday'),
+        (1, 'Tuesday'),
+        (2, 'Wednesday'),
+        (3, 'Thursday'),
+        (4, 'Friday'),
+        (5, 'Saturday'),
+        (6, 'Sunday'),
+    )
+    class_subject = models.ForeignKey(ClassSubject, on_delete=models.CASCADE)
+    day = models.IntegerField(choices=DAY_CHOICES)
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+    room = models.CharField(max_length=50, blank=True, help_text="e.g. Room 101 or Lab A")
+
+    class Meta:
+        ordering = ['day', 'start_time']
+        verbose_name_plural = "Timetables"
+
+    def __str__(self):
+        day_name = self.get_day_display()
+        return f"{self.class_subject} on {day_name} ({self.start_time.strftime('%H:%M')} - {self.end_time.strftime('%H:%M')})"

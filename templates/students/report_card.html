@@ -371,6 +371,9 @@
                 <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">
                     <i class="bi bi-arrow-left"></i> Back to Dashboard
                 </a>
+                <button onclick="downloadPDF()" class="btn btn-success text-white">
+                    <i class="bi bi-file-earmark-pdf-fill"></i> Download PDF
+                </button>
                 <button onclick="window.print()" class="btn btn-primary">
                     <i class="bi bi-printer-fill"></i> Print Report
                 </button>
@@ -619,6 +622,7 @@
         </div>
     </div>
     
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script>
         // Print shortcut
         window.addEventListener('keydown', function(e) {
@@ -627,6 +631,29 @@
                 window.print();
             }
         });
+
+        function downloadPDF() {
+            const element = document.querySelector('.report-card');
+            const opt = {
+                margin:       .5,
+                filename:     'Report_Card_{{ student.user.get_full_name|slugify }}.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2 },
+                jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+            };
+
+            // Temporarily remove shadow and margin for clean PDF
+            const originalBoxShadow = element.style.boxShadow;
+            const originalMargin = element.style.margin;
+            element.style.boxShadow = 'none';
+            element.style.margin = '0';
+
+            html2pdf().set(opt).from(element).save().then(() => {
+                // Restore styles
+                element.style.boxShadow = originalBoxShadow;
+                element.style.margin = originalMargin;
+            });
+        }
     </script>
 </body>
 </html>

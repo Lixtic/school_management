@@ -7,7 +7,7 @@ from datetime import date, timedelta
 import csv
 from .models import Student, Attendance, Grade
 from .utils import calculate_class_position, normalize_term, term_filter_values
-from academics.models import Class, AcademicYear
+from academics.models import Class, AcademicYear, Timetable
 from teachers.models import Teacher
 
 @login_required
@@ -420,3 +420,38 @@ def generate_report_card(request, student_id):
     }
     
     return render(request, 'students/report_card.html', context)
+
+
+@login_required
+def student_schedule(request):
+    if request.user.user_type != 'student':
+        messages.error(request, 'Access denied')
+        return redirect('dashboard')
+    
+    try:
+        student = Student.objects.get(user=request.user)
+    except Student.DoesNotExist:
+        messages.error(request, 'Student profile not found.')
+        return redirect('dashboard')
+
+    if not student.current_class:
+        messages.warning(request, 'You are not assigned to any class.')
+        return render(request, 'students/schedule.html', {'days': []})
+
+    # Get all schedule entries for this student's class
+    timetable_qs = Timetable.objects.filter(
+        class_subject__class_name=student.current_class
+    ).select_related(
+        'class_subject', 'class_subject__teacher', 'class_subject__teacher__user', 
+        'class_subject__subject'
+    ).order_by('day', 'start_time')
+    
+    days_data = []
+    for code, name in Timetable.DAY_CHOICES:
+        entries = [t for t in timetable_qs if t.day == code]
+        days_data.append({
+            'name': name,
+            'entries': entries
+        })
+            
+    return render(request, 'students/schedule.html', {'days': days_data, 'student_class': student.current_class})

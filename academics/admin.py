@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import AcademicYear, Class, Subject, ClassSubject, Activity
+from .models import AcademicYear, Class, Subject, ClassSubject, Activity, Timetable
 
 @admin.register(AcademicYear)
 class AcademicYearAdmin(admin.ModelAdmin):
@@ -30,3 +30,10 @@ class ActivityAdmin(admin.ModelAdmin):
     list_filter = ['is_active', 'tag']
     search_fields = ['title', 'summary', 'tag']
     filter_horizontal = ['assigned_staff']
+
+
+@admin.register(Timetable)
+class TimetableAdmin(admin.ModelAdmin):
+    list_display = ['class_subject', 'day', 'start_time', 'end_time', 'room']
+    list_filter = ['day', 'class_subject__class_name']
+    search_fields = ['class_subject__teacher__user__first_name', 'class_subject__teacher__user__last_name', 'room']

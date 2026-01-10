@@ -66,14 +66,19 @@
                 </thead>
                 <tbody>
                     {% for week in weeks %}
-                    <tr>
+                    <tr class="{% for assign in week.assignments.all %}{% if assign.teacher.user == user %}table-warning border-warning{% endif %}{% endfor %}">
                         <td class="text-center fw-bold">{{ week.week_number }}</td>
                         <td class="text-center">{{ week.start_date|date:"d M" }} - {{ week.end_date|date:"d M, Y" }}</td>
                         <td>
                             <ul class="list-unstyled mb-0">
                             {% for assign in week.assignments.all %}
                                 <li class="mb-1">
-                                    <strong>{{ assign.teacher.user.get_full_name }}</strong> 
+                                    {% if assign.teacher.user == user %}
+                                        <strong class="text-dark bg-warning px-1 rounded">{{ assign.teacher.user.get_full_name }} (You)</strong>
+                                    {% else %}
+                                        <strong>{{ assign.teacher.user.get_full_name }}</strong> 
+                                    {% endif %}
+                                    
                                     {% if assign.role and assign.role != 'Member' %}
                                     <span class="badge bg-secondary text-white small" style="font-size: 0.7em;">{{ assign.role }}</span>
                                     {% endif %}
@@ -99,8 +104,8 @@
         <!-- Mobile Card View -->
         <div class="mobile-view d-md-none">
             {% for week in weeks %}
-            <div class="card mb-3 border border-dark-subtle shadow-sm">
-                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+            <div class="card mb-3 shadow-sm {% for assign in week.assignments.all %}{% if assign.teacher.user == user %}border-warning border-2{% else %}border-dark-subtle{% endif %}{% endfor %}">
+                <div class="card-header d-flex justify-content-between align-items-center {% for assign in week.assignments.all %}{% if assign.teacher.user == user %}bg-warning text-dark{% else %}bg-light{% endif %}{% endfor %}">
                     <span class="fw-bold">Week {{ week.week_number }}</span>
                     <span class="badge bg-dark">{{ week.start_date|date:"d M" }} - {{ week.end_date|date:"d M" }}</span>
                 </div>
@@ -110,7 +115,11 @@
                         <ul class="list-unstyled mb-0 ps-2 border-start border-3 border-primary">
                             {% for assign in week.assignments.all %}
                             <li class="mb-1">
-                                {{ assign.teacher.user.get_full_name }}
+                                {% if assign.teacher.user == user %}
+                                    <span class="fw-bold text-dark bg-warning px-1 rounded">{{ assign.teacher.user.get_full_name }} (You)</span>
+                                {% else %}
+                                    {{ assign.teacher.user.get_full_name }}
+                                {% endif %}
                                 {% if assign.role and assign.role != 'Member' %}
                                 <small class="text-muted">({{ assign.role }})</small>
                                 {% endif %}

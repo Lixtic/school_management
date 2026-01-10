@@ -18,6 +18,27 @@
 </div>
 {% endif %}
 
+<!-- Upcoming Duty Alert -->
+{% if next_duty %}
+<div class="alert alert-info border-0 shadow-sm mb-4">
+    <div class="d-flex align-items-center">
+        <div class="flex-shrink-0">
+            <div class="display-6 text-info"><i class="bi bi-calendar-check"></i></div>
+        </div>
+        <div class="flex-grow-1 ms-3">
+            <h5 class="alert-heading fw-bold mb-1">Upcoming Duty Assignment</h5>
+            <p class="mb-0">
+                You are assigned as <strong>{{ next_duty.role }}</strong> for the week of 
+                <strong>{{ next_duty.week.start_date|date:"M d" }} - {{ next_duty.week.end_date|date:"M d, Y" }}</strong>.
+            </p>
+        </div>
+        <div class="flex-shrink-0 ms-3">
+            <a href="{% url 'teachers:duty_roster_pdf' %}" class="btn btn-sm btn-light text-info fw-bold">View Roster</a>
+        </div>
+    </div>
+</div>
+{% endif %}
+
 <!-- School Notices -->
 <div class="row mb-4">
     <div class="col-12">

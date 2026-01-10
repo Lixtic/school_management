@@ -3,7 +3,7 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from academics.models import Class, AcademicYear, ClassSubject, Activity
-from teachers.models import Teacher
+from teachers.models import Teacher, DutyAssignment
 from students.models import Student, Attendance
 from announcements.models import Announcement
 from django.db.models import Q, Count
@@ -149,6 +149,16 @@ def dashboard(request):
         class_ids = set(class_subjects.values_list('class_name_id', flat=True))
         class_ids.update(class_teacher_classes.values_list('id', flat=True))
         
+        # Check for upcoming Duty
+        next_duty = None
+        if current_year:
+            today = timezone.now().date()
+            next_duty = DutyAssignment.objects.filter(
+                teacher=teacher_profile,
+                week__academic_year=current_year,
+                week__end_date__gte=today
+            ).select_related('week').order_by('week__start_date').first()
+        
         # Filter notices for teacher
         teacher_notices = base_notices.filter(target_audience__in=['all', 'staff', 'teachers'])[:5]
 
@@ -156,7 +166,8 @@ def dashboard(request):
             'user': user,
             'teacher_has_classes': len(class_ids) > 0,
             'teacher_class_count': len(class_ids),
-            'notices': teacher_notices
+            'notices': teacher_notices,
+            'next_duty': next_duty
         }
 
         return render(request, 'dashboard/teacher_dashboard.html', teacher_context)

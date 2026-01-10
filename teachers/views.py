@@ -175,8 +175,22 @@ def print_duty_roster(request):
     current_year = AcademicYear.objects.filter(is_current=True).first()
     if not current_year:
         current_year = AcademicYear.objects.first()
-        
-    term = request.GET.get('term', 'First')
+
+    from django.utils import timezone
+    today = timezone.now().date()
+    # Auto-detect term if not provided
+    req_term = request.GET.get('term')
+    if req_term:
+        term = req_term
+    else:
+        # Default based on active duty week
+        current_week = DutyWeek.objects.filter(
+            academic_year=current_year,
+            start_date__lte=today,
+            end_date__gte=today
+        ).first()
+        term = current_week.term if current_week else ('Second' if 1 <= today.month <= 4 else ('Third' if 5 <= today.month <= 8 else 'First'))
+
     year_id = request.GET.get('year', current_year.id if current_year else None)
     
     if year_id:

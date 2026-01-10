@@ -1,7 +1,7 @@
 # teachers/admin.py
 from django.contrib import admin, messages
 import secrets
-from .models import Teacher
+from .models import Teacher, DutyWeek, DutyAssignment
 
 @admin.register(Teacher)
 class TeacherAdmin(admin.ModelAdmin):
@@ -34,3 +34,15 @@ class TeacherAdmin(admin.ModelAdmin):
             messages.info(request, "No passwords reset.")
 
     reset_teacher_passwords.short_description = "Reset passwords (generate random)"
+
+class DutyAssignmentInline(admin.TabularInline):
+    model = DutyAssignment
+    extra = 1
+    autocomplete_fields = ['teacher']
+
+@admin.register(DutyWeek)
+class DutyWeekAdmin(admin.ModelAdmin):
+    list_display = ('week_number', 'term', 'academic_year', 'start_date', 'end_date')
+    list_filter = ('term', 'academic_year')
+    inlines = [DutyAssignmentInline]
+    ordering = ('academic_year', 'start_date')

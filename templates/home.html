@@ -3,7 +3,7 @@
 
 {% block title %}Girls Model JHS | Activities{% endblock %}
 
-{% block login_content %}
+{% block content %}
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
 
@@ -31,6 +31,13 @@ body {
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(16px);
     border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+/* Hide Top Nav if Sidebar is present (Desktop) */
+@media (min-width: 993px) {
+    body:has(.sidebar) .top-nav {
+        display: none !important;
+    }
 }
 
 .brand-logo {
@@ -363,6 +370,39 @@ body {
     max-width: 350px;
 }
 
+/* Mobile adjustments for Admin layout */
+{% if user.is_authenticated %}
+    /* Break out of main-content padding */
+    .hero-wrapper {
+        margin: -2rem -2rem 0 -2rem;
+        width: calc(100% + 4rem);
+        padding-top: 80px; /* Reduced from 120px */
+        padding-bottom: 160px;
+    }
+    
+    /* Fix Hero Overlap spacing if needed */
+    .features-overlap {
+        margin-top: -80px;
+    }
+    
+    @media (max-width: 768px) {
+        /* On mobile, main-content likely has less padding? 
+           Base.html styling: .main-content { padding: 2rem; } is consistent?
+        */
+        .hero-title {
+            font-size: 2rem;
+        }
+        .hero-subtitle {
+            font-size: 1rem;
+        }
+        
+        .btn-primary-custom, .btn-outline-custom {
+            width: 100%; /* Full width buttons on mobile */
+            justify-content: center;
+        }
+    }
+{% endif %}
+
 .footer {
     background: #fff;
     padding: 60px 0 30px;
@@ -371,7 +411,8 @@ body {
 }
 </style>
 
-<!-- Navbar -->
+<!-- Navbar (Public Only) -->
+{% if not user.is_authenticated %}
 <div class="top-nav px-3 py-3 position-relative z-3">
     <div class="container d-flex justify-content-between align-items-center">
         <div class="d-flex align-items-center gap-3">
@@ -391,6 +432,7 @@ body {
         </div>
     </div>
 </div>
+{% endif %}
 
 <!-- Hero Section -->
 <div class="hero-wrapper text-center text-lg-start">
@@ -406,6 +448,28 @@ body {
 
     <div class="container position-relative z-2">
         <div class="row align-items-center">
+            {% if user.is_authenticated and user.user_type == 'admin' %}
+            <div class="col-lg-8 mx-auto text-center">
+                <div class="hero-badge mx-auto">
+                    <i class="bi bi-shield-lock-fill" style="color: #ffd43b;"></i> Administration Area
+                </div>
+                <h1 class="hero-title">Welcome back, {{ user.first_name|default:"Admin" }}</h1>
+                <p class="hero-subtitle mx-auto">
+                    Manage school operations, review academic reports, and oversee administrative tasks from your central command center.
+                </p>
+                <div class="d-flex flex-wrap gap-3 justify-content-center">
+                    <a href="{% url 'dashboard' %}" class="btn-primary-custom text-decoration-none">
+                       <i class="bi bi-speedometer2 me-2"></i> Dashboard
+                    </a>
+                    <a href="{% url 'students:student_list' %}" class="btn-outline-custom text-decoration-none">
+                        <i class="bi bi-people me-2"></i> Students
+                    </a>
+                    <a href="{% url 'academics:manage_activities' %}" class="btn-outline-custom text-decoration-none">
+                        <i class="bi bi-calendar-event me-2"></i> Activities
+                    </a>
+                </div>
+            </div>
+            {% else %}
             <div class="col-lg-7 mb-5 mb-lg-0">
                 <div class="hero-badge">
                     <i class="bi bi-stars" style="color: #ffd43b;"></i> new academic term
@@ -449,6 +513,7 @@ body {
                     </div>
                 </div>
             </div>
+            {% endif %}
         </div>
     </div>
     
@@ -463,6 +528,32 @@ body {
 <!-- Feature Cards (Overlapping Hero) -->
 <div class="container features-overlap">
     <div class="feature-grid">
+        {% if user.is_authenticated and user.user_type == 'admin' %}
+        <div class="feature-card">
+            <div class="feature-icon icon-teal"><i class="bi bi-people-fill"></i></div>
+            <h4>Student Management</h4>
+            <p>View student profiles, manage enrollment, and track academic records.</p>
+            <a href="{% url 'students:student_list' %}" class="feature-link">Manage Students <i class="bi bi-arrow-right"></i></a>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon icon-blue"><i class="bi bi-wallet2"></i></div>
+            <h4>Finance Overview</h4>
+            <p>Track fee payments, generate reports, and manage financial records.</p>
+            <a href="{% url 'finance:dashboard' %}" class="feature-link">Go to Finance <i class="bi bi-arrow-right"></i></a>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon icon-purple"><i class="bi bi-megaphone-fill"></i></div>
+            <h4>Announcements</h4>
+            <p>Post updates and important notices for students, staff, and parents.</p>
+            <a href="{% url 'announcements:manage' %}" class="feature-link">Post Notice <i class="bi bi-arrow-right"></i></a>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon icon-orange"><i class="bi bi-gear-fill"></i></div>
+            <h4>System Settings</h4>
+            <p>Configure academy years, classes, and general school information.</p>
+            <a href="{% url 'academics:school_settings' %}" class="feature-link">Configure <i class="bi bi-arrow-right"></i></a>
+        </div>
+        {% else %}
         <div class="feature-card">
             <div class="feature-icon icon-teal"><i class="bi bi-clipboard-data"></i></div>
             <h4>Real-time Tracking</h4>
@@ -487,6 +578,7 @@ body {
             <p>Celebrating every win, from sports to science fairs. Recognition matters.</p>
             <span class="text-muted small">Updated weekly</span>
         </div>
+        {% endif %}
     </div>
 </div>
 
@@ -533,6 +625,7 @@ body {
 </div>
 
 <!-- CTA Section -->
+{% if not user.is_authenticated %}
 <div class="container py-5 my-4">
     <div class="p-5 rounded-4 text-white text-center" style="background: linear-gradient(135deg, var(--primary-dark), var(--primary-teal)); position: relative; overflow: hidden;">
         <!-- decorative circles -->
@@ -546,6 +639,7 @@ body {
         </div>
     </div>
 </div>
+{% endif %}
 
 <!-- Footer -->
 <footer class="footer">
@@ -628,44 +722,3 @@ body {
 </script>
 {% endblock %}
 
-{% block content %}
-<div class="container-fluid">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h3 class="fw-bold mb-0">School Activities</h3>
-            <p class="text-muted small">Events and highlights for the term</p>
-        </div>
-        {% if user.user_type == 'admin' %}
-        <a href="{% url 'academics:manage_activities' %}" class="btn btn-primary d-inline-flex align-items-center gap-2">
-            <i class="bi bi-plus-lg"></i> Manage
-        </a>
-        {% endif %}
-    </div>
-
-    <div class="row g-4">
-        {% for activity in activities %}
-        <div class="col-md-6 col-xl-4">
-             <div class="card h-100 border-0 shadow-sm" style="border-radius: 12px; overflow: hidden;">
-                <div class="card-body p-4">
-                    <div class="d-flex justify-content-between align-items-start mb-3">
-                        <span class="badge bg-soft-primary text-primary">{{ activity.tag }}</span>
-                        <div class="d-flex align-items-center gap-1 text-muted small">
-                             <i class="bi bi-calendar3"></i> {{ activity.date|date:"M d" }}
-                        </div>
-                    </div>
-                    <h5 class="card-title fw-bold mb-2">{{ activity.title }}</h5>
-                    <p class="card-text text-muted">{{ activity.summary }}</p>
-                </div>
-            </div>
-        </div>
-        {% empty %}
-        <div class="col-12">
-            <div class="alert alert-light border text-center p-5">
-                <i class="bi bi-calendar-x fs-1 text-muted mb-3 d-block"></i>
-                <p class="mb-0 text-muted">No activities have been posted yet.</p>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-</div>
-{% endblock %}

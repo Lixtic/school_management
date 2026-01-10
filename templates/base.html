@@ -44,15 +44,17 @@
         @keyframes spin { to { transform: rotate(360deg); } }
         
         .page-loader {
-            position: fixed; top: 0; left: 0; width: 100%; height: 3px;
-            background: #667eea; z-index: 9999;
-            transform: scaleX(0); transform-origin: left; transition: transform 0.3s ease;
+            position: fixed; top: 0; left: 0; width: 100%; height: 4px;
+            background: linear-gradient(90deg, var(--primary-teal), var(--accent-blue)); 
+            z-index: 9999;
+            box-shadow: 0 1px 15px rgba(2, 110, 86, 0.6);
+            transform: scaleX(0); transform-origin: left; transition: transform 0.1s ease;
         }
-        .page-loader.loading { animation: pageLoad 2s ease-in-out infinite; }
+        .page-loader.loading { animation: pageLoad 1.5s cubic-bezier(0.4, 0, 0.2, 1) infinite; }
         @keyframes pageLoad {
             0% { transform: scaleX(0); transform-origin: left; }
-            50% { transform: scaleX(1); transform-origin: left; }
-            50.1% { transform: scaleX(1); transform-origin: right; }
+            40% { transform: scaleX(0.5); transform-origin: left; }
+            40.1% { transform: scaleX(0.5); transform-origin: right; }
             100% { transform: scaleX(0); transform-origin: right; }
         }
         .btn-loading { position: relative; color: transparent !important; pointer-events: none; }
@@ -239,6 +241,8 @@
             font-weight: 500 !important;
             font-size: 0.95rem;
             border: 1px solid transparent;
+            white-space: nowrap;
+            overflow: hidden;
         }
 
         .nav-link:hover {
@@ -434,6 +438,39 @@
             color: #fff;
         }
 
+        /* Sidebar Collapsed State */
+        body.sidebar-collapsed .sidebar {
+            width: var(--sidebar-collapsed-width);
+        }
+        
+        body.sidebar-collapsed .main-content {
+            margin-left: var(--sidebar-collapsed-width);
+        }
+
+        body.sidebar-collapsed .sidebar h4 {
+            display: none;
+        }
+
+        body.sidebar-collapsed .sidebar .nav-link {
+            padding: 0.75rem 0.5rem !important;
+            justify-content: center !important;
+        }
+
+        body.sidebar-collapsed .sidebar .nav-link span {
+            display: none;
+        }
+        
+        body.sidebar-collapsed .sidebar .nav-link i {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        /* Public Layout Fix */
+        .public-layout .main-content {
+            margin-left: 0 !important;
+            padding: 0 !important;
+        }
+
         @media (max-width: 992px) {
             .sidebar {
                 transform: translateX(-100%);
@@ -459,8 +496,8 @@
     <!-- Page Progress Bar -->
     <div class="page-loader" id="pageLoader"></div>
 
-    {% if user.is_authenticated %}
-    <div class="main-container">
+    <div class="main-container {% if not user.is_authenticated %}public-layout{% endif %}">
+        {% if user.is_authenticated %}
         <!-- Header -->
         <header class="header">
             <div class="container-fluid px-3 px-lg-4">
@@ -468,6 +505,11 @@
                     <div class="d-flex align-items-center gap-2">
                         <!-- Mobile Toggle Inside Header -->
                         <button class="btn btn-link text-decoration-none d-lg-none p-1 me-2 border-0" onclick="toggleMobileMenu()" style="color: var(--primary-dark);">
+                            <i class="bi bi-list fs-2"></i>
+                        </button>
+                        
+                        <!-- Desktop Sidebar Toggle -->
+                        <button class="btn btn-link text-decoration-none d-none d-lg-block p-1 me-2 border-0" onclick="toggleSidebar()" style="color: var(--primary-dark);">
                             <i class="bi bi-list fs-2"></i>
                         </button>
 
@@ -540,21 +582,21 @@
             <h4 class="mb-2">Main Menu</h4>
             
             <div class="nav-item">
-                <a href="{% url 'dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                <a href="{% url 'dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" title="Dashboard">
                     <i class="bi bi-speedometer2"></i>
                     <span>Dashboard</span>
                 </a>
             </div>
 
             <div class="nav-item">
-                <a href="{% url 'home' %}" class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+                <a href="{% url 'home' %}" class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" title="Home Page">
                     <i class="bi bi-house-door"></i>
                     <span>Home Page</span>
                 </a>
             </div>
 
             <div class="nav-item">
-                <a href="{% url 'academics:gallery' %}" class="nav-link {% if request.resolver_match.url_name == 'gallery' %}active{% endif %}">
+                <a href="{% url 'academics:gallery' %}" class="nav-link {% if request.resolver_match.url_name == 'gallery' %}active{% endif %}" title="Gallery">
                     <i class="bi bi-images"></i>
                     <span>Gallery</span>
                 </a>
@@ -563,19 +605,19 @@
             {% if user.user_type == 'admin' or user.user_type == 'teacher' %}
             <h4 class="mb-2 mt-4">Academic</h4>
             <div class="nav-item">
-                <a href="{% url 'students:student_list' %}" class="nav-link {% if request.resolver_match.url_name == 'student_list' %}active{% endif %}">
+                <a href="{% url 'students:student_list' %}" class="nav-link {% if request.resolver_match.url_name == 'student_list' %}active{% endif %}" title="Students">
                     <i class="bi bi-people"></i>
                     <span>Students</span>
                 </a>
             </div>
             <div class="nav-item">
-                <a href="{% url 'students:mark_attendance' %}" class="nav-link {% if request.resolver_match.url_name == 'mark_attendance' %}active{% endif %}">
+                <a href="{% url 'students:mark_attendance' %}" class="nav-link {% if request.resolver_match.url_name == 'mark_attendance' %}active{% endif %}" title="Attendance">
                     <i class="bi bi-calendar-check"></i>
                     <span>Attendance</span>
                 </a>
             </div>
             <div class="nav-item">
-                <a href="{% url 'academics:timetable' %}" class="nav-link {% if request.resolver_match.url_name == 'timetable' %}active{% endif %}">
+                <a href="{% url 'academics:timetable' %}" class="nav-link {% if request.resolver_match.url_name == 'timetable' %}active{% endif %}" title="Timetable">
                     <i class="bi bi-table"></i>
                     <span>Timetable</span>
                 </a>
@@ -585,25 +627,25 @@
             {% if user.user_type == 'admin' %}
             <h4 class="mb-2 mt-4">Administration</h4>
             <div class="nav-item">
-                <a href="{% url 'academics:manage_activities' %}" class="nav-link {% if request.resolver_match.url_name == 'manage_activities' %}active{% endif %}">
+                <a href="{% url 'academics:manage_activities' %}" class="nav-link {% if request.resolver_match.url_name == 'manage_activities' %}active{% endif %}" title="Activities">
                     <i class="bi bi-calendar-event"></i>
                     <span>Activities</span>
                 </a>
             </div>
             <div class="nav-item">
-                <a href="{% url 'finance:dashboard' %}" class="nav-link {% if 'finance' in request.resolver_match.app_names %}active{% endif %}">
+                <a href="{% url 'finance:dashboard' %}" class="nav-link {% if 'finance' in request.resolver_match.app_names %}active{% endif %}" title="Finance">
                     <i class="bi bi-wallet2"></i>
                     <span>Finance</span>
                 </a>
             </div>
             <div class="nav-item">
-                <a href="{% url 'announcements:manage' %}" class="nav-link {% if 'announcements' in request.resolver_match.app_names %}active{% endif %}">
+                <a href="{% url 'announcements:manage' %}" class="nav-link {% if 'announcements' in request.resolver_match.app_names %}active{% endif %}" title="Notices">
                     <i class="bi bi-megaphone"></i>
-                    <span>Announcements</span>
+                    <span>Notices</span>
                 </a>
             </div>
             <div class="nav-item">
-                <a href="{% url 'academics:school_settings' %}" class="nav-link {% if request.resolver_match.url_name == 'school_settings' %}active{% endif %}">
+                <a href="{% url 'academics:school_settings' %}" class="nav-link {% if request.resolver_match.url_name == 'school_settings' %}active{% endif %}" title="Settings">
                     <i class="bi bi-gear"></i>
                     <span>Settings</span>
                 </a>
@@ -613,13 +655,13 @@
             {% if user.user_type == 'teacher' %}
             <h4 class="mb-2 mt-4">Teaching</h4>
             <div class="nav-item">
-                <a href="{% url 'teachers:my_classes' %}" class="nav-link {% if request.resolver_match.url_name == 'my_classes' %}active{% endif %}">
+                <a href="{% url 'teachers:my_classes' %}" class="nav-link {% if request.resolver_match.url_name == 'my_classes' %}active{% endif %}" title="My Classes">
                     <i class="bi bi-book"></i>
                     <span>My Classes</span>
                 </a>
             </div>
             <div class="nav-item">
-                <a href="{% url 'teachers:enter_grades' %}" class="nav-link {% if request.resolver_match.url_name == 'enter_grades' %}active{% endif %}">
+                <a href="{% url 'teachers:enter_grades' %}" class="nav-link {% if request.resolver_match.url_name == 'enter_grades' %}active{% endif %}" title="Enter Grades">
                     <i class="bi bi-pencil-square"></i>
                     <span>Enter Grades</span>
                 </a>
@@ -629,7 +671,7 @@
             {% if user.user_type == 'parent' %}
             <h4 class="mb-2 mt-4">Family</h4>
             <div class="nav-item">
-                <a href="{% url 'parents:my_children' %}" class="nav-link {% if request.resolver_match.url_name == 'my_children' %}active{% endif %}">
+                <a href="{% url 'parents:my_children' %}" class="nav-link {% if request.resolver_match.url_name == 'my_children' %}active{% endif %}" title="My Children">
                     <i class="bi bi-person-hearts"></i>
                     <span>My Children</span>
                 </a>
@@ -637,16 +679,19 @@
             {% endif %}
             
             <div class="mt-auto p-3 border-top" style="border-color: rgba(255,255,255,0.1) !important;">
-                <a href="{% url 'logout' %}" class="nav-link" style="color: #ffa8a8 !important;">
+                <a href="{% url 'logout' %}" class="nav-link" style="color: #ffa8a8 !important;" title="Sign Out">
                     <i class="bi bi-box-arrow-right"></i>
                     <span>Sign Out</span>
                 </a>
             </div>
         </nav>
+        {% endif %}
 
         <!-- Main Content -->
-        <main class="main-content" id="mainContent">
+        <main class="main-content {% if not user.is_authenticated %}w-100 m-0 p-0{% endif %}" id="mainContent">
             {% block content %}
+                 {# Fallback for templates like login/home that might use login_content #}
+                 {% block login_content %}{% endblock %}
             {% endblock %}
         </main>
     </div>
@@ -674,15 +719,42 @@
         }
 
         function toggleSidebar() {
-            document.getElementById('sidebar').classList.toggle('show');
-            document.getElementById('sidebarOverlay').classList.toggle('d-none');
+            if (window.innerWidth >= 993) {
+                document.body.classList.toggle('sidebar-collapsed');
+                localStorage.setItem('sidebarCollapsed', document.body.classList.contains('sidebar-collapsed'));
+                
+                // Trigger resize event after transition to update Charts
+                setTimeout(() => {
+                    window.dispatchEvent(new Event('resize'));
+                }, 305);
+            } else {
+                document.getElementById('sidebar').classList.toggle('show');
+                const overlay = document.getElementById('sidebarOverlay');
+                if (overlay) overlay.classList.toggle('d-none');
+            }
         }
+
+        // Restore sidebar state
+        document.addEventListener('DOMContentLoaded', function() {
+            if (localStorage.getItem('sidebarCollapsed') === 'true' && window.innerWidth >= 993) {
+                document.body.classList.add('sidebar-collapsed');
+            }
+        });
 
         // Handle window resize for overlay reset
         window.addEventListener('resize', function() {
             if (window.innerWidth > 992) {
                 document.getElementById('sidebar').classList.remove('show');
-                document.getElementById('sidebarOverlay').classList.add('d-none');
+                const overlay = document.getElementById('sidebarOverlay');
+                if (overlay) overlay.classList.add('d-none');
+                
+                // Restore collapsed state on resize to desktop
+                if (localStorage.getItem('sidebarCollapsed') === 'true') {
+                    document.body.classList.add('sidebar-collapsed');
+                }
+            } else {
+                // On mobile, always uncollapse (remove class so it takes full width when shown)
+                document.body.classList.remove('sidebar-collapsed');
             }
         });
 
@@ -729,37 +801,68 @@
         function hideLoader() {
             const loader = document.getElementById('globalLoader');
             if(loader) loader.classList.remove('active');
+            
+            const pageLoader = document.getElementById('pageLoader');
+            if(pageLoader) pageLoader.classList.remove('loading');
+            
+            // Reset buttons
+            document.querySelectorAll('.btn-loading').forEach(btn => {
+                btn.classList.remove('btn-loading');
+            });
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            // Loader logic
-            const forms = document.querySelectorAll('form');
-            forms.forEach(form => {
-                form.addEventListener('submit', function(e) {
-                    const submitBtn = form.querySelector('button[type="submit"]');
-                    if (submitBtn && !submitBtn.classList.contains('no-loader')) {
-                        submitBtn.classList.add('btn-loading');
-                        showLoader('Processing...');
-                    }
-                });
+            // Event Delegation for Links (Click)
+            document.body.addEventListener('click', function(e) {
+                // Find closest anchor tag
+                const link = e.target.closest('a');
+                
+                // Conditions to show loader:
+                // 1. Is a link
+                // 2. Not opening in new tab/window (target="_blank" or Ctrl/Cmd/Shift click)
+                // 3. Not an internal anchor link (#section)
+                // 4. Not a javascript: link
+                // 5. Not explicitly disabled (data-no-loader)
+                // 6. Same origin (optional, but good practice to only animate internal nav)
+                if (link && 
+                    !link.target && 
+                    !e.ctrlKey && !e.metaKey && !e.shiftKey && !e.altKey &&
+                    link.href && 
+                    !link.href.includes('#') && 
+                    !link.href.startsWith('javascript:') && 
+                    !link.dataset.noLoader &&
+                    link.origin === window.location.origin
+                ) {
+                    const pageLoader = document.getElementById('pageLoader');
+                    if(pageLoader) pageLoader.classList.add('loading');
+                }
             });
 
-             // Page navigation loading
-            const links = document.querySelectorAll('a:not([target="_blank"]):not([href^="#"])');
-            links.forEach(link => {
-                link.addEventListener('click', function(e) {
-                    if (this.href && !this.dataset.noLoader && !this.href.includes('javascript:')) {
-                         const pageLoader = document.getElementById('pageLoader');
-                         if(pageLoader) pageLoader.classList.add('loading');
+            // Event Delegation for Forms (Submit)
+            document.body.addEventListener('submit', function(e) {
+                const form = e.target;
+                
+                if (!form.dataset.noLoader) {
+                    // Visual feedback on submit button
+                    const submitBtn = form.querySelector('button[type="submit"], input[type="submit"]');
+                    if (submitBtn && !submitBtn.classList.contains('no-loader')) {
+                        submitBtn.classList.add('btn-loading');
                     }
-                });
+                    
+                    // Show full screen loader
+                    showLoader('Processing...');
+                }
             });
             
-            window.addEventListener('load', function() {
-                hideLoader();
-                const pl = document.getElementById('pageLoader');
-                if(pl) pl.classList.remove('loading');
+            // Handle Back/Forward Cache (BFCache) restoration
+            window.addEventListener('pageshow', function(event) {
+                if (event.persisted) {
+                    hideLoader();
+                }
             });
+
+            // Initial cleanup on load (just in case)
+            window.addEventListener('load', hideLoader);
         });
         
         window.showLoader = showLoader;
@@ -780,9 +883,5 @@
             {% endfor %}
         {% endif %}
     </script>
-    {% else %}
-    {% block login_content %}
-    {% endblock %}
-    {% endif %}
 </body>
 </html>

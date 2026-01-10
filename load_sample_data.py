@@ -382,6 +382,47 @@ for title, content, target in announcements_data:
     if created:
         print(f"✅ Created Announcement: {title}")
 
+# Create Duty Roster
+print("\n📅 Creating Duty Roster...")
+from teachers.models import DutyWeek, DutyAssignment
+
+# Use retrieved 'ay' (AcademicYear) from above
+term = 'First'
+start_date = ay.start_date
+duty_weeks_data = [
+    # Week 1
+    (1, start_date + timedelta(days=0), start_date + timedelta(days=4), 
+     [('teacher1', 'Senior Team Leader'), ('teacher2', 'Member')]),
+    # Week 2
+    (2, start_date + timedelta(days=7), start_date + timedelta(days=11), 
+     [('teacher2', 'Senior Team Leader'), ('teacher3', 'Member')]),
+    # Week 3
+    (3, start_date + timedelta(days=14), start_date + timedelta(days=18), 
+     [('teacher3', 'Senior Team Leader'), ('teacher1', 'Member')]),
+]
+
+for week_num, s_date, e_date, assignments in duty_weeks_data:
+    dw, created = DutyWeek.objects.get_or_create(
+        academic_year=ay,
+        term=term,
+        week_number=week_num,
+        defaults={
+            'start_date': s_date,
+            'end_date': e_date,
+            'remarks': 'Ensure early morning supervision at the gate.'
+        }
+    )
+    if created:
+        print(f"✅ Created Duty Week {week_num}")
+        for t_username, role in assignments:
+            if t_username in teachers:
+                DutyAssignment.objects.create(
+                    week=dw,
+                    teacher=teachers[t_username],
+                    role=role
+                )
+                print(f"   -> Assigned {t_username} as {role}")
+
 print("\n" + "="*60)
 print("🎉 SAMPLE DATA LOADED SUCCESSFULLY!")
 print("="*60)

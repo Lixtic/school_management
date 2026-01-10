@@ -9,7 +9,7 @@ from academics.models import Class, AcademicYear, SchoolInfo
 
 @login_required
 def finance_dashboard(request):
-    if request.user.user_type not in ['admin', 'accountant']:
+    if request.user.user_type != 'admin':
         messages.error(request, 'Access Denied')
         return redirect('dashboard')
 
@@ -89,17 +89,19 @@ def create_fee_structure(request):
 
 @login_required
 def student_fees(request, student_id):
-    if request.user.user_type not in ['admin', 'parent', 'student']:
-        return redirect('dashboard')
-        
     student = get_object_or_404(Student, id=student_id)
     
-    # Permission check
-    if request.user.user_type == 'student' and request.user.student.id != student.id:
+    # Permission check: Only Admin or Assigned Class Teacher
+    allowed = False
+    if request.user.user_type == 'admin':
+        allowed = True
+    elif request.user.user_type == 'teacher':
+        if student.current_class and student.current_class.class_teacher and student.current_class.class_teacher.user == request.user:
+            allowed = True
+            
+    if not allowed:
+        messages.error(request, "Access Denied. Only Admins or Class Teachers can view fees.")
         return redirect('dashboard')
-    if request.user.user_type == 'parent':
-        if not request.user.parent.children.filter(id=student.id).exists():
-             return redirect('dashboard')
 
     fees = StudentFee.objects.filter(student=student).select_related('fee_structure', 'fee_structure__head')
     
@@ -140,7 +142,17 @@ def record_payment(request, fee_id):
 @login_required
 def print_receipt(request, payment_id):
     payment = get_object_or_404(Payment, id=payment_id)
-    if request.user.user_type not in ['admin', 'parent', 'student']:
+    student = payment.student_fee.student
+    
+    # Permission check: Only Admin or Assigned Class Teacher
+    allowed = False
+    if request.user.user_type == 'admin':
+        allowed = True
+    elif request.user.user_type == 'teacher':
+        if student.current_class and student.current_class.class_teacher and student.current_class.class_teacher.user == request.user:
+            allowed = True
+            
+    if not allowed:
         return redirect('dashboard')
     
     school_info = SchoolInfo.objects.first()

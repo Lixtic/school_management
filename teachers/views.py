@@ -1,10 +1,10 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse
 from decimal import Decimal, InvalidOperation
-from teachers.models import Teacher
-from academics.models import ClassSubject, AcademicYear, Timetable
+from teachers.models import Teacher, DutyWeek
+from academics.models import ClassSubject, AcademicYear, Timetable, SchoolInfo
 from students.models import Student, Grade
 from students.utils import normalize_term
 
@@ -166,3 +166,32 @@ def teacher_schedule(request):
         })
             
     return render(request, 'teachers/schedule.html', {'days': days_data})
+
+@login_required
+def print_duty_roster(request):
+    # Only Admin or Teachers can see this? Assuming Admin/Staff.
+    # if request.user.user_type not in ['admin', 'teacher']: ...
+    
+    current_year = AcademicYear.objects.filter(is_current=True).first()
+    if not current_year:
+        current_year = AcademicYear.objects.first()
+        
+    term = request.GET.get('term', 'First')
+    year_id = request.GET.get('year', current_year.id if current_year else None)
+    
+    if year_id:
+        year = get_object_or_404(AcademicYear, id=year_id)
+    else:
+        year = None
+
+    weeks = DutyWeek.objects.filter(academic_year=year, term=term).prefetch_related('assignments', 'assignments__teacher', 'assignments__teacher__user').order_by('week_number')
+    
+    context = {
+        'weeks': weeks,
+        'year': year,
+        'term': term,
+        'school_info': SchoolInfo.objects.first(),
+        'available_terms': ['First', 'Second', 'Third'],
+        'academic_years': AcademicYear.objects.all(),
+    }
+    return render(request, 'teachers/duty_roster_pdf.html', context)

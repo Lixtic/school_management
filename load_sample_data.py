@@ -36,10 +36,10 @@ else:
 # Create Academic Year
 print("\n📅 Creating Academic Year...")
 ay, created = AcademicYear.objects.get_or_create(
-    name="2024-2025",
+    name="2025-2026",
     defaults={
-        'start_date': date(2024, 9, 1),
-        'end_date': date(2025, 6, 30),
+        'start_date': date(2025, 9, 2),
+        'end_date': date(2026, 6, 30),
         'is_current': True
     }
 )
@@ -101,6 +101,18 @@ teachers_data = [
     ("teacher1", "Kwame", "Mensah", "kwame.mensah@school.com", "T001", "Mathematics & Science"),
     ("teacher2", "Akosua", "Boateng", "akosua.boateng@school.com", "T002", "English & Social Studies"),
     ("teacher3", "Kofi", "Asante", "kofi.asante@school.com", "T003", "ICT & Creative Arts"),
+    # Teachers from Duty Roster - Using T100+ to avoid conflicts
+    ("zaminu", "Zakaria", "Aminu", "zakaria.aminu@school.com", "T104", "General Subjects"),
+    ("awahab", "Alidu", "Abdul Wahab", "alidu.wahab@school.com", "T105", "General Subjects"),
+    ("rgyapanin", "Ray", "Gyapanin", "ray.gyapanin@school.com", "T106", "General Subjects"),
+    ("bnurudeen", "Bakuri", "Nurudeen", "bakuri.nurudeen@school.com", "T107", "General Subjects"),
+    ("ihmukarama", "Issah", "Haruna Mukarama", "issah.mukarama@school.com", "T108", "General Subjects"),
+    ("mahmed", "Mahama", "Ahmed", "mahama.ahmed@school.com", "T109", "General Subjects"),
+    ("sadia", "Saaka", "Adia", "saaka.adia@school.com", "T110", "General Subjects"),
+    ("aafaustina", "Adu", "Asamoah Faustina", "adu.faustina@school.com", "T111", "General Subjects"),
+    ("arufai", "Awal", "Rufai", "awal.rufai@school.com", "T112", "General Subjects"),
+    ("bhappy", "Badisoma", "Happy", "badisoma.happy@school.com", "T113", "General Subjects"),
+    ("aramatu", "Atiku", "Ramatu", "atiku.ramatu@school.com", "T114", "General Subjects"),
 ]
 
 teachers = {}
@@ -388,20 +400,28 @@ from teachers.models import DutyWeek, DutyAssignment
 
 # Use retrieved 'ay' (AcademicYear) from above
 term = 'First'
-start_date = ay.start_date
+# Explicit dates from the PDF
 duty_weeks_data = [
-    # Week 1
-    (1, start_date + timedelta(days=0), start_date + timedelta(days=4), 
-     [('teacher1', 'Senior Team Leader'), ('teacher2', 'Member')]),
-    # Week 2
-    (2, start_date + timedelta(days=7), start_date + timedelta(days=11), 
-     [('teacher2', 'Senior Team Leader'), ('teacher3', 'Member')]),
-    # Week 3
-    (3, start_date + timedelta(days=14), start_date + timedelta(days=18), 
-     [('teacher3', 'Senior Team Leader'), ('teacher1', 'Member')]),
+    # (Week Num, Start, End, Assignments List of (username, role), Remarks)
+    (1, date(2025, 9, 2), date(2025, 9, 5), [], "All Prefects, All Teachers"),
+    (2, date(2025, 9, 8), date(2025, 9, 12), [], "All Prefects, All Teachers"),
+    (3, date(2025, 9, 15), date(2025, 9, 19), [('zaminu', 'Teacher on Duty')], "Prefects: Zakaria Suturatu, Abdulai Mariam"),
+    (4, date(2025, 9, 22), date(2025, 9, 26), [('awahab', 'Teacher on Duty')], "Prefects: Ganiw Barkisu, Amankwa Eliham"),
+    (5, date(2025, 9, 29), date(2025, 10, 3), [('rgyapanin', 'Teacher on Duty')], "Prefects: Umar Khadijah, Yakubu Rawda"),
+    (6, date(2025, 10, 6), date(2025, 10, 10), [('awahab', 'Teacher on Duty')], "Prefects: Adam Asana, Shaibu Leena"),
+    (7, date(2025, 10, 13), date(2025, 10, 17), [('zaminu', 'Teacher on Duty')], "Prefects: Mohammed Ruhaima, Beidulai Isma"),
+    (8, date(2025, 10, 20), date(2025, 10, 24), [('bnurudeen', 'Teacher on Duty')], "Prefects: Achulo M. Farida, Abu Zulaiha"),
+    (9, date(2025, 10, 27), date(2025, 10, 31), [('rgyapanin', 'Teacher on Duty')], "Prefects: Zakaria Rahima, Hadi Afraw"),
+    (10, date(2025, 11, 3), date(2025, 11, 7), [('zaminu', 'Teacher on Duty'), ('ihmukarama', 'Teacher on Duty')], "Prefects: Fuseini Afishetu, Zakaria Suturatu"),
+    (11, date(2025, 11, 10), date(2025, 11, 14), [('mahmed', 'Teacher on Duty')], "Prefects: Achulo M. Farida, Umar Khadijah"),
+    (12, date(2025, 11, 17), date(2025, 11, 21), [('bnurudeen', 'Teacher on Duty'), ('sadia', 'Teacher on Duty')], "Prefects: Yakubu Rawda, Amankwa Eliham"),
+    (13, date(2025, 11, 24), date(2025, 11, 28), [('awahab', 'Teacher on Duty')], "Prefects: Sumaila Magfira, Ganiw Barkisu"),
+    (14, date(2025, 12, 1), date(2025, 12, 5), [('rgyapanin', 'Teacher on Duty'), ('aafaustina', 'Teacher on Duty'), ('arufai', 'Teacher on Duty')], "Prefects: Alhassan Tabdila, Mumuni Maweyatu"),
+    (15, date(2025, 12, 8), date(2025, 12, 12), [('mahmed', 'Teacher on Duty'), ('bhappy', 'Teacher on Duty'), ('aramatu', 'Teacher on Duty')], "Prefects: Kudjo Hikmah, Sulemana Etsan"),
+    (16, date(2025, 12, 15), date(2025, 12, 18), [], "All Prefects, All Teachers. VACATION DAY – THURSDAY, 18th DECEMBER, 2025"),
 ]
 
-for week_num, s_date, e_date, assignments in duty_weeks_data:
+for week_num, s_date, e_date, assignments, remarks in duty_weeks_data:
     dw, created = DutyWeek.objects.get_or_create(
         academic_year=ay,
         term=term,
@@ -409,11 +429,70 @@ for week_num, s_date, e_date, assignments in duty_weeks_data:
         defaults={
             'start_date': s_date,
             'end_date': e_date,
-            'remarks': 'Ensure early morning supervision at the gate.'
+            'remarks': remarks
         }
     )
     if created:
         print(f"✅ Created Duty Week {week_num}")
+        for t_username, role in assignments:
+            if t_username in teachers:
+                DutyAssignment.objects.create(
+                    week=dw,
+                    teacher=teachers[t_username],
+                    role=role
+                )
+                print(f"   -> Assigned {t_username} as {role}")
+
+# ----------------------------------------------------
+# SECOND TERM DUTY ROSTER
+# ----------------------------------------------------
+print("\n📅 Creating 2nd Term Duty Roster...")
+term2 = 'Second'
+start_date_t2 = date(2026, 1, 8) # Thursday
+
+# Reuse logic from First Term (first 12 entries)
+# Map dates for 12 weeks
+# Week 1 starts Jan 8 (Thu) -> Ends Jan 9 (Fri)
+# Week 2 starts Jan 12 (Mon) -> Ends Jan 16 (Fri)
+# ...
+duty_weeks_data_t2 = []
+
+# Recopy assignments from the first term data for 1-12
+# item structure: (wk, start, end, assignments, remarks)
+first_term_info = duty_weeks_data[:12] # Slice first 12
+
+current_start = start_date_t2
+for i, (old_wk, _, _, asses, rems) in enumerate(first_term_info):
+    wk_num = i + 1
+    
+    # Calculate End Date
+    if wk_num == 1:
+        # First week starts Thu Jan 8 -> Fri Jan 9
+        current_end = current_start + timedelta(days=1)
+        next_start = current_start + timedelta(days=4) # Next Mon is Jan 12 (8+4=12)
+    else:
+        # Regular Mon-Fri week
+        current_end = current_start + timedelta(days=4) # Mon+4 = Fri
+        next_start = current_start + timedelta(days=7) # Next Mon
+
+    duty_weeks_data_t2.append((wk_num, current_start, current_end, asses, rems))
+    
+    # Update for next loop
+    current_start = next_start
+
+for week_num, s_date, e_date, assignments, remarks in duty_weeks_data_t2:
+    dw, created = DutyWeek.objects.get_or_create(
+        academic_year=ay,
+        term=term2,
+        week_number=week_num,
+        defaults={
+            'start_date': s_date,
+            'end_date': e_date,
+            'remarks': remarks
+        }
+    )
+    if created:
+        print(f"✅ Created 2nd Term Duty Week {week_num} ({s_date} - {e_date})")
         for t_username, role in assignments:
             if t_username in teachers:
                 DutyAssignment.objects.create(

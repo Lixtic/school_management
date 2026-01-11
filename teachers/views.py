@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Q
+from django.db.utils import OperationalError, ProgrammingError
 import django
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -417,17 +418,18 @@ def lesson_plan_list(request):
         return redirect('dashboard')
     
     teacher = get_object_or_404(Teacher, user=request.user)
-    lesson_plans = LessonPlan.objects.filter(teacher=teacher)
     
-    week = request.GET.get('week')
-    if week:
-        lesson_plans = lesson_plans.filter(week_number=week)
+    try:
+        # Force evaluation to catch DB errors if table doesn't exist yet
+        lesson_plans_qs = LessonPlan.objects.filter(teacher=teacher)
+        week = request.GET.get('week')
+        if week:
+            lesson_plans_qs = lesson_plans_qs.filter(week_number=week)
+        lesson_plans = list(lesson_plans_qs)
+    except (OperationalError, ProgrammingError):
+        lesson_plans = []
+        messages.warning(request, "Lesson Plan system is initializing. Please try again later.")
         
-    return render(request, 'teachers/lesson_plan_list.html', {
-        'lesson_plans': lesson_plans,
-        'selected_week': week
-    })
-
 @login_required
 def lesson_plan_create(request):
     if request.user.user_type != 'teacher':

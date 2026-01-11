@@ -11,6 +11,8 @@ from django.utils import timezone
 import datetime
 import json
 
+from django.db.utils import OperationalError, ProgrammingError
+
 def homepage(request):
     activities_qs = Activity.objects.filter(is_active=True).order_by('date')[:12]
     activities = [
@@ -183,7 +185,10 @@ def dashboard(request):
         teacher_students_count = Student.objects.filter(current_class__id__in=class_ids).distinct().count()
         
         # Recent uploaded resources
-        recent_resources = Resource.objects.filter(class_subject__teacher=teacher_profile).order_by('-uploaded_at')[:3]
+        try:
+            recent_resources = Resource.objects.filter(class_subject__teacher=teacher_profile).order_by('-uploaded_at')[:3]
+        except (OperationalError, ProgrammingError):
+            recent_resources = []
 
         # Filter notices for teacher
         teacher_notices = base_notices.filter(target_audience__in=['all', 'staff', 'teachers'])[:5]

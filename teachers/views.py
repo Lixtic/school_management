@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.db.models import Q
 import django
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -340,4 +341,27 @@ def enter_exercise_scores(request, exercise_id):
     return render(request, 'teachers/enter_exercise_scores.html', {
         'exercise': exercise,
         'student_list': student_list,
+    })
+
+
+@login_required
+def search_students(request):
+    if request.user.user_type != 'teacher':
+        messages.error(request, 'Access denied')
+        return redirect('dashboard')
+    
+    query = request.GET.get('q', '').strip()
+    students = []
+    
+    if query:
+        students = Student.objects.filter(
+            Q(user__first_name__icontains=query) | 
+            Q(user__last_name__icontains=query) |
+            Q(admission_number__icontains=query)
+        ).select_related('user', 'current_class').distinct()[:20]
+        
+    return render(request, 'teachers/search_results.html', {
+        'query': query,
+        'students': students,
+        'school_name': SchoolInfo.objects.first().name if SchoolInfo.objects.exists() else 'School'
     })

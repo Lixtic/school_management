@@ -89,6 +89,19 @@
     </div>
 </div>
 
+<!-- Search Bar -->
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-body py-3">
+        <form action="{% url 'teachers:search_students' %}" method="get" class="d-flex gap-2">
+            <input type="text" name="q" class="form-control border-0 bg-light" placeholder="Search student by name or admission number..." required>
+            <button type="submit" class="btn btn-primary px-4">
+                <i class="bi bi-search"></i>
+            </button>
+        </form>
+    </div>
+</div>
+
+
 {% if not teacher_has_classes %}
 <div class="alert alert-warning border-0 shadow-sm d-flex align-items-center gap-3 mb-4 rounded-3" role="alert">
     <div class="bg-warning bg-opacity-25 p-2 rounded-circle text-warning-emphasis">

@@ -12,4 +12,6 @@ urlpatterns = [
     # Exercises
     path('exercises/<int:class_subject_id>/', views.manage_exercises, name='manage_exercises'),
     path('exercises/<int:exercise_id>/scores/', views.enter_exercise_scores, name='enter_exercise_scores'),
+    # Search
+    path('search/', views.search_students, name='search_students'),
 ]

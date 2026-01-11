@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Search Results - {{ school_name }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboard</a></li>
+                    <li class="breadcrumb-item active">Search Results</li>
+                </ol>
+            </nav>
+            <h2 class="fw-bold">Search Results</h2>
+            <p class="text-muted">Showing results for "{{ query }}"</p>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+            {% if students %}
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Name</th>
+                                <th>Admission No.</th>
+                                <th>Class</th>
+                                <th>Gender</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for student in students %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-light rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                            <i class="bi bi-person text-secondary"></i>
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold">{{ student.user.get_full_name }}</div>
+                                            <div class="small text-muted">{{ student.user.email }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>{{ student.admission_number }}</td>
+                                <td>{{ student.current_class.name|default:"Not Assigned" }}</td>
+                                <td>{{ student.get_gender_display|title }}</td>
+                                <td>
+                                    <!-- Add links to student specific views if available -->
+                                    <button class="btn btn-sm btn-outline-primary">View Profile</button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <div class="mb-3 text-muted">
+                        <i class="bi bi-search fs-1"></i>
+                    </div>
+                    <h4>No students found</h4>
+                    <p class="text-muted">Try adjusting your search terms.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

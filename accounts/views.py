@@ -237,3 +237,21 @@ def dashboard(request):
         })
     
     return redirect('login')
+from django.core.management import call_command
+from django.http import HttpResponse
+from io import StringIO
+
+def debug_migrate(request):
+    if not request.user.is_superuser:
+        return HttpResponse('Unauthorized', status=403)
+    
+    out = StringIO()
+    try:
+        print('Running showmigrations...', file=out)
+        call_command('showmigrations', stdout=out)
+        print('\nRunning migrate...', file=out)
+        call_command('migrate', stdout=out)
+    except Exception as e:
+        print(f'\nError: {e}', file=out)
+        
+    return HttpResponse(out.getvalue(), content_type='text/plain')

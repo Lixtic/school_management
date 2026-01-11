@@ -216,17 +216,31 @@ def dashboard(request):
         parent_notices = base_notices.filter(target_audience__in=['all', 'parents'])
         
         # Calculate fees for all children
-        parent_profile = user.parent_profile
-        children = parent_profile.children.all()
-        
-        total_outstanding = 0
-        total_paid = 0
-        
-        for child in children:
-            fees = StudentFee.objects.filter(student=child)
-            for fee in fees:
-                total_outstanding += fee.balance
-                total_paid += fee.total_paid
+        try:
+            parent_profile = getattr(user, 'parent_profile', None)
+            if not parent_profile:
+                 # Fallback/Auto-create logic or specific parents app retrieval
+                 from parents.models import Parent
+                 parent_profile = Parent.objects.filter(user=user).first()
+            
+            if parent_profile:
+                children = parent_profile.children.all()
+                total_outstanding = 0
+                total_paid = 0
+                for child in children:
+                    fees = StudentFee.objects.filter(student=child)
+                    for fee in fees:
+                        total_outstanding += fee.balance
+                        total_paid += fee.total_paid
+            else:
+                children = []
+                total_outstanding = 0
+                total_paid = 0
+
+        except Exception as e:
+            children = []
+            total_outstanding = 0
+            total_paid = 0
 
         return render(request, 'dashboard/parent_dashboard.html', {
             'user': user, 

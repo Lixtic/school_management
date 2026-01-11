@@ -438,9 +438,19 @@ body {
 <div class="hero-wrapper text-center text-lg-start">
     <!-- Background Slideshow -->
     <div class="hero-slideshow">
-        <div class="hero-slide"></div>
-        <div class="hero-slide"></div>
-        <div class="hero-slide"></div>
+        {% if hero_images %}
+            {% for image in hero_images %}
+            <div class="hero-slide" style="background-image: url('{{ image.image.url }}'); animation-delay: {% widthratio forloop.counter0 1 6 %}s;"></div>
+            {% endfor %}
+            {# If fewer than 3 images, fill with defaults to maintain animation timing #}
+            {% if hero_images|length < 3 %}
+                <div class="hero-slide" style="animation-delay: {% widthratio hero_images|length 1 6 %}s;"></div>
+            {% endif %}
+        {% else %}
+            <div class="hero-slide"></div>
+            <div class="hero-slide"></div>
+            <div class="hero-slide"></div>
+        {% endif %}
     </div>
     
     <!-- Dark Overlay -->

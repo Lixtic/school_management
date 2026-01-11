@@ -1,7 +1,9 @@
-from django.shortcuts import render, redirect
-from django.contrib.auth import login, logout, authenticate
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth import login, logout, authenticate, get_user_model
+from django.contrib.auth.forms import SetPasswordForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.core.paginator import Paginator
 from academics.models import Class, AcademicYear, ClassSubject, Activity, Timetable, GalleryImage, Resource
 from teachers.models import Teacher, DutyAssignment
 from students.models import Student, Attendance
@@ -255,3 +257,61 @@ def debug_migrate(request):
         print(f'\nError: {e}', file=out)
         
     return HttpResponse(out.getvalue(), content_type='text/plain')
+
+@login_required
+def manage_users(request):
+    User = get_user_model()
+    # Security check setup
+    if getattr(request.user, 'user_type', 'none') != 'admin':
+        messages.error(request, 'Access denied. Admin only.')
+        return redirect('dashboard')
+    
+    query = request.GET.get('q', '')
+    role_filter = request.GET.get('role', '')
+
+    users_list = User.objects.all().order_by('-date_joined')
+
+    if query:
+        users_list = users_list.filter(
+            Q(username__icontains=query) | 
+            Q(first_name__icontains=query) | 
+            Q(last_name__icontains=query) | 
+            Q(email__icontains=query)
+        )
+    
+    if role_filter:
+        users_list = users_list.filter(user_type=role_filter)
+
+    paginator = Paginator(users_list, 20)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, 'accounts/manage_users.html', {
+        'users': page_obj,
+        'query': query,
+        'role_filter': role_filter
+    })
+
+@login_required
+def admin_password_reset(request, user_id):
+    User = get_user_model()
+    if getattr(request.user, 'user_type', 'none') != 'admin':
+        messages.error(request, 'Access denied. Admin only.')
+        return redirect('dashboard')
+
+    target_user = get_object_or_404(User, pk=user_id)
+
+    if request.method == 'POST':
+        form = SetPasswordForm(target_user, request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'Password for {target_user.username} has been reset successfully.')
+            return redirect('accounts:manage_users')
+    else:
+        form = SetPasswordForm(target_user)
+
+    return render(request, 'accounts/admin_password_reset.html', {
+        'form': form,
+        'target_user': target_user
+    })
+

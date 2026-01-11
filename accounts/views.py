@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from academics.models import Class, AcademicYear, ClassSubject, Activity, Timetable, GalleryImage
+from academics.models import Class, AcademicYear, ClassSubject, Activity, Timetable, GalleryImage, Resource
 from teachers.models import Teacher, DutyAssignment
 from students.models import Student, Attendance
 from announcements.models import Announcement

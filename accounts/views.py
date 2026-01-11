@@ -186,7 +186,8 @@ def dashboard(request):
         
         # Recent uploaded resources
         try:
-            recent_resources = Resource.objects.filter(class_subject__teacher=teacher_profile).order_by('-uploaded_at')[:3]
+            # Force evaluation with list() to catch DB errors here instead of in template
+            recent_resources = list(Resource.objects.filter(class_subject__teacher=teacher_profile).order_by('-uploaded_at')[:3])
         except (OperationalError, ProgrammingError):
             recent_resources = []
 

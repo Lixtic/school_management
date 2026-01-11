@@ -1,5 +1,16 @@
 from django import forms
-from .models import SchoolInfo
+from .models import SchoolInfo, GalleryImage
+
+class GalleryImageForm(forms.ModelForm):
+    class Meta:
+        model = GalleryImage
+        fields = ['title', 'caption', 'image', 'category']
+        widgets = {
+            'title': forms.TextInput(attrs={'class': 'form-control'}),
+            'caption': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'image': forms.FileInput(attrs={'class': 'form-control'}),
+            'category': forms.Select(attrs={'class': 'form-select'}),
+        }
 
 class SchoolInfoForm(forms.ModelForm):
     class Meta:

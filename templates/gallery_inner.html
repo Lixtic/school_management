@@ -95,6 +95,13 @@
     <div class="container">
         <h1 class="display-4 fw-bold">Our Gallery</h1>
         <p class="lead opacity-75">Capturing the life and spirit of {{ school_name }}</p>
+        {% if user.is_authenticated and user.user_type == 'admin' %}
+        <div class="mt-4">
+             <a href="{% url 'academics:upload_gallery_image' %}" class="btn btn-light text-primary fw-bold rounded-pill px-4 shadow-sm">
+                <i class="fas fa-camera me-2"></i>Upload Photo
+            </a>
+        </div>
+        {% endif %}
     </div>
 </div>
 

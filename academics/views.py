@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.db.models import Q
 from accounts.models import User
 from .models import Activity, GalleryImage, SchoolInfo, Class, Timetable, ClassSubject
-from .forms import SchoolInfoForm
+from .forms import SchoolInfoForm, GalleryImageForm
 
 
 
@@ -158,3 +158,22 @@ def timetable_view(request):
         'is_teacher_schedule': is_teacher_schedule,
     }
     return render(request, 'academics/timetable.html', context)
+
+
+@login_required
+def upload_gallery_image(request):
+    if request.user.user_type != 'admin':
+        messages.error(request, 'Access denied. Admins only.')
+        return redirect('academics:gallery')
+    
+    if request.method == 'POST':
+        form = GalleryImageForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Image uploaded successfully!')
+            return redirect('academics:gallery')
+    else:
+        form = GalleryImageForm()
+    
+    return render(request, 'academics/upload_gallery_image.html', {'form': form})
+

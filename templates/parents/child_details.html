@@ -199,41 +199,49 @@
 
         <!-- Attendance Tab -->
         <div class="tab-pane fade" id="attendance" role="tabpanel">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title mb-3">Attendance Records</h5>
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-0">
                     <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead class="table-light">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-light text-secondary small text-uppercase">
                                 <tr>
-                                    <th>Date</th>
-                                    <th>Status</th>
-                                    <th>Remarks</th>
-                                    <th>Marked By</th>
+                                    <th class="ps-4 border-0">Date</th>
+                                    <th class="border-0">Status</th>
+                                    <th class="border-0">Remarks</th>
+                                    <th class="text-end pe-4 border-0">Marked By</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for att in attendances %}
                                 <tr>
-                                    <td>{{ att.date|date:"F d, Y" }}</td>
+                                    <td class="ps-4 fw-medium">{{ att.date|date:"F d, Y" }}</td>
                                     <td>
                                         {% if att.status == 'present' %}
-                                            <span class="badge bg-success">Present</span>
+                                            <span class="badge bg-success-subtle text-success border border-success px-3 py-2 rounded-pill"><i class="bi bi-check-circle me-1"></i>Present</span>
                                         {% elif att.status == 'absent' %}
-                                            <span class="badge bg-danger">Absent</span>
+                                            <span class="badge bg-danger-subtle text-danger border border-danger px-3 py-2 rounded-pill"><i class="bi bi-x-circle me-1"></i>Absent</span>
                                         {% elif att.status == 'late' %}
-                                            <span class="badge bg-warning">Late</span>
+                                            <span class="badge bg-warning-subtle text-warning border border-warning px-3 py-2 rounded-pill"><i class="bi bi-clock me-1"></i>Late</span>
                                         {% else %}
-                                            <span class="badge bg-info">Excused</span>
+                                            <span class="badge bg-info-subtle text-info border border-info px-3 py-2 rounded-pill"><i class="bi bi-info-circle me-1"></i>Excused</span>
                                         {% endif %}
                                     </td>
-                                    <td>{{ att.remarks|default:"-" }}</td>
-                                    <td>{{ att.marked_by.get_full_name|default:"N/A" }}</td>
+                                    <td class="text-muted">{{ att.remarks|default:"-" }}</td>
+                                    <td class="text-end pe-4 text-muted small">
+                                        {% if att.marked_by %}
+                                            <i class="bi bi-person-check me-1"></i>{{ att.marked_by.get_full_name }}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
                                 </tr>
                                 {% empty %}
                                 <tr>
-                                    <td colspan="4" class="text-center text-muted py-4">
-                                        No attendance records yet
+                                    <td colspan="4" class="text-center py-5">
+                                        <div class="text-muted">
+                                            <i class="bi bi-calendar4-week fs-1 d-block mb-3 opacity-25"></i>
+                                            <p class="mb-0">No attendance records found.</p>
+                                        </div>
                                     </td>
                                 </tr>
                                 {% endfor %}
@@ -246,26 +254,36 @@
 
         <!-- Homework Tab -->
         <div class="tab-pane fade" id="homework" role="tabpanel">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title mb-3">Assignments & Homework</h5>
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-0">
                     {% if homework %}
-                        <div class="list-group">
+                        <div class="list-group list-group-flush">
                             {% for hw in homework %}
-                            <div class="list-group-item">
-                                <div class="d-flex w-100 justify-content-between">
-                                    <h6 class="mb-1">{{ hw.title }}</h6>
-                                    <small>{{ hw.assigned_date|date:"M d, Y" }}</small>
-                                </div>
-                                <p class="mb-1">{{ hw.description }}</p>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <small class="text-muted">
-                                        <strong>Subject:</strong> {{ hw.subject }} | 
-                                        <strong>Due:</strong> {{ hw.due_date|date:"F d, Y" }}
+                            <div class="list-group-item p-4 border-bottom position-relative hover-bg-light">
+                                <div class="d-flex w-100 justify-content-between align-items-start mb-2">
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-primary bg-opacity-10 text-primary rounded p-2 me-3 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                                            <i class="bi bi-journal-text fs-4"></i>
+                                        </div>
+                                        <div>
+                                            <h5 class="mb-1 fw-bold text-dark">{{ hw.title }}</h5>
+                                            <span class="badge bg-light text-secondary border fw-normal">{{ hw.subject }}</span>
+                                        </div>
+                                    </div>
+                                    <small class="text-muted bg-light px-3 py-1 rounded-pill border">
+                                        <i class="bi bi-calendar-event me-2"></i>Assigned: {{ hw.assigned_date|date:"M d, Y" }}
                                     </small>
+                                </div>
+                                <p class="mb-3 text-secondary ps-5 ms-3">{{ hw.description }}</p>
+                                <div class="d-flex justify-content-between align-items-center ps-5 ms-3">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <span class="text-danger small fw-bold bg-danger bg-opacity-10 px-2 py-1 rounded">
+                                            <i class="bi bi-exclamation-circle me-1"></i>Due: {{ hw.due_date|date:"F d, Y" }}
+                                        </span>
+                                    </div>
                                     {% if hw.attachment %}
-                                        <a href="{{ hw.attachment.url }}" class="btn btn-sm btn-outline-primary" download>
-                                            <i class="bi bi-download"></i> Download
+                                        <a href="{{ hw.attachment.url }}" class="btn btn-sm btn-outline-primary rounded-pill px-3" download>
+                                            <i class="bi bi-cloud-download me-2"></i>Download Attachment
                                         </a>
                                     {% endif %}
                                 </div>
@@ -273,7 +291,12 @@
                             {% endfor %}
                         </div>
                     {% else %}
-                        <p class="text-center text-muted py-4">No homework assigned yet</p>
+                         <div class="text-center py-5">
+                            <div class="text-muted">
+                                <i class="bi bi-emoji-smile fs-1 d-block mb-3 opacity-25"></i>
+                                <p class="mb-0">No active homework assignments.</p>
+                            </div>
+                        </div>
                     {% endif %}
                 </div>
             </div>

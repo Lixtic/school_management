@@ -301,6 +301,18 @@ def student_dashboard_view(request):
     # Get all grades
     grades = Grade.objects.filter(student=student).select_related('subject').order_by('-created_at')
     
+    # Get homework and resources
+    from teachers.models import LessonPlan
+    from academics.models import Resource, ClassSubject
+    
+    homework_list = LessonPlan.objects.filter(
+        school_class=student.current_class
+    ).exclude(homework='').order_by('-week_number', '-date_added')[:5]
+    
+    resources = Resource.objects.filter(
+        class_subject__class_name=student.current_class
+    ).order_by('-uploaded_at')[:5]
+
     # Get announcements
     from announcements.models import Announcement
     from finance.models import StudentFee
@@ -321,6 +333,8 @@ def student_dashboard_view(request):
         'recent_attendance': recent_attendance,
         'attendance_stats': attendance_stats,
         'grades': grades,
+        'homework_list': homework_list,
+        'resources': resources,
         'notices': notices,
         'finance_stats': {
             'payable': total_payable,

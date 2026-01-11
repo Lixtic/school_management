@@ -188,6 +188,64 @@
             </div>
         </div>
 
+        <!-- Homework & Resources -->
+        <div class="row g-4 mb-5">
+            <div class="col-md-6">
+                <h5 class="fw-bold mb-3">Recent Homework</h5>
+                <div class="card border-0 shadow-sm rounded-4 h-100">
+                    <div class="list-group list-group-flush rounded-4">
+                        {% for hw in homework_list %}
+                        <div class="list-group-item p-3 border-0 border-bottom">
+                            <div class="d-flex align-items-start gap-3">
+                                <div class="bg-warning bg-opacity-10 p-2 rounded-circle text-warning mt-1">
+                                    <i class="bi bi-pencil-square"></i>
+                                </div>
+                                <div>
+                                    <h6 class="mb-1 fw-bold">{{ hw.subject.name }}</h6>
+                                    <p class="text-muted small mb-1">{{ hw.homework|truncatechars:60 }}</p>
+                                    <span class="badge bg-light text-secondary border">Week {{ hw.week_number }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="p-4 text-center text-muted">
+                            <i class="bi bi-journal-check fs-1 d-block mb-3 opacity-25"></i>
+                            No active homework.
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <h5 class="fw-bold mb-3">Study Resources</h5>
+                <div class="card border-0 shadow-sm rounded-4 h-100">
+                    <div class="list-group list-group-flush rounded-4">
+                        {% for res in resources %}
+                        <div class="list-group-item p-3 border-0 border-bottom">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="bg-success bg-opacity-10 p-2 rounded-circle text-success">
+                                    <i class="bi bi-file-earmark-text"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-0 fw-bold">{{ res.title }}</h6>
+                                    <small class="text-muted">{{ res.class_subject.subject.name }}</small>
+                                </div>
+                                <a href="{{ res.file.url }}" target="_blank" class="btn btn-sm btn-light rounded-pill">
+                                    <i class="bi bi-download"></i>
+                                </a>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="p-4 text-center text-muted">
+                            <i class="bi bi-folder2-open fs-1 d-block mb-3 opacity-25"></i>
+                            No resources yet.
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Notices -->
         <h5 class="fw-bold mb-3 d-flex justify-content-between align-items-center">
             School Announcements

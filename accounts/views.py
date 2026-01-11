@@ -213,7 +213,7 @@ def dashboard(request):
         return redirect('students:student_dashboard')
     elif user.user_type == 'parent':
         from finance.models import StudentFee
-        parent_notices = notices.filter(target_audience__in=['all', 'parents'])
+        parent_notices = base_notices.filter(target_audience__in=['all', 'parents'])
         
         # Calculate fees for all children
         parent_profile = user.parent_profile

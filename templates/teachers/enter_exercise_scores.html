@@ -1,46 +1,68 @@
 {% extends 'base.html' %}
 
 {% block content %}
+<style>
+    .sticky-header th {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background-color: #f8f9fa; /* bg-light */
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+    tbody tr.active-row {
+        background-color: #f1f8ff !important;
+    }
+    input:focus {
+        background-color: #fff;
+        border-color: #86b7fe;
+        box-shadow: 0 0 0 .25rem rgba(13, 110, 253, .25);
+    }
+</style>
+
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
         <h2 class="h3 mb-0">{{ exercise.title }}</h2>
-        <p class="text-muted">
+        <p class="text-muted mb-0">
             Max Marks: <strong>{{ exercise.max_marks }}</strong> | 
             {{ exercise.class_subject.class_name }} | 
             {{ exercise.class_subject.subject }}
         </p>
     </div>
-    <a href="{% url 'teachers:manage_exercises' exercise.class_subject.id %}?term={{ exercise.term }}" class="btn btn-outline-secondary">
-        &larr; Back to Exercises
-    </a>
+    <div class="text-end">
+        <a href="{% url 'teachers:manage_exercises' exercise.class_subject.id %}?term={{ exercise.term }}" class="btn btn-outline-secondary">
+            &larr; Back to Exercises
+        </a>
+    </div>
 </div>
 
 <div class="card shadow-sm border-0">
-    <div class="card-body">
-        <form method="post">
+    <div class="card-body p-0">
+        <form method="post" id="scoresForm">
             {% csrf_token %}
             
-            <div class="alert alert-info d-flex align-items-center">
-                <i class="bi bi-info-circle-fill me-2"></i>
-                <div>
-                     Updating these scores will automatically recalculate the <strong>Class Score (30%)</strong> in the main gradebook.
+            <div class="p-3 bg-light border-bottom">
+                <div class="alert alert-primary mb-0 d-flex align-items-center py-2">
+                    <i class="bi bi-info-circle-fill me-2 fs-5"></i>
+                    <div>
+                         Updating these scores automatically calculates <strong>Class Score (30%)</strong>. Press <strong>Enter</strong> to move down.
+                    </div>
                 </div>
             </div>
 
-            <div class="table-responsive">
+            <div class="table-responsive" style="max-height: 70vh; overflow-y: auto;">
                 <table class="table table-hover align-middle mb-0">
-                    <thead class="bg-light">
+                    <thead class="sticky-header">
                         <tr>
-                            <th style="width: 5%;">#</th>
-                            <th style="width: 30%;">Student Name</th>
-                            <th style="width: 20%;">Score (Max: {{ exercise.max_marks }})</th>
+                            <th style="width: 5%;" class="ps-4">#</th>
+                            <th style="width: 35%;">Student Name</th>
+                            <th style="width: 25%;">Score (Max: {{ exercise.max_marks }})</th>
                             <th>Remarks</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for item in student_list %}
                         <tr>
-                            <td>{{ forloop.counter }}</td>
+                            <td class="ps-4 text-muted">{{ forloop.counter }}</td>
                             <td>
                                 <div class="fw-bold">{{ item.student.user.get_full_name }}</div>
                                 <small class="text-muted">{{ item.student.admission_number }}</small>
@@ -48,15 +70,15 @@
                             <td>
                                 <input type="number" step="0.01" min="0" max="{{ exercise.max_marks }}" 
                                        name="score_{{ item.student.id }}" 
-                                       class="form-control" 
+                                       class="form-control score-input" 
                                        value="{{ item.score_obj.score|default:'' }}"
-                                       placeholder="-">
+                                       placeholder="-" tabindex="{{ forloop.counter0|add:1 }}">
                             </td>
                             <td>
                                 <input type="text" name="remarks_{{ item.student.id }}" 
-                                       class="form-control form-control-sm" 
+                                       class="form-control form-control-sm remark-input" 
                                        value="{{ item.score_obj.remarks|default:'' }}"
-                                       placeholder="Optional">
+                                       placeholder="Excellent, Good, etc." tabindex="{{ forloop.counter0|add:1000 }}">
                             </td>
                         </tr>
                         {% endfor %}
@@ -64,11 +86,72 @@
                 </table>
             </div>
             
-            <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
-                <a href="{% url 'teachers:manage_exercises' exercise.class_subject.id %}" class="btn btn-light me-md-2">Cancel</a>
-                <button type="submit" class="btn btn-primary px-5">Save Scores</button>
+            <div class="card-footer bg-white py-3 border-top">
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <a href="{% url 'teachers:manage_exercises' exercise.class_subject.id %}" class="btn btn-light me-md-2">Cancel</a>
+                    <button type="submit" class="btn btn-primary px-5 fw-bold" id="saveButton">
+                        <i class="bi bi-save me-1"></i> Save Scores
+                    </button>
+                    <!-- Floating Save Button for long lists -->
+                    <button type="submit" class="btn btn-primary position-fixed bottom-0 end-0 m-4 shadow rounded-circle d-md-none" 
+                            style="width: 60px; height: 60px; z-index: 100;" title="Save">
+                        <i class="bi bi-save fs-4"></i>
+                    </button>
+                </div>
             </div>
         </form>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const scoreInputs = document.querySelectorAll('.score-input');
+    const remarkInputs = document.querySelectorAll('.remark-input');
+    const form = document.getElementById('scoresForm');
+    let isDirty = false;
+
+    // Highlight rows
+    const allInputs = [...scoreInputs, ...remarkInputs];
+    allInputs.forEach(input => {
+        input.addEventListener('focus', function() {
+            this.closest('tr').classList.add('active-row');
+        });
+        input.addEventListener('blur', function() {
+            this.closest('tr').classList.remove('active-row');
+        });
+        input.addEventListener('change', () => isDirty = true);
+    });
+
+    // Vertical Navigation for Enter key
+    scoreInputs.forEach((input, index) => {
+        input.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                if (index < scoreInputs.length - 1) {
+                    scoreInputs[index + 1].focus();
+                    scoreInputs[index + 1].select();
+                } else {
+                    document.getElementById('saveButton').focus();
+                }
+            }
+        });
+    });
+    
+    // Warn on unsaved changes
+    form.addEventListener('submit', () => isDirty = false);
+    window.addEventListener('beforeunload', (e) => {
+        if (isDirty) {
+            e.preventDefault();
+            e.returnValue = '';
+        }
+    });
+
+    // Auto-select value on focus for easy overwriting
+    scoreInputs.forEach(input => {
+        input.addEventListener('focus', function() {
+            if(this.value) this.select();
+        });
+    });
+});
+</script>
 {% endblock %}

@@ -1,22 +1,46 @@
-# Copilot Instructions for this Project
+# Copilot Instructions for School Management System
 
-- **Stack**: Django 5 with custom user model, crispy-forms + bootstrap5, WhiteNoise static serving. Apps: accounts (auth + dashboards), students (attendance, grades, reports), teachers (class/grade entry), academics (years/classes/subjects), parents (child access/homework), announcements (notices), finance (fees).
-- **Auth & roles**: Custom user `accounts.User` with `user_type` field (admin/teacher/student/parent) and profile models per role. Dashboards route by role in [accounts/views.py](accounts/views.py) via `dashboard` view.
-- **URLs**: Root login at `/`, dashboards at `/dashboard/`, role modules mounted under `/students/`, `/teachers/`, `/parents/`, `/finance/`, `/announcements/`, admin at `/admin/` as set in [school_system/urls.py](school_system/urls.py).
-- **Templates & forms**: Templates live under `templates/`; role dashboards under `templates/dashboard/`. Forms lean on crispy-bootstrap5; keep Bootstrap 5 classes consistent.
-- **Key models**: 
-  - [academics/models.py](academics/models.py): `AcademicYear.is_current` drives filters. `SchoolInfo` stores global branding. `Timetable` links Class/Subject to Day/Time.
-  - [students/models.py](students/models.py): `Attendance` is unique per student/date.
-  - [finance/models.py](finance/models.py): `FeeStructure` defines charges; `StudentFee` tracks individual liability; `Payment` records receipts.
-  - [announcements/models.py](announcements/models.py): `Announcement` targets audience groups (Staff, Parents, All).
-- **Dashboard Logic**: Admin dashboard (`admin_dashboard.html`) layout is grid-based with quick links to Timetable, Finance, Notices, Settings. Includes Chart.js analytics for attendance/class size.
-- **Grade logic**: `Grade.save` coerces scores, caps at 100, assigns grade/remarks. `term` values are `first|second|third`.
-- **Finance**: Admin manages fees (`finance:manage_fees`); payments handled via `finance:record_payment` with receipt generation at `finance:print_receipt`.
-- **Reporting**: Report cards (`students:report_card`) fetch dynamic branding from `SchoolInfo` model.
-- **Data seeding**: `load_sample_data.py` populates Users, Classes, Subjects, Fees, Announcements, and Timetable.
-- **Dev runbook**: Create venv, `pip install -r requirements.txt`, `migrate`, `python load_sample_data.py` (seeds full test set), `runserver`.
-- **Static/media**: User avatars and homework files stored under `media/`; ensure `MEDIA_ROOT` writable. When `DEBUG=True`, static/media served via `django.conf.urls.static` in [school_system/urls.py](school_system/urls.py).
-- **Tests**: No custom tests present; add Django `TestCase`s per app in `tests.py` files if extending behavior.
-- **Conventions**: Guard privileged views with `user.user_type` checks; prefer `select_related` on user/class for listings; preserve Decimal score handling and ranking side-effects in `Grade.save`.
+## Project Overview
+- **Type**: Django 5 School Management System
+- **Stack**: Django, Crispy Forms (Bootstrap 5), WhiteNoise (Static), SQLite (Local)/PostgreSQL (Prod).
+- **Core Apps**:
+  - `accounts`: Auth & Dashboards
+  - `academics`: Years, Classes, Subjects, Timetable, School Info
+  - `students`: Profiles, Attendance, Grades
+  - `teachers`: Profiles, Duty Roster
+  - `finance`: Fees, Payments
+  - `announcements`: Notifications
+  - `parents`: Parent portal
+- **Inactive Apps**: `communication` (files exist but not installed).
 
-If anything is unclear or missing, tell me which sections need more detail and I will refine this file.
+## Architecture & Patterns
+- **User Model**: Custom `accounts.models.User` with `user_type` ('admin', 'teacher', 'student', 'parent'). Authentication logic relies on this field.
+- **Dashboards**: Route logic in `accounts.views.dashboard` directs users to role-specific templates (`templates/dashboard/`).
+- **Global Context**: `academics.context_processors.school_info` injects school branding (Name, Logo) into all templates.
+- **Static Assets**:
+  - `static/`: Global CSS/JS.
+  - `media/`: User uploads (profiles, gallery).
+  -Served via WhiteNoise in production.
+
+## Key Developer Workflows
+- **Setup & Seeding**:
+  - Run `python load_sample_data.py` to populate a full test environment with Users, Classes, Subjects, Fees, and Timetables.
+  - `scripts/` directory contains standalone automation scripts (e.g., `import_basic7.py`). Run these via `python scripts/script_name.py` (they handle `django.setup()`).
+- **Styles**: Use Bootstrap 5 utility classes. `crispy_forms` handles form rendering.
+
+## Critical Conventions & "Gotchas"
+- **Term Inconsistency**: 
+  - `students.Grade` and `finance.FeeStructure` use lowercase: `('first', 'second', 'third')`.
+  - `teachers.DutyWeek` uses Capitalized: `('First', 'Second', 'Third')`.
+  - *Action*: Always check the specific model's `choices` before querying or filtering by term.
+- **Access Control**: Privileged views *must* check `request.user.user_type`.
+- **Filtering**:
+  - Always filter by `AcademicYear.objects.filter(is_current=True)` for active records.
+  - Student lookups should typically include `select_related('user', 'current_class')`.
+- **Finance**: Fee logic is split between `FeeStructure` (definitions) and `StudentFee` (individual liability).
+
+## Important File Locations
+- **Settings**: [school_system/settings.py](school_system/settings.py)
+- **Routing**: [school_system/urls.py](school_system/urls.py) and app-level `urls.py`.
+- **Data Loaders**: [load_sample_data.py](load_sample_data.py), [scripts/](scripts/)
+- **Templates**: `templates/dashboard/[role]_dashboard.html` for main landing pages.

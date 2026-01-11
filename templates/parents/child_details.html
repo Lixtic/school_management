@@ -122,45 +122,71 @@
     <div class="tab-content" id="childTabsContent">
         <!-- Grades Tab -->
         <div class="tab-pane fade show active" id="grades" role="tabpanel">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title mb-3">Academic Grades</h5>
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-0">
                     <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead class="table-light">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-light text-secondary small text-uppercase">
                                 <tr>
-                                    <th>Subject</th>
-                                    <th>Exam Type</th>
-                                    <th>Marks Obtained</th>
-                                    <th>Total Marks</th>
-                                    <th>Percentage</th>
-                                    <th>Grade</th>
-                                    <th>Date</th>
+                                    <th class="ps-4 border-0">Subject</th>
+                                    <th class="border-0">Assessment</th>
+                                    <th class="text-center border-0">Score</th>
+                                    <th class="border-0" style="width: 25%;">Performance</th>
+                                    <th class="text-center border-0">Grade</th>
+                                    <th class="text-end pe-4 border-0">Date</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for grade in grades %}
                                 <tr>
-                                    <td><strong>{{ grade.subject }}</strong></td>
-                                    <td>{{ grade.exam_type }}</td>
-                                    <td>{{ grade.marks_obtained }}</td>
-                                    <td>{{ grade.total_marks }}</td>
-                                    <td>{{ grade.percentage|floatformat:2 }}%</td>
+                                    <td class="ps-4">
+                                        <div class="d-flex align-items-center">
+                                            <div class="bg-primary bg-opacity-10 text-primary rounded p-2 me-3 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                                <i class="bi bi-book-fill fs-5"></i>
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-0 fw-bold text-dark">{{ grade.subject.name }}</h6>
+                                                <small class="text-muted font-monospace">{{ grade.subject.code }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
                                     <td>
-                                        <span class="badge 
-                                            {% if grade.grade == 'A+' or grade.grade == 'A' %}bg-success
-                                            {% elif grade.grade == 'B+' or grade.grade == 'B' %}bg-primary
-                                            {% elif grade.grade == 'C' %}bg-warning
-                                            {% else %}bg-danger{% endif %}">
+                                        <span class="badge bg-light text-dark border fw-normal">{{ grade.exam_type|title }}</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <h6 class="mb-0 fw-bold">{{ grade.marks_obtained }}<span class="text-muted fw-normal small">/{{ grade.total_marks }}</span></h6>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div class="progress flex-grow-1" style="height: 6px;">
+                                                <div class="progress-bar {% if grade.percentage >= 70 %}bg-success{% elif grade.percentage >= 50 %}bg-warning{% else %}bg-danger{% endif %}" 
+                                                     role="progressbar" 
+                                                     style="width: {{ grade.percentage }}%" 
+                                                     aria-valuenow="{{ grade.percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                            </div>
+                                            <small class="fw-bold {% if grade.percentage >= 70 %}text-success{% elif grade.percentage >= 50 %}text-warning{% else %}text-danger{% endif %}">{{ grade.percentage|floatformat:0 }}%</small>
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge rounded-pill 
+                                            {% if grade.grade|first == 'A' %}bg-success-subtle text-success border border-success
+                                            {% elif grade.grade|first == 'B' %}bg-info-subtle text-info border border-info
+                                            {% elif grade.grade|first == 'C' %}bg-warning-subtle text-warning border border-warning
+                                            {% else %}bg-danger-subtle text-danger border border-danger{% endif %} px-3 py-2">
                                             {{ grade.grade }}
                                         </span>
                                     </td>
-                                    <td>{{ grade.created_at|date:"M d, Y" }}</td>
+                                    <td class="text-end pe-4">
+                                        <small class="text-muted">{{ grade.created_at|date:"M d, Y" }}</small>
+                                    </td>
                                 </tr>
                                 {% empty %}
                                 <tr>
-                                    <td colspan="7" class="text-center text-muted py-4">
-                                        No grades available yet
+                                    <td colspan="6" class="text-center py-5">
+                                        <div class="text-muted">
+                                            <i class="bi bi-journal-x fs-1 d-block mb-3 opacity-25"></i>
+                                            <p class="mb-0">No academic records found for this term.</p>
+                                        </div>
                                     </td>
                                 </tr>
                                 {% endfor %}

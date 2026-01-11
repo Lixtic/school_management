@@ -673,6 +673,12 @@
                     <span>Enter Grades</span>
                 </a>
             </div>
+            <div class="nav-item">
+                <a href="{% url 'teachers:duty_roster' %}" class="nav-link {% if request.resolver_match.url_name == 'duty_roster' %}active{% endif %}" title="Duty Roster">
+                    <i class="bi bi-calendar-check"></i>
+                    <span>Duty Roster</span>
+                </a>
+            </div>
             {% endif %}
             
             {% if user.user_type == 'parent' %}

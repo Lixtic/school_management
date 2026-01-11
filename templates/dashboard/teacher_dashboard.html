@@ -144,29 +144,26 @@
     <!-- Sidebar -->
     <div class="col-lg-4">
         <!-- Duty Widget -->
-        {% if next_duty %}
-        <div class="card bg-info bg-opacity-10 border-info border-opacity-25 mb-4">
+        <div class="card {% if next_duty %}bg-info bg-opacity-10 border-info border-opacity-25{% else %}border-0 shadow-sm{% endif %} mb-4">
              <div class="card-body">
                 <div class="d-flex align-items-center mb-3">
-                     <i class="bi bi-calendar-check text-info fs-3 me-2"></i>
-                     <h5 class="card-title mb-0 fw-bold text-info-emphasis">Upcoming Duty</h5>
+                     <i class="bi bi-calendar-check {% if next_duty %}text-info{% else %}text-muted{% endif %} fs-3 me-2"></i>
+                     <h5 class="card-title mb-0 fw-bold {% if next_duty %}text-info-emphasis{% endif %}">Duty Roster</h5>
                 </div>
+                
+                {% if next_duty %}
                  <p class="mb-2 lead"><strong>{{ next_duty.role }}</strong></p>
                  <p class="text-muted mb-3">{{ next_duty.week.start_date|date:"M d" }} - {{ next_duty.week.end_date|date:"M d, Y" }}</p>
-                 <a href="{% url 'teachers:duty_roster' %}" class="btn btn-info text-white w-100 shadow-sm">View Roster</a>
+                 <a href="{% url 'teachers:duty_roster' %}" class="btn btn-info text-white w-100 shadow-sm">View Details</a>
+                {% else %}
+                 <div class="text-center py-3">
+                    <p class="text-muted mb-1">No upcoming duties assigned.</p>
+                    <small class="text-muted d-block mb-3">You are free for now!</small>
+                 </div>
+                 <a href="{% url 'teachers:duty_roster' %}" class="btn btn-outline-secondary w-100 btn-sm">Check Full Roster</a>
+                {% endif %}
              </div>
         </div>
-        {% else %}
-         <div class="card border-0 shadow-sm mb-4">
-            <div class="card-body d-flex align-items-center justify-content-between">
-                <div>
-                     <h6 class="fw-bold mb-1">Duty Roster</h6>
-                     <small class="text-muted">Check assignments</small>
-                </div>
-                 <a href="{% url 'teachers:duty_roster' %}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-list-task"></i></a>
-            </div>
-        </div>
-        {% endif %}
 
         <!-- Notices -->
         <div class="card border-0 shadow-sm mb-4">

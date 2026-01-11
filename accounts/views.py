@@ -171,6 +171,7 @@ def dashboard(request):
             # print(f"DEBUG: Teacher={teacher_profile}, Year={current_year}, Date={current_date_val}")
             # print(f"DEBUG: Next Duty Found: {next_duty}")
 
+
         # Get Today's Timetable
         today_weekday = timezone.now().weekday()
         todays_classes = Timetable.objects.filter(
@@ -180,6 +181,9 @@ def dashboard(request):
 
         # Calculate Student Count (Restored)
         teacher_students_count = Student.objects.filter(current_class__id__in=class_ids).distinct().count()
+        
+        # Recent uploaded resources
+        recent_resources = Resource.objects.filter(class_subject__teacher=teacher_profile).order_by('-uploaded_at')[:3]
 
         # Filter notices for teacher
         teacher_notices = base_notices.filter(target_audience__in=['all', 'staff', 'teachers'])[:5]
@@ -192,6 +196,7 @@ def dashboard(request):
             'notices': teacher_notices,
             'next_duty': next_duty,
             'todays_classes': todays_classes,
+            'recent_resources': recent_resources,
         }
 
         return render(request, 'dashboard/teacher_dashboard.html', teacher_context)

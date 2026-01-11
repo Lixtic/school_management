@@ -131,3 +131,16 @@ class GalleryImage(models.Model):
 
     class Meta:
         ordering = ['-created_at']
+
+class Resource(models.Model):
+    class_subject = models.ForeignKey(ClassSubject, on_delete=models.CASCADE, related_name='resources')
+    title = models.CharField(max_length=255)
+    description = models.TextField(blank=True)
+    file = models.FileField(upload_to='class_resources/')
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title
+        
+    class Meta:
+        ordering = ['-uploaded_at']

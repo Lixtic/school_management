@@ -6,9 +6,10 @@ from django.contrib import messages
 from django.http import JsonResponse
 from decimal import Decimal, InvalidOperation
 from teachers.models import Teacher, DutyWeek
-from academics.models import ClassSubject, AcademicYear, Timetable, SchoolInfo
+from academics.models import ClassSubject, AcademicYear, Timetable, SchoolInfo, Resource
 from students.models import Student, Grade, ClassExercise, StudentExerciseScore
 from students.utils import normalize_term
+from .forms import ResourceForm
 
 @login_required
 def teacher_classes(request):
@@ -365,3 +366,45 @@ def search_students(request):
         'students': students,
         'school_name': SchoolInfo.objects.first().name if SchoolInfo.objects.exists() else 'School'
     })
+
+
+@login_required
+def class_resources(request, class_subject_id):
+    if request.user.user_type != 'teacher':
+        messages.error(request, 'Access denied')
+        return redirect('dashboard')
+    
+    teacher = Teacher.objects.get(user=request.user)
+    class_subject = get_object_or_404(ClassSubject, id=class_subject_id, teacher=teacher)
+    
+    if request.method == 'POST':
+        form = ResourceForm(request.POST, request.FILES)
+        if form.is_valid():
+            resource = form.save(commit=False)
+            resource.class_subject = class_subject
+            resource.save()
+            messages.success(request, 'Resource uploaded successfully.')
+            return redirect('teachers:class_resources', class_subject_id=class_subject.id)
+    else:
+        form = ResourceForm()
+        
+    resources = Resource.objects.filter(class_subject=class_subject).order_by('-uploaded_at')
+    
+    return render(request, 'teachers/class_resources.html', {
+        'class_subject': class_subject,
+        'resources': resources,
+        'form': form,
+    })
+
+@login_required
+def delete_resource(request, resource_id):
+    if request.user.user_type != 'teacher':
+        messages.error(request, 'Access denied')
+        return redirect('dashboard')
+        
+    resource = get_object_or_404(Resource, id=resource_id, class_subject__teacher__user=request.user)
+    class_subject_id = resource.class_subject.id
+    resource.delete()
+    messages.success(request, 'Resource deleted successfully.')
+    return redirect('teachers:class_resources', class_subject_id=class_subject_id)
+

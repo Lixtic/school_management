@@ -38,6 +38,10 @@
                                 <li><a class="dropdown-item" href="{% url 'teachers:enter_grades' %}?class_subject_id={{ cs.id }}">
                                     <i class="bi bi-pencil-square me-2 text-success"></i>Enter Grades
                                 </a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{% url 'teachers:class_resources' cs.id %}">
+                                    <i class="bi bi-folder2-open me-2 text-info"></i>Resources
+                                </a></li>
                             </ul>
                         </div>
                     </div>

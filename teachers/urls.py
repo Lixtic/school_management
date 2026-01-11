@@ -14,4 +14,7 @@ urlpatterns = [
     path('exercises/<int:exercise_id>/scores/', views.enter_exercise_scores, name='enter_exercise_scores'),
     # Search
     path('search/', views.search_students, name='search_students'),
+    # Resources
+    path('resources/<int:class_subject_id>/', views.class_resources, name='class_resources'),
+    path('resources/delete/<int:resource_id>/', views.delete_resource, name='delete_resource'),
 ]

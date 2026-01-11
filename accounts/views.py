@@ -138,6 +138,9 @@ def dashboard(request):
     elif user.user_type == 'teacher':
         teacher_profile = Teacher.objects.filter(user=user).first()
         current_year = AcademicYear.objects.filter(is_current=True).first()
+        if not current_year:
+            # Fallback to the latest academic year if none is marked current
+            current_year = AcademicYear.objects.order_by('-start_date').first()
 
         class_subjects = ClassSubject.objects.filter(teacher=teacher_profile)
         class_teacher_classes = Class.objects.filter(class_teacher=teacher_profile)
@@ -152,13 +155,19 @@ def dashboard(request):
         # Check for upcoming Duty
         next_duty = None
         current_date_val = timezone.now().date()
-        if current_year:
+        
+        if teacher_profile and current_year:
+            # Look for duty in current year ending today or in future
             next_duty = DutyAssignment.objects.filter(
                 teacher=teacher_profile,
                 week__academic_year=current_year,
                 week__end_date__gte=current_date_val
             ).select_related('week').order_by('week__start_date').first()
-        
+            
+            # Debugging (visible in server logs)
+            print(f"DEBUG: Teacher={teacher_profile}, Year={current_year}, Date={current_date_val}")
+            print(f"DEBUG: Next Duty Found: {next_duty}")
+
         # Get Today's Timetable
         today_weekday = timezone.now().weekday()
         todays_classes = Timetable.objects.filter(

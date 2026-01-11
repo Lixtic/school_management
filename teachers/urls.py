@@ -17,4 +17,10 @@ urlpatterns = [
     # Resources
     path('resources/<int:class_subject_id>/', views.class_resources, name='class_resources'),
     path('resources/delete/<int:resource_id>/', views.delete_resource, name='delete_resource'),
+    # Lesson Plans
+    path('lesson-plans/', views.lesson_plan_list, name='lesson_plan_list'),
+    path('lesson-plans/create/', views.lesson_plan_create, name='lesson_plan_create'),
+    path('lesson-plans/<int:pk>/', views.lesson_plan_detail, name='lesson_plan_detail'),
+    path('lesson-plans/<int:pk>/edit/', views.lesson_plan_edit, name='lesson_plan_edit'),
+    path('lesson-plans/<int:pk>/delete/', views.lesson_plan_delete, name='lesson_plan_delete'),
 ]

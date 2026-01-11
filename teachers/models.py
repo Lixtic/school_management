@@ -46,3 +46,27 @@ class DutyAssignment(models.Model):
 
     def __str__(self):
         return f"{self.teacher} - {self.role}"
+
+class LessonPlan(models.Model):
+    teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE, related_name='lesson_plans')
+    subject = models.ForeignKey('academics.Subject', on_delete=models.CASCADE)
+    school_class = models.ForeignKey('academics.Class', on_delete=models.CASCADE, verbose_name="Class")
+    week_number = models.PositiveIntegerField()
+    topic = models.CharField(max_length=200)
+    objectives = models.TextField(help_text="Specific learning outcomes")
+    teaching_materials = models.TextField(blank=True, help_text="Materials needed for the lesson")
+    
+    # Lesson Procedure
+    introduction = models.TextField(blank=True)
+    presentation = models.TextField(blank=True, help_text="Main teaching activity")
+    evaluation = models.TextField(blank=True, help_text="How students will be assessed")
+    homework = models.TextField(blank=True)
+    
+    date_added = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-week_number', '-date_added']
+    
+    def __str__(self):
+        return f"Week {self.week_number}: {self.subject} - {self.topic}"

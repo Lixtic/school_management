@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+
+{% block title %}Lesson Plan Detail{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="d-flex justify-content-between align-items-center mb-4 print-hide">
+                <a href="{% url 'teachers:lesson_plan_list' %}" class="btn btn-outline-secondary rounded-pill">
+                    <i class="bi bi-arrow-left me-2"></i>Back to List
+                </a>
+                <div class="d-flex gap-2">
+                    <button onclick="window.print()" class="btn btn-dark rounded-pill">
+                        <i class="bi bi-printer me-2"></i>Print
+                    </button>
+                    <a href="{% url 'teachers:lesson_plan_edit' lesson_plan.pk %}" class="btn btn-primary rounded-pill">
+                        <i class="bi bi-pencil me-2"></i>Edit
+                    </a>
+                </div>
+            </div>
+
+            <div class="card border rounded-0 shadow-none" id="printableArea">
+                <div class="card-body p-5">
+                    <!-- Header -->
+                    <div class="text-center mb-5 border-bottom pb-4">
+                        <h2 class="fw-bold mb-1">LESSON PLAN</h2>
+                        <h5 class="text-secondary fw-bold text-uppercase">{{ lesson_plan.teacher.user.get_full_name }}</h5>
+                    </div>
+
+                    <!-- Meta Data -->
+                    <div class="row text-uppercase small mb-4 border-bottom pb-3 g-3">
+                        <div class="col-md-3">
+                            <span class="text-muted d-block">Week</span>
+                            <span class="fw-bold fs-5">{{ lesson_plan.week_number }}</span>
+                        </div>
+                        <div class="col-md-3">
+                            <span class="text-muted d-block">Subject</span>
+                            <span class="fw-bold fs-5">{{ lesson_plan.subject.name }}</span>
+                        </div>
+                        <div class="col-md-3">
+                            <span class="text-muted d-block">Class</span>
+                            <span class="fw-bold fs-5">{{ lesson_plan.school_class.name }}</span>
+                        </div>
+                        <div class="col-md-3">
+                            <span class="text-muted d-block">Date Created</span>
+                            <span class="fw-bold">{{ lesson_plan.date_added|date:"M d, Y" }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Topic -->
+                    <div class="mb-4">
+                        <h6 class="fw-bold text-secondary text-uppercase mb-2">Topic</h6>
+                        <p class="fs-4 fw-bold">{{ lesson_plan.topic }}</p>
+                    </div>
+
+                    <!-- Objectives -->
+                    <div class="mb-4">
+                        <h6 class="fw-bold text-secondary text-uppercase mb-2">Objectives</h6>
+                        <div class="bg-light p-3 rounded">
+                            {{ lesson_plan.objectives|linebreaks }}
+                        </div>
+                    </div>
+
+                    <!-- Materials -->
+                    {% if lesson_plan.teaching_materials %}
+                    <div class="mb-4">
+                        <h6 class="fw-bold text-secondary text-uppercase mb-2">Teaching/Learning Materials</h6>
+                        <p>{{ lesson_plan.teaching_materials|linebreaks }}</p>
+                    </div>
+                    {% endif %}
+
+                    <hr class="my-4 text-muted">
+
+                    <!-- Procedure Grid -->
+                    <div class="row g-4">
+                        <div class="col-12">
+                            <h5 class="fw-bold text-decoration-underline mb-3">Lesson Procedure</h5>
+                            
+                            <div class="mb-3">
+                                <span class="badge bg-secondary mb-2 rounded-0">INTRODUCTION</span>
+                                <div class="ps-3 border-start border-3 border-secondary">
+                                    {{ lesson_plan.introduction|linebreaks }}
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <span class="badge bg-primary mb-2 rounded-0">PRESENTATION / ACTIVITY</span>
+                                <div class="ps-3 border-start border-3 border-primary">
+                                    {{ lesson_plan.presentation|linebreaks }}
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <span class="badge bg-success mb-2 rounded-0">EVALUATION</span>
+                                <div class="ps-3 border-start border-3 border-success">
+                                    {{ lesson_plan.evaluation|linebreaks }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if lesson_plan.homework %}
+                    <div class="mt-4 p-3 border border-dark border-dashed rounded bg-warning bg-opacity-10">
+                        <h6 class="fw-bold text-dark text-uppercase mb-2">Homework / Assignment</h6>
+                        <p class="mb-0">{{ lesson_plan.homework|linebreaks }}</p>
+                    </div>
+                    {% endif %}
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    @media print {
+        body * {
+            visibility: hidden;
+        }
+        #printableArea, #printableArea * {
+            visibility: visible;
+        }
+        #printableArea {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            border: none !important;
+            box-shadow: none !important;
+        }
+        .print-hide { 
+            display: none !important; 
+        }
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="fw-bold">{{ title }}</h2>
+                <a href="{% url 'teachers:lesson_plan_list' %}" class="btn btn-outline-secondary rounded-pill">
+                    <i class="bi bi-arrow-left me-2"></i>Back to List
+                </a>
+            </div>
+
+            <div class="card shadow-sm border-0 rounded-4">
+                <div class="card-body p-4">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="row g-3">
+                            <div class="col-md-3">
+                                {{ form.week_number|as_crispy_field }}
+                            </div>
+                            <div class="col-md-5">
+                                {{ form.subject|as_crispy_field }}
+                            </div>
+                            <div class="col-md-4">
+                                {{ form.school_class|as_crispy_field }}
+                            </div>
+
+                            <div class="col-12">
+                                {{ form.topic|as_crispy_field }}
+                            </div>
+
+                            <div class="col-12">
+                                {{ form.objectives|as_crispy_field }}
+                            </div>
+
+                            <div class="col-12">
+                                {{ form.teaching_materials|as_crispy_field }}
+                            </div>
+
+                            <h5 class="mt-4 mb-3 border-bottom pb-2">Lesson Procedure</h5>
+                            
+                            <div class="col-12">
+                                {{ form.introduction|as_crispy_field }}
+                            </div>
+
+                            <div class="col-12">
+                                {{ form.presentation|as_crispy_field }}
+                            </div>
+
+                            <div class="col-12">
+                                {{ form.evaluation|as_crispy_field }}
+                            </div>
+                            
+                            <div class="col-12">
+                                {{ form.homework|as_crispy_field }}
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg rounded-pill">
+                                <i class="bi bi-save me-2"></i>Save Lesson Plan
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -5,11 +5,11 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse
 from decimal import Decimal, InvalidOperation
-from teachers.models import Teacher, DutyWeek
+from teachers.models import Teacher, DutyWeek, LessonPlan
 from academics.models import ClassSubject, AcademicYear, Timetable, SchoolInfo, Resource
 from students.models import Student, Grade, ClassExercise, StudentExerciseScore
 from students.utils import normalize_term
-from .forms import ResourceForm
+from .forms import ResourceForm, LessonPlanForm
 
 @login_required
 def teacher_classes(request):
@@ -408,3 +408,96 @@ def delete_resource(request, resource_id):
     messages.success(request, 'Resource deleted successfully.')
     return redirect('teachers:class_resources', class_subject_id=class_subject_id)
 
+
+
+@login_required
+def lesson_plan_list(request):
+    if request.user.user_type != 'teacher':
+        messages.error(request, 'Access denied')
+        return redirect('dashboard')
+    
+    teacher = get_object_or_404(Teacher, user=request.user)
+    lesson_plans = LessonPlan.objects.filter(teacher=teacher)
+    
+    week = request.GET.get('week')
+    if week:
+        lesson_plans = lesson_plans.filter(week_number=week)
+        
+    return render(request, 'teachers/lesson_plan_list.html', {
+        'lesson_plans': lesson_plans,
+        'selected_week': week
+    })
+
+@login_required
+def lesson_plan_create(request):
+    if request.user.user_type != 'teacher':
+        messages.error(request, 'Access denied')
+        return redirect('dashboard')
+    
+    teacher = get_object_or_404(Teacher, user=request.user)
+    
+    if request.method == 'POST':
+        form = LessonPlanForm(request.POST, teacher=teacher)
+        if form.is_valid():
+            lesson_plan = form.save(commit=False)
+            lesson_plan.teacher = teacher
+            lesson_plan.save()
+            messages.success(request, 'Lesson plan created successfully.')
+            return redirect('teachers:lesson_plan_list')
+    else:
+        form = LessonPlanForm(teacher=teacher)
+        
+    return render(request, 'teachers/lesson_plan_form.html', {
+        'form': form,
+        'title': 'Create Lesson Plan'
+    })
+
+@login_required
+def lesson_plan_edit(request, pk):
+    if request.user.user_type != 'teacher':
+        messages.error(request, 'Access denied')
+        return redirect('dashboard')
+    
+    teacher = get_object_or_404(Teacher, user=request.user)
+    lesson_plan = get_object_or_404(LessonPlan, pk=pk, teacher=teacher)
+    
+    if request.method == 'POST':
+        form = LessonPlanForm(request.POST, instance=lesson_plan, teacher=teacher)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Lesson plan updated successfully.')
+            return redirect('teachers:lesson_plan_list')
+    else:
+        form = LessonPlanForm(instance=lesson_plan, teacher=teacher)
+        
+    return render(request, 'teachers/lesson_plan_form.html', {
+        'form': form,
+        'title': 'Edit Lesson Plan'
+    })
+
+@login_required
+def lesson_plan_detail(request, pk):
+    if request.user.user_type != 'teacher':
+        messages.error(request, 'Access denied')
+        return redirect('dashboard')
+    
+    teacher = get_object_or_404(Teacher, user=request.user)
+    lesson_plan = get_object_or_404(LessonPlan, pk=pk, teacher=teacher)
+    
+    return render(request, 'teachers/lesson_plan_detail.html', {'lesson_plan': lesson_plan})
+
+@login_required
+def lesson_plan_delete(request, pk):
+    if request.user.user_type != 'teacher':
+        messages.error(request, 'Access denied')
+        return redirect('dashboard')
+    
+    teacher = get_object_or_404(Teacher, user=request.user)
+    lesson_plan = get_object_or_404(LessonPlan, pk=pk, teacher=teacher)
+    
+    if request.method == 'POST':
+        lesson_plan.delete()
+        messages.success(request, 'Lesson plan deleted successfully.')
+        return redirect('teachers:lesson_plan_list')
+        
+    return render(request, 'teachers/lesson_plan_confirm_delete.html', {'lesson_plan': lesson_plan})

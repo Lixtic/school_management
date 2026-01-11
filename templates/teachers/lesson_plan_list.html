@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block title %}My Lesson Plans{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold">
+            <i class="bi bi-journal-text me-2"></i>My Lesson Plans
+        </h2>
+        <a href="{% url 'teachers:lesson_plan_create' %}" class="btn btn-primary rounded-pill">
+            <i class="bi bi-plus-lg me-2"></i>Create New Plan
+        </a>
+    </div>
+
+    <!-- Filter -->
+    <div class="card shadow-sm border-0 mb-4 rounded-4">
+        <div class="card-body">
+            <form method="get" class="row g-3 align-items-center">
+                <div class="col-auto">
+                    <label for="week" class="col-form-label fw-bold">Filter by Week:</label>
+                </div>
+                <div class="col-auto">
+                    <input type="number" id="week" name="week" class="form-control" 
+                           value="{{ selected_week|default:'' }}" placeholder="Week No.">
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-secondary">Filter</button>
+                    {% if selected_week %}
+                    <a href="{% url 'teachers:lesson_plan_list' %}" class="btn btn-outline-secondary ms-2">Clear</a>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {% if lesson_plans %}
+        <div class="table-responsive bg-white rounded-4 shadow-sm">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4">Week</th>
+                        <th>Subject</th>
+                        <th>Class</th>
+                        <th>Topic</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for plan in lesson_plans %}
+                    <tr>
+                        <td class="ps-4 fw-bold text-secondary">Week {{ plan.week_number }}</td>
+                        <td>
+                            <span class="badge bg-info bg-opacity-10 text-info border border-info px-3 py-2 rounded-pill">
+                                {{ plan.subject.name }}
+                            </span>
+                        </td>
+                        <td>{{ plan.school_class.name }}</td>
+                        <td>{{ plan.topic }}</td>
+                        <td>
+                            <div class="btn-group">
+                                <a href="{% url 'teachers:lesson_plan_detail' plan.pk %}" class="btn btn-sm btn-outline-primary" title="View">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a href="{% url 'teachers:lesson_plan_edit' plan.pk %}" class="btn btn-sm btn-outline-secondary" title="Edit">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a href="{% url 'teachers:lesson_plan_delete' plan.pk %}" class="btn btn-sm btn-outline-danger" title="Delete">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="text-center py-5">
+            <i class="bi bi-journal-x display-1 text-muted mb-3"></i>
+            <h4 class="text-muted">No lesson plans found.</h4>
+            <p class="text-secondary">Get started by creating your first lesson plan.</p>
+            <a href="{% url 'teachers:lesson_plan_create' %}" class="btn btn-primary mt-3">Create Plan</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,11 +1,12 @@
 from django.shortcuts import render, redirect, get_object_or_404
+import django
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse
 from decimal import Decimal, InvalidOperation
 from teachers.models import Teacher, DutyWeek
 from academics.models import ClassSubject, AcademicYear, Timetable, SchoolInfo
-from students.models import Student, Grade
+from students.models import Student, Grade, ClassExercise, StudentExerciseScore
 from students.utils import normalize_term
 
 @login_required
@@ -209,3 +210,134 @@ def print_duty_roster(request):
         'academic_years': AcademicYear.objects.all(),
     }
     return render(request, 'teachers/duty_roster_pdf.html', context)
+
+
+@login_required
+def manage_exercises(request, class_subject_id):
+    if request.user.user_type != 'teacher':
+        messages.error(request, 'Access denied')
+        return redirect('dashboard')
+    
+    teacher = Teacher.objects.get(user=request.user)
+    class_subject = get_object_or_404(ClassSubject, id=class_subject_id, teacher=teacher)
+    
+    term = request.GET.get('term', 'first')
+    
+    exercises = ClassExercise.objects.filter(
+        class_subject=class_subject,
+        term=term
+    ).order_by('-date_assigned')
+    
+    if request.method == 'POST':
+        title = request.POST.get('title')
+        max_marks = request.POST.get('max_marks')
+        term_input = request.POST.get('term')
+        
+        if title and max_marks:
+            ClassExercise.objects.create(
+                class_subject=class_subject,
+                term=term_input,
+                title=title,
+                max_marks=max_marks
+            )
+            messages.success(request, 'Exercise created successfully.')
+            return redirect(f"{request.path}?term={term_input}")
+
+    # Helper for term names
+    term_choices = Grade.TERM_CHOICES
+
+    return render(request, 'teachers/manage_exercises.html', {
+        'class_subject': class_subject,
+        'exercises': exercises,
+        'selected_term': term,
+        'term_choices': term_choices,
+    })
+
+
+@login_required
+def enter_exercise_scores(request, exercise_id):
+    if request.user.user_type != 'teacher':
+        messages.error(request, 'Access denied')
+        return redirect('dashboard')
+    
+    teacher = Teacher.objects.get(user=request.user)
+    exercise = get_object_or_404(ClassExercise, id=exercise_id, class_subject__teacher=teacher)
+    
+    students = Student.objects.filter(current_class=exercise.class_subject.class_name).order_by('user__last_name')
+    
+    if request.method == 'POST':
+        try:
+            with django.db.transaction.atomic():
+                updated_count = 0
+                for student in students:
+                    score_val = request.POST.get(f'score_{student.id}')
+                    remarks_val = request.POST.get(f'remarks_{student.id}', '')
+                    
+                    if score_val:
+                        try:
+                            score = Decimal(score_val)
+                            score = max(Decimal('0'), min(score, exercise.max_marks))
+                            
+                            StudentExerciseScore.objects.update_or_create(
+                                student=student,
+                                exercise=exercise,
+                                defaults={'score': score, 'remarks': remarks_val}
+                            )
+                            updated_count += 1
+                        except (InvalidOperation, TypeError):
+                            continue
+                
+                # RECALCULATION LOGIC
+                all_exercises = ClassExercise.objects.filter(
+                    class_subject=exercise.class_subject,
+                    term=exercise.term
+                )
+                total_possible = sum(ex.max_marks for ex in all_exercises)
+                
+                if total_possible > 0:
+                    current_year = AcademicYear.objects.filter(is_current=True).first()
+                    if not current_year:
+                        current_year = AcademicYear.objects.order_by('-start_date').first()
+
+                    # Pre-fetch all scores for this subject/term to avoid N+1 inside loop if possible 
+                    # but simple iteration is fine for class size < 50
+                    
+                    for student in students:
+                        student_scores = StudentExerciseScore.objects.filter(
+                            student=student,
+                            exercise__in=all_exercises
+                        ).aggregate(total=models.Sum('score'))['total'] or Decimal('0')
+                        
+                        # (Obtained / Possible) * 30
+                        new_class_score = (student_scores / total_possible) * Decimal('30')
+                        
+                        grade_obj, _ = Grade.objects.get_or_create(
+                            student=student,
+                            subject=exercise.class_subject.subject,
+                            academic_year=current_year,
+                            term=exercise.term,
+                            defaults={'created_by': request.user}
+                        )
+                        grade_obj.class_score = new_class_score
+                        grade_obj.save()
+
+            messages.success(request, f'Scores saved for {updated_count} students. Class assessment totals updated.')
+        except Exception as e:
+            messages.error(request, f"Error saving scores: {e}")
+            
+        return redirect('teachers:enter_exercise_scores', exercise_id=exercise.id)
+
+    existing_scores = StudentExerciseScore.objects.filter(exercise=exercise)
+    score_map = {s.student_id: s for s in existing_scores}
+    
+    student_list = []
+    for s in students:
+        student_list.append({
+            'student': s,
+            'score_obj': score_map.get(s.id)
+        })
+
+    return render(request, 'teachers/enter_exercise_scores.html', {
+        'exercise': exercise,
+        'student_list': student_list,
+    })

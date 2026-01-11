@@ -23,8 +23,11 @@
             <td>{{ cs.class_name }}</td>
             <td>{{ cs.subject }}</td>
             <td>
-              <a class="btn btn-sm btn-primary" href="{% url 'teachers:enter_grades' %}?class_id={{ cs.class_name.id }}&subject_id={{ cs.subject.id }}">
-                Enter Grades
+              <a class="btn btn-sm btn-outline-primary me-1" href="{% url 'teachers:manage_exercises' cs.id %}">
+                <i class="bi bi-list-check"></i> Exercises
+              </a>
+              <a class="btn btn-sm btn-primary" href="{% url 'teachers:enter_grades' %}?class_subject_id={{ cs.id }}">
+                <i class="bi bi-pencil-square"></i> Grades
               </a>
             </td>
           </tr>

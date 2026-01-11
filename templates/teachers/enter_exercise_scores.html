@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="h3 mb-0">{{ exercise.title }}</h2>
+        <p class="text-muted">
+            Max Marks: <strong>{{ exercise.max_marks }}</strong> | 
+            {{ exercise.class_subject.class_name }} | 
+            {{ exercise.class_subject.subject }}
+        </p>
+    </div>
+    <a href="{% url 'teachers:manage_exercises' exercise.class_subject.id %}?term={{ exercise.term }}" class="btn btn-outline-secondary">
+        &larr; Back to Exercises
+    </a>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="alert alert-info d-flex align-items-center">
+                <i class="bi bi-info-circle-fill me-2"></i>
+                <div>
+                     Updating these scores will automatically recalculate the <strong>Class Score (30%)</strong> in the main gradebook.
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th style="width: 5%;">#</th>
+                            <th style="width: 30%;">Student Name</th>
+                            <th style="width: 20%;">Score (Max: {{ exercise.max_marks }})</th>
+                            <th>Remarks</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in student_list %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>
+                                <div class="fw-bold">{{ item.student.user.get_full_name }}</div>
+                                <small class="text-muted">{{ item.student.admission_number }}</small>
+                            </td>
+                            <td>
+                                <input type="number" step="0.01" min="0" max="{{ exercise.max_marks }}" 
+                                       name="score_{{ item.student.id }}" 
+                                       class="form-control" 
+                                       value="{{ item.score_obj.score|default:'' }}"
+                                       placeholder="-">
+                            </td>
+                            <td>
+                                <input type="text" name="remarks_{{ item.student.id }}" 
+                                       class="form-control form-control-sm" 
+                                       value="{{ item.score_obj.remarks|default:'' }}"
+                                       placeholder="Optional">
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                <a href="{% url 'teachers:manage_exercises' exercise.class_subject.id %}" class="btn btn-light me-md-2">Cancel</a>
+                <button type="submit" class="btn btn-primary px-5">Save Scores</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

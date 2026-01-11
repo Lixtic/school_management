@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="h3 mb-0">Class Exercises</h2>
+        <p class="text-muted">{{ class_subject.class_name }} - {{ class_subject.subject }} ({{ selected_term|title }} Term)</p>
+    </div>
+    <a href="{% url 'teachers:my_classes' %}" class="btn btn-outline-secondary">Back to Classes</a>
+</div>
+
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-white py-3 fw-bold">Add New Exercise</div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label">Term</label>
+                        <select name="term" class="form-select" onchange="window.location.href='?term='+this.value">
+                            {% for val, label in term_choices %}
+                            <option value="{{ val }}" {% if val == selected_term %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="form-text">Changing this reloads the list.</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Exercise Title</label>
+                        <input type="text" name="title" class="form-control" placeholder="e.g. Quiz 1" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Max Marks</label>
+                        <input type="number" name="max_marks" class="form-control" value="10" min="1" required>
+                        <div class="form-text">Total score for this exercise.</div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary w-100">Create Exercise</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0 align-middle">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="ps-4">Date</th>
+                                <th>Title</th>
+                                <th>Max Marks</th>
+                                <th class="text-end pe-4">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for ex in exercises %}
+                            <tr>
+                                <td class="ps-4">{{ ex.date_assigned|date:"M d, Y" }}</td>
+                                <td class="fw-bold">{{ ex.title }}</td>
+                                <td>{{ ex.max_marks }}</td>
+                                <td class="text-end pe-4">
+                                    <a href="{% url 'teachers:enter_exercise_scores' ex.id %}" class="btn btn-sm btn-primary">
+                                        Enter Scores &rarr;
+                                    </a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center py-5 text-muted">
+                                    No exercises found for this term.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

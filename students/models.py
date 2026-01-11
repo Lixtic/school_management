@@ -196,3 +196,23 @@ class Grade(models.Model):
     class Meta:
         ordering = ['-created_at']
         unique_together = ['student', 'subject', 'academic_year', 'term']
+
+class ClassExercise(models.Model):
+    class_subject = models.ForeignKey('academics.ClassSubject', on_delete=models.CASCADE)
+    term = models.CharField(max_length=10, choices=Grade.TERM_CHOICES, default='first')
+    title = models.CharField(max_length=100)
+    max_marks = models.DecimalField(max_digits=5, decimal_places=2, default=100)
+    date_assigned = models.DateField(auto_now_add=True)
+    description = models.TextField(blank=True)
+
+    def __str__(self):
+        return f"{self.title} - {self.class_subject}"
+
+class StudentExerciseScore(models.Model):
+    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+    exercise = models.ForeignKey(ClassExercise, on_delete=models.CASCADE, related_name='scores')
+    score = models.DecimalField(max_digits=5, decimal_places=2)
+    remarks = models.CharField(max_length=100, blank=True)
+
+    class Meta:
+        unique_together = ['student', 'exercise']

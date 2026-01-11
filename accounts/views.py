@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from academics.models import Class, AcademicYear, ClassSubject, Activity
+from academics.models import Class, AcademicYear, ClassSubject, Activity, Timetable
 from teachers.models import Teacher, DutyAssignment
 from students.models import Student, Attendance
 from announcements.models import Announcement
@@ -151,14 +151,24 @@ def dashboard(request):
         
         # Check for upcoming Duty
         next_duty = None
+        current_date_val = timezone.now().date()
         if current_year:
-            today = timezone.now().date()
             next_duty = DutyAssignment.objects.filter(
                 teacher=teacher_profile,
                 week__academic_year=current_year,
-                week__end_date__gte=today
+                week__end_date__gte=current_date_val
             ).select_related('week').order_by('week__start_date').first()
         
+        # Get Today's Timetable
+        today_weekday = timezone.now().weekday()
+        todays_classes = Timetable.objects.filter(
+            class_subject__teacher=teacher_profile,
+            day=today_weekday
+        ).select_related('class_subject', 'class_subject__class_name', 'class_subject__subject').order_by('start_time')
+
+        # Calculate Student Count (Restored)
+        teacher_students_count = Student.objects.filter(current_class__id__in=class_ids).distinct().count()
+
         # Filter notices for teacher
         teacher_notices = base_notices.filter(target_audience__in=['all', 'staff', 'teachers'])[:5]
 
@@ -166,8 +176,10 @@ def dashboard(request):
             'user': user,
             'teacher_has_classes': len(class_ids) > 0,
             'teacher_class_count': len(class_ids),
+            'total_students_taught': teacher_students_count,
             'notices': teacher_notices,
-            'next_duty': next_duty
+            'next_duty': next_duty,
+            'todays_classes': todays_classes,
         }
 
         return render(request, 'dashboard/teacher_dashboard.html', teacher_context)

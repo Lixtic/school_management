@@ -169,9 +169,14 @@ def upload_gallery_image(request):
     if request.method == 'POST':
         form = GalleryImageForm(request.POST, request.FILES)
         if form.is_valid():
-            form.save()
-            messages.success(request, 'Image uploaded successfully!')
-            return redirect('academics:gallery')
+            try:
+                form.save()
+                messages.success(request, 'Image uploaded successfully!')
+                return redirect('academics:gallery')
+            except Exception as e:
+                messages.error(request, f'Upload failed: {str(e)}')
+        else:
+            messages.error(request, 'Please correct the errors below.')
     else:
         form = GalleryImageForm()
     

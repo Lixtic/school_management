@@ -419,16 +419,21 @@ def lesson_plan_list(request):
     
     teacher = get_object_or_404(Teacher, user=request.user)
     
+    week = request.GET.get('week')
     try:
         # Force evaluation to catch DB errors if table doesn't exist yet
         lesson_plans_qs = LessonPlan.objects.filter(teacher=teacher)
-        week = request.GET.get('week')
         if week:
             lesson_plans_qs = lesson_plans_qs.filter(week_number=week)
         lesson_plans = list(lesson_plans_qs)
     except (OperationalError, ProgrammingError):
         lesson_plans = []
         messages.warning(request, "Lesson Plan system is initializing. Please try again later.")
+        
+    return render(request, 'teachers/lesson_plan_list.html', {
+        'lesson_plans': lesson_plans,
+        'selected_week': week
+    })
         
 @login_required
 def lesson_plan_create(request):

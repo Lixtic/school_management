@@ -111,7 +111,8 @@
                                 <a href="{% url 'parents:child_details' child.id %}" class="btn btn-sm btn-outline-secondary text-start">
                                     <i class="bi bi-person me-2"></i> Profile & Grades
                                 </a>
-                                <a href="{% url 'students:student_attendance_detail' child.id %}" class="btn btn-sm btn-outline-secondary text-start">
+                                <!-- Since there is no dedicated attendance detail view, we link back to the profile which should contain attendance summary -->
+                                <a href="{% url 'parents:child_details' child.id %}" class="btn btn-sm btn-outline-secondary text-start">
                                     <i class="bi bi-calendar-check me-2"></i> Attendance
                                 </a>
                             </div>

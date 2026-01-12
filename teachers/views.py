@@ -397,7 +397,15 @@ def curriculum_library(request):
         messages.error(request, 'Access denied')
         return redirect('dashboard')
 
-    teacher = Teacher.objects.get(user=request.user)
+    # Column-safe fetch: production may not have latest teacher fields yet
+    teacher_field_available = True
+    try:
+        teacher = Teacher.objects.get(user=request.user)
+    except ProgrammingError:
+        teacher_field_available = False
+        teacher = Teacher.objects.only('id', 'user').get(user=request.user)
+        # Provide a default to avoid attribute errors downstream
+        setattr(teacher, 'notification_ahead_minutes', 45)
 
     resource_fields_available = False
     try:

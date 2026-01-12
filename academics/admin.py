@@ -12,6 +12,13 @@ def _reset_broken_transaction():
         # If rollback fails, close the connection to force a clean one on next access
         connection.close()
 
+    # Ensure we have a usable connection for the next query
+    try:
+        connection.ensure_connection()
+    except Exception:
+        # If ensure_connection fails, close to force recreation on next access
+        connection.close()
+
 @admin.register(GalleryImage)
 class GalleryImageAdmin(admin.ModelAdmin):
     list_display = ['title', 'category', 'created_at']
@@ -154,13 +161,18 @@ class TimetableAdmin(admin.ModelAdmin):
 
         try:
             return super().delete_view(request, object_id, extra_context=extra_context)
-        except ProgrammingError as e:
-            if 'announcements_notification' in str(e):
-                # Force delete via raw SQL
-                _reset_broken_transaction()
-                with transaction.atomic():
-                    with connection.cursor() as cursor:
-                        cursor.execute("DELETE FROM academics_timetable WHERE id = %s", [object_id])
-                self.message_user(request, f"Force-deleted timetable #{object_id}", level="WARNING")
-                return HttpResponseRedirect(reverse('admin:academics_timetable_changelist'))
-            raise e
+        except Exception as e:
+            # Any failure (missing table or closed connection): reset and force delete
+            _reset_broken_transaction()
+            try:
+                connection.ensure_connection()
+            except Exception:
+                connection.close()
+                connection.ensure_connection()
+
+            with transaction.atomic():
+                with connection.cursor() as cursor:
+                    cursor.execute("DELETE FROM academics_timetable WHERE id = %s", [object_id])
+
+            self.message_user(request, f"Force-deleted timetable #{object_id} (fallback)", level="WARNING")
+            return HttpResponseRedirect(reverse('admin:academics_timetable_changelist'))

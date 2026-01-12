@@ -252,8 +252,25 @@ body {
 
             <a href="{% url 'home' %}" class="btn btn-light btn-sm align-self-start mb-4 rounded-pill px-3 border"><i class="bi bi-arrow-left me-1"></i> Back to Home</a>
 
-            <h1 class="form-title">Welcome back</h1>
-            <p class="form-subtitle">Please sign in to access your dashboard.</p>
+            {% if school_name == 'School Portal' or school_name == 'Public Tenant' %}
+                <h1 class="form-title">SaaS Login</h1>
+                <div class="alert alert-soft-warning border-0 p-3 mb-4 rounded-4" style="background: #fffbeb; color: #92400e;">
+                    <div class="d-flex gap-2">
+                        <i class="bi bi-info-circle-fill mt-1"></i>
+                        <div>
+                            <strong>Are you a School Admin?</strong><br>
+                            This is the system-wide login. To access your school, please enter your School ID below.
+                        </div>
+                    </div>
+                    <div class="input-group mt-3">
+                        <input type="text" id="schoolId" class="form-control" placeholder="e.g. school1">
+                        <button class="btn btn-dark" onclick="if(document.getElementById('schoolId').value) window.location.href='/'+document.getElementById('schoolId').value+'/login/'">Go</button>
+                    </div>
+                </div>
+            {% else %}
+                <h1 class="form-title">Welcome back</h1>
+                <p class="form-subtitle">Sign in to <strong>{{ school_name }}</strong></p>
+            {% endif %}
 
             {% if messages %}
             <div class="mb-4">

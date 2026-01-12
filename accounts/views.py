@@ -107,6 +107,27 @@ def logout_view(request):
 @login_required
 def dashboard(request):
     user = request.user
+    
+    # === SAAS/PUBLIC ADMIN DASHBOARD ===
+    is_public = False
+    if hasattr(request, 'tenant'):
+        is_public = (request.tenant.schema_name == 'public')
+        
+    if is_public:
+        # Avoid querying tenant-specific models (Student, Teacher, etc.) which don't exist in public schema
+        if not user.is_superuser and not user.is_staff:
+             # Basic public user? Maybe redirect to home or signup
+             return redirect('home')
+             
+        from tenants.models import School, Domain
+        context = {
+            'schools_count': School.objects.exclude(schema_name='public').count(),
+            'domains_count': Domain.objects.count(),
+            'recent_schools': School.objects.exclude(schema_name='public').order_by('-created_on')[:10]
+        }
+        return render(request, 'tenants/dashboard_public.html', context)
+
+    # === TENANT (SCHOOL) DASHBOARD ===
     # Base query without slicing
     base_notices = Announcement.objects.filter(is_active=True).order_by('-created_at')
     

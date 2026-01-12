@@ -1050,5 +1050,44 @@
             {% endfor %}
         {% endif %}
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    <script>
+        // Global utility to initialize sortable containers
+        function initSortableWidget(containerId, storageKey) {
+            const el = document.getElementById(containerId);
+            if (!el) return;
+
+            // Restore order
+            const savedOrder = JSON.parse(localStorage.getItem(storageKey));
+            if (savedOrder && Array.isArray(savedOrder)) {
+                
+                const currentChildren = {};
+                Array.from(el.children).forEach(child => {
+                    if (child.id) currentChildren[child.id] = child;
+                });
+                
+                savedOrder.forEach(id => {
+                    if (currentChildren[id]) {
+                        el.appendChild(currentChildren[id]);
+                    }
+                });
+            }
+
+            // Initialize Sortable
+            new Sortable(el, {
+                animation: 150,
+                // ghostClass: 'bg-light', // Bootstrap class for ghost
+                delay: 200, // Small delay to prevent accidental drags on touch
+                delayOnTouchOnly: true,
+                handle: '.drag-handle', // Only allow dragging via handle
+                onEnd: function (evt) {
+                    const order = Array.from(el.children)
+                        .map(child => child.id)
+                        .filter(id => id);
+                    localStorage.setItem(storageKey, JSON.stringify(order));
+                }
+            });
+        }
+    </script>
 </body>
 </html>

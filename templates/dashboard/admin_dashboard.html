@@ -115,10 +115,10 @@
 </div>
 
 <!-- Key Metrics -->
-<div class="row g-4 mb-5">
+<div class="row g-4 mb-5" id="admin-stats-row">
     <!-- Students -->
     <div class="col-md-4" id="widget-stat-students">
-        <div class="stat-card bg-gradient-primary p-4 h-100">
+        <div class="stat-card bg-gradient-primary p-4 h-100 drag-handle" style="cursor: grab;">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
                     <h6 class="text-white-50 mb-2">Total Students</h6>
@@ -135,7 +135,7 @@
     </div>
     <!-- Teachers -->
     <div class="col-md-4" id="widget-stat-teachers">
-        <div class="stat-card bg-gradient-success p-4 h-100">
+        <div class="stat-card bg-gradient-success p-4 h-100 drag-handle" style="cursor: grab;">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
                     <h6 class="text-white-50 mb-2">Teaching Staff</h6>
@@ -152,7 +152,7 @@
     </div>
     <!-- Notices/Alerts -->
     <div class="col-md-4" id="widget-stat-notices">
-        <div class="stat-card bg-gradient-info p-4 h-100">
+        <div class="stat-card bg-gradient-info p-4 h-100 drag-handle" style="cursor: grab;">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
                     <h6 class="text-white-50 mb-2">Active Notices</h6>
@@ -171,61 +171,61 @@
 
 <div class="row g-4">
     <!-- Main Column -->
-    <div class="col-lg-8">
+    <div class="col-lg-8" id="admin-main-col">
         <!-- Quick Actions -->
         <div id="widget-quick-actions">
-            <h5 class="fw-bold mb-3">Quick Actions</h5>
-            <div class="row g-3 mb-5">
-                <div class="col-6 col-sm-4 col-md-3">
-                    <a href="{% url 'accounts:manage_users' %}" class="action-card text-center p-3">
+            <h5 class="fw-bold mb-3 drag-handle" style="cursor: move;">Quick Actions</h5>
+            <div class="row g-3 mb-5" id="admin-quick-actions-row">
+                <div class="col-6 col-sm-4 col-md-3" id="action-users">
+                    <a href="{% url 'accounts:manage_users' %}" class="action-card text-center p-3 drag-handle" style="cursor: grab;">
                         <i class="bi bi-people text-primary"></i>
                         <span class="fw-bold small">Users</span>
                     </a>
                 </div>
-                <div class="col-6 col-sm-4 col-md-3">
-                    <a href="{% url 'finance:dashboard' %}" class="action-card text-center p-3">
+                <div class="col-6 col-sm-4 col-md-3" id="action-finance">
+                    <a href="{% url 'finance:dashboard' %}" class="action-card text-center p-3 drag-handle" style="cursor: grab;">
                         <i class="bi bi-wallet2 text-success"></i>
                         <span class="fw-bold small">Finance</span>
                     </a>
                 </div>
-                <div class="col-6 col-sm-4 col-md-3">
-                    <a href="{% url 'academics:timetable' %}" class="action-card text-center p-3">
+                <div class="col-6 col-sm-4 col-md-3" id="action-timetable">
+                    <a href="{% url 'academics:timetable' %}" class="action-card text-center p-3 drag-handle" style="cursor: grab;">
                         <i class="bi bi-calendar-week text-info"></i>
                         <span class="fw-bold small">Timetable</span>
                     </a>
                 </div>
-                <div class="col-6 col-sm-4 col-md-3">
-                    <a href="{% url 'teachers:duty_roster' %}" class="action-card text-center p-3">
+                <div class="col-6 col-sm-4 col-md-3" id="action-duty">
+                    <a href="{% url 'teachers:duty_roster' %}" class="action-card text-center p-3 drag-handle" style="cursor: grab;">
                         <i class="bi bi-clipboard-check text-danger"></i>
                         <span class="fw-bold small">Duty Roster</span>
                     </a>
                 </div>
-                <div class="col-6 col-sm-4 col-md-3">
-                    <a href="{% url 'announcements:manage' %}" class="action-card text-center p-3">
+                <div class="col-6 col-sm-4 col-md-3" id="action-notice">
+                    <a href="{% url 'announcements:manage' %}" class="action-card text-center p-3 drag-handle" style="cursor: grab;">
                         <i class="bi bi-megaphone text-warning"></i>
                         <span class="fw-bold small">Notices</span>
                     </a>
                 </div>
-                <div class="col-6 col-sm-4 col-md-3">
-                    <a href="{% url 'academics:gallery' %}" class="action-card text-center p-3">
+                <div class="col-6 col-sm-4 col-md-3" id="action-gallery">
+                    <a href="{% url 'academics:gallery' %}" class="action-card text-center p-3 drag-handle" style="cursor: grab;">
                         <i class="bi bi-images text-secondary"></i>
                         <span class="fw-bold small">Gallery</span>
                     </a>
                 </div>
-                <div class="col-6 col-sm-4 col-md-3">
-                    <a href="{% url 'academics:manage_resources' %}" class="action-card text-center p-3">
+                <div class="col-6 col-sm-4 col-md-3" id="action-resources">
+                    <a href="{% url 'academics:manage_resources' %}" class="action-card text-center p-3 drag-handle" style="cursor: grab;">
                         <i class="bi bi-folder-plus text-primary"></i>
                         <span class="fw-bold small">Resources</span>
                     </a>
                 </div>
-                <div class="col-6 col-sm-4 col-md-3">
-                    <a href="{% url 'academics:school_settings' %}" class="action-card text-center p-3">
+                <div class="col-6 col-sm-4 col-md-3" id="action-settings">
+                    <a href="{% url 'academics:school_settings' %}" class="action-card text-center p-3 drag-handle" style="cursor: grab;">
                         <i class="bi bi-gear text-secondary"></i>
                         <span class="fw-bold small">Settings</span>
                     </a>
                 </div>
-                <div class="col-6 col-sm-4 col-md-3">
-                    <a href="/admin/" class="action-card text-center p-3 bg-light">
+                <div class="col-6 col-sm-4 col-md-3" id="action-admin">
+                    <a href="/admin/" class="action-card text-center p-3 bg-light drag-handle" style="cursor: grab;">
                         <i class="bi bi-shield-lock text-dark"></i>
                         <span class="fw-bold small">Django Admin</span>
                     </a>
@@ -235,7 +235,7 @@
 
         <!-- Recent Announcements -->
         <div id="widget-announcements">
-            <h5 class="fw-bold mb-3 d-flex justify-content-between align-items-center">
+            <h5 class="fw-bold mb-3 d-flex justify-content-between align-items-center drag-handle" style="cursor: move;">
                 Recent Announcements
                 <a href="{% url 'announcements:manage' %}" class="btn btn-link btn-sm text-decoration-none">View All</a>
             </h5>
@@ -268,10 +268,10 @@
     </div>
 
     <!-- Right Column: Charts -->
-    <div class="col-lg-4">
+    <div class="col-lg-4" id="admin-side-col">
         <!-- Attendance Chart -->
         <div class="mb-4" id="widget-chart-attendance">
-            <h5 class="fw-bold mb-3">Attendance Trend</h5>
+            <h5 class="fw-bold mb-3 drag-handle" style="cursor: move;">Attendance Trend</h5>
             <div class="chart-container">
                 <canvas id="attendanceChart" height="220"></canvas>
             </div>
@@ -279,7 +279,7 @@
 
         <!-- Class Distribution -->
         <div class="mb-4" id="widget-chart-classes">
-            <h5 class="fw-bold mb-3">Class Distribution</h5>
+            <h5 class="fw-bold mb-3 drag-handle" style="cursor: move;">Class Distribution</h5>
             <div class="chart-container">
                 <canvas id="classChart" height="220"></canvas>
             </div>
@@ -292,6 +292,13 @@
     document.addEventListener('DOMContentLoaded', function() {
         // Widget Visibility Logic
         const STORAGE_KEY = 'dashboard_widgets_admin_{{ user.id }}';
+        
+        // Initialize Drag and Drop Sorting
+        initSortableWidget('admin-stats-row', 'order_admin_stats_{{ user.id }}');
+        initSortableWidget('admin-main-col', 'order_admin_main_{{ user.id }}');
+        initSortableWidget('admin-side-col', 'order_admin_side_{{ user.id }}');
+        initSortableWidget('admin-quick-actions-row', 'order_admin_actions_{{ user.id }}');
+
         const toggles = document.querySelectorAll('.widget-toggle');
         
         // Load saved preferences

@@ -87,7 +87,8 @@ DATABASE_ROUTERS = (
 )
 
 MIDDLEWARE = [
-    'django_tenants.middleware.main.TenantMainMiddleware',  # Must be first
+    #'django_tenants.middleware.main.TenantMainMiddleware',  # Disabled for Path Strategy
+    'tenants.middleware.TenantPathMiddleware', # Custom Path-based Routing
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',

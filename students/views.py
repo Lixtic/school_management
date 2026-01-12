@@ -499,6 +499,7 @@ def generate_report_card(request, student_id):
         'school_email': school_info.email if school_info else "info@spswjh.edu.gh",
         'school_motto': school_info.motto if school_info else "Knowledge is Power",
         'school_logo': school_info.logo if school_info else None,
+        'term_choices': Grade.TERM_CHOICES,
     }
     
     return render(request, 'students/report_card.html', context)

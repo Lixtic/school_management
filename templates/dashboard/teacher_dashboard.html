@@ -95,12 +95,12 @@
         <h2 class="fw-bold mb-1">Teacher Dashboard</h2>
         <p class="text-muted mb-0">Welcome back, {{ user.get_full_name }}! Manage your classes and students.</p>
     </div>
-    <div class="d-none d-md-block d-flex gap-2 align-items-center">
+    <div class="d-flex gap-2 align-items-center">
         <div class="dropdown d-inline-block">
             <button class="btn btn-outline-secondary rounded-pill px-3" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="bi bi-layout-wtf me-2"></i>Customize
+                <i class="bi bi-layout-wtf me-2"></i><span class="d-none d-sm-inline">Customize</span>
             </button>
-            <ul class="dropdown-menu p-3 shadow-lg border-0" style="width: 250px;" onclick="event.stopPropagation()">
+            <ul class="dropdown-menu p-3 shadow-lg border-0 dropdown-menu-end" style="width: 250px;" onclick="event.stopPropagation()">
                 <li><h6 class="dropdown-header text-uppercase small fw-bold">Visible Widgets</h6></li>
                 <li><hr class="dropdown-divider"></li>
                 <li class="form-check form-switch mb-2">
@@ -135,7 +135,7 @@
                 </li>
             </ul>
         </div>
-        <span class="badge bg-light text-dark border px-3 py-2 rounded-pill">
+        <span class="badge bg-light text-dark border px-3 py-2 rounded-pill d-none d-md-block">
             <i class="bi bi-clock me-1"></i> {% now "l, F j, Y" %}
         </span>
     </div>

@@ -1,6 +1,17 @@
 from django.contrib import admin
 from .models import AcademicYear, Class, Subject, ClassSubject, Activity, Timetable, SchoolInfo, GalleryImage
 
+
+def _reset_broken_transaction():
+    """Best-effort rollback to clear aborted transaction state without requiring atomic."""
+    from django.db import connection
+
+    try:
+        connection.rollback()
+    except Exception:
+        # If rollback fails, close the connection to force a clean one on next access
+        connection.close()
+
 @admin.register(GalleryImage)
 class GalleryImageAdmin(admin.ModelAdmin):
     list_display = ['title', 'category', 'created_at']
@@ -23,9 +34,7 @@ class SchoolInfoAdmin(admin.ModelAdmin):
             return True
         except Exception:
             # If the DB transaction is broken, reset it and deny add to keep admin usable
-            from django.db import transaction
-            transaction.set_rollback(True)
-            transaction.set_rollback(False)
+            _reset_broken_transaction()
             return False
 
 @admin.register(Class)
@@ -70,8 +79,7 @@ class TimetableAdmin(admin.ModelAdmin):
         except ProgrammingError as e:
             if 'announcements_notification' in str(e):
                 # Rollback the broken transaction in Postgres
-                transaction.set_rollback(True)
-                transaction.set_rollback(False)
+                _reset_broken_transaction()
                 
                 # Return a simplified preview without checking cascade deletes
                 deleted_objects = [f"Timetable #{obj.id}" for obj in objs]
@@ -95,8 +103,7 @@ class TimetableAdmin(admin.ModelAdmin):
         except ProgrammingError as e:
             if 'announcements_notification' in str(e):
                 # Clear broken transaction state
-                transaction.set_rollback(True)
-                transaction.set_rollback(False)
+                _reset_broken_transaction()
                 
                 # Fallback: Raw SQL delete ignoring cascade to missing table
                 ids = list(queryset.values_list('id', flat=True))
@@ -124,8 +131,7 @@ class TimetableAdmin(admin.ModelAdmin):
         except ProgrammingError as e:
             if 'announcements_notification' in str(e):
                 # Clear broken transaction state
-                transaction.set_rollback(True)
-                transaction.set_rollback(False)
+                _reset_broken_transaction()
                 
                 # Fallback: Raw SQL delete within a new savepoint
                 with transaction.atomic():
@@ -144,16 +150,14 @@ class TimetableAdmin(admin.ModelAdmin):
         from django.db import transaction, connection, ProgrammingError
 
         # Clear any broken transaction flag before proceeding
-        transaction.set_rollback(True)
-        transaction.set_rollback(False)
+        _reset_broken_transaction()
 
         try:
             return super().delete_view(request, object_id, extra_context=extra_context)
         except ProgrammingError as e:
             if 'announcements_notification' in str(e):
                 # Force delete via raw SQL
-                transaction.set_rollback(True)
-                transaction.set_rollback(False)
+                _reset_broken_transaction()
                 with transaction.atomic():
                     with connection.cursor() as cursor:
                         cursor.execute("DELETE FROM academics_timetable WHERE id = %s", [object_id])

@@ -82,17 +82,30 @@ def homepage(request):
     })
 
 def login_view(request):
+    print(f"DEBUG: Login View. Method: {request.method}")
+    if hasattr(request, 'tenant'):
+        print(f"DEBUG: Tenant: {request.tenant.schema_name}")
+    else:
+        print("DEBUG: No tenant set")
+
     if request.user.is_authenticated:
+        print("DEBUG: User already authenticated. Redirecting to dashboard.")
         return redirect('dashboard')
+    
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
+        print(f"DEBUG: Attempting login for user: {username}")
+        
         user = authenticate(request, username=username, password=password)
         
         if user is not None:
+            print(f"DEBUG: User authenticated successfully: {user}")
             login(request, user)
+            print("DEBUG: Login function called. Session should be set.")
             return redirect('dashboard')
         else:
+            print("DEBUG: Authentication failed.")
             messages.error(request, 'Invalid credentials')
     
     return render(request, 'accounts/login.html')

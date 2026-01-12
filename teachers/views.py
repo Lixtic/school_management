@@ -179,8 +179,17 @@ def notification_settings(request):
         messages.error(request, 'Access denied')
         return redirect('dashboard')
 
-    teacher = get_object_or_404(Teacher, user=request.user)
-    if request.method == 'POST':
+    missing_field = False
+    try:
+        teacher = get_object_or_404(Teacher, user=request.user)
+    except ProgrammingError:
+        # DB missing notification_ahead_minutes column; fetch minimal fields
+        missing_field = True
+        teacher = get_object_or_404(Teacher.objects.only('id', 'user'), user=request.user)
+        setattr(teacher, 'notification_ahead_minutes', 45)
+    if missing_field:
+        form = None
+    elif request.method == 'POST':
         form = NotificationPreferenceForm(request.POST, instance=teacher)
         if form.is_valid():
             pref = form.save()
@@ -191,6 +200,7 @@ def notification_settings(request):
 
     return render(request, 'teachers/notification_settings.html', {
         'form': form,
+        'missing_field': missing_field,
     })
 
 @login_required

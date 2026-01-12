@@ -137,6 +137,41 @@
     .status-label { padding: 0.6rem; }
     .status-group { margin-top: 0.5rem; }
 }
+
+    /* DARK MODE FIXES */
+    [data-bs-theme="dark"] .student-card {
+        background: var(--surface-white);
+        border-color: rgba(255,255,255,0.05);
+        color: var(--text-main);
+    }
+    [data-bs-theme="dark"] .student-card:hover {
+        border-color: var(--primary-teal);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    [data-bs-theme="dark"] .list-header {
+        background: #2c3344;
+        border-color: rgba(255,255,255,0.05);
+        color: var(--text-main);
+    }
+    [data-bs-theme="dark"] .status-group {
+        background: #0f172a;
+        border-color: rgba(255,255,255,0.1);
+    }
+    [data-bs-theme="dark"] .status-label { color: #94a3b8; }
+    
+    [data-bs-theme="dark"] .status-option input:checked + .status-label.present { background: rgba(5, 150, 105, 0.2); color: #34d399; }
+    [data-bs-theme="dark"] .status-option input:checked + .status-label.absent { background: rgba(220, 38, 38, 0.2); color: #f87171; }
+    [data-bs-theme="dark"] .status-option input:checked + .status-label.late { background: rgba(217, 119, 6, 0.2); color: #fbbf24; }
+    [data-bs-theme="dark"] .status-option input:checked + .status-label.excused { background: rgba(37, 99, 235, 0.2); color: #60a5fa; }
+    
+    [data-bs-theme="dark"] .status-label.present:hover { background: rgba(5, 150, 105, 0.1); }
+    [data-bs-theme="dark"] .status-label.absent:hover { background: rgba(220, 38, 38, 0.1); }
+    [data-bs-theme="dark"] .status-label.late:hover { background: rgba(217, 119, 6, 0.1); }
+    [data-bs-theme="dark"] .status-label.excused:hover { background: rgba(37, 99, 235, 0.1); }
+
+    [data-bs-theme="dark"] .student-name {
+        color: var(--text-main);
+    }
 </style>
 
 <div class="row mb-4 align-items-center">

@@ -3,6 +3,20 @@
 {% block title %}Manage Activities{% endblock %}
 
 {% block content %}
+<style>
+    [data-bs-theme="dark"] .content-wrapper {
+        background-color: var(--surface-white);
+        border: 1px solid rgba(255,255,255,0.05);
+        border-radius: 8px; /* Assuming it needs card look in dark mode */
+        padding: 1.5rem;   /* Ensure content isn't flush if we add bg */
+    }
+    /* If content-wrapper already had padding/white bg in light mode via external CSS, this overrides colors */
+    
+    [data-bs-theme="dark"] .badge-soft {
+         background-color: rgba(13, 110, 253, 0.2); 
+         color: #6ea8fe;
+    }
+</style>
 <div class="d-flex align-items-center mb-4">
     <div>
         <div class="badge-soft mb-2">Activities</div>

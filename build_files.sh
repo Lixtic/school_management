@@ -6,4 +6,5 @@ echo "Collect Static..."
 python3 manage.py collectstatic --noinput --clear
 
 echo "Running Migrations..."
+python3 manage.py makemigrations
 python3 manage.py migrate

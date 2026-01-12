@@ -3,9 +3,52 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q
 from accounts.models import User
-from .models import Activity, GalleryImage, SchoolInfo, Class, Timetable, ClassSubject
-from .forms import SchoolInfoForm, GalleryImageForm
+from .models import Activity, GalleryImage, SchoolInfo, Class, Timetable, ClassSubject, Resource
+from .forms import SchoolInfoForm, GalleryImageForm, ResourceForm
 
+@login_required
+def manage_resources(request):
+    if request.user.user_type not in ['admin', 'teacher']:
+        messages.error(request, 'Access denied.')
+        return redirect('dashboard')
+        
+    if request.method == 'POST':
+        form = ResourceForm(request.POST, request.FILES)
+        if form.is_valid():
+            resource = form.save(commit=False)
+            resource.uploaded_by = request.user
+            resource.save()
+            messages.success(request, 'Resource added successfully.')
+            return redirect('academics:manage_resources')
+    else:
+        form = ResourceForm()
+        
+    if request.user.user_type == 'admin':
+        resources = Resource.objects.all()
+    else:
+        resources = Resource.objects.filter(uploaded_by=request.user)
+        
+    return render(request, 'academics/manage_resources.html', {
+        'form': form,
+        'resources': resources
+    })
+
+@login_required
+def delete_resource(request, resource_id):
+    if request.user.user_type not in ['admin', 'teacher']:
+        messages.error(request, 'Access denied.')
+        return redirect('dashboard')
+        
+    resource = get_object_or_404(Resource, id=resource_id)
+    
+    # Allow deletion if Admin OR if Teacher owns it
+    if request.user.user_type == 'admin' or resource.uploaded_by == request.user:
+        resource.delete()
+        messages.success(request, 'Resource deleted.')
+    else:
+        messages.error(request, 'You cannot delete this resource.')
+        
+    return redirect('academics:manage_resources')
 
 
 def gallery_view(request):

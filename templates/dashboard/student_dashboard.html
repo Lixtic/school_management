@@ -224,15 +224,32 @@
                         <div class="list-group-item p-3 border-0 border-bottom">
                             <div class="d-flex align-items-center gap-3">
                                 <div class="bg-success bg-opacity-10 p-2 rounded-circle text-success">
-                                    <i class="bi bi-file-earmark-text"></i>
+                                    {% if res.link %}
+                                        <i class="bi bi-link-45deg"></i>
+                                    {% else %}
+                                        <i class="bi bi-file-earmark-text"></i>
+                                    {% endif %}
                                 </div>
                                 <div class="flex-grow-1">
                                     <h6 class="mb-0 fw-bold">{{ res.title }}</h6>
-                                    <small class="text-muted">{{ res.class_subject.subject.name }}</small>
+                                    <small class="text-muted">
+                                        {% if res.class_subject %}
+                                            {{ res.class_subject.subject.name }}
+                                        {% else %}
+                                            General Resource
+                                        {% endif %}
+                                    </small>
                                 </div>
-                                <a href="{{ res.file.url }}" target="_blank" class="btn btn-sm btn-light rounded-pill">
-                                    <i class="bi bi-download"></i>
-                                </a>
+                                
+                                {% if res.link %}
+                                    <a href="{{ res.link }}" target="_blank" class="btn btn-sm btn-light rounded-pill" title="Open Link">
+                                        <i class="bi bi-box-arrow-up-right"></i>
+                                    </a>
+                                {% elif res.file %}
+                                    <a href="{{ res.file.url }}" target="_blank" class="btn btn-sm btn-light rounded-pill" title="Download">
+                                        <i class="bi bi-download"></i>
+                                    </a>
+                                {% endif %}
                             </div>
                         </div>
                         {% empty %}

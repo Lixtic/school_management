@@ -310,8 +310,9 @@ def student_dashboard_view(request):
     ).exclude(homework='').order_by('-week_number', '-date_added')[:5]
     
     resources = Resource.objects.filter(
-        class_subject__class_name=student.current_class
-    ).order_by('-uploaded_at')[:5]
+        Q(class_subject__class_name=student.current_class) |
+        Q(target_audience__in=['all', 'students'], class_subject__isnull=True)
+    ).order_by('-uploaded_at')[:8]
 
     # Get announcements
     from announcements.models import Announcement

@@ -7,6 +7,8 @@ urlpatterns = [
     path('activities/manage/', views.manage_activities, name='manage_activities'),
     path('gallery/', views.gallery_view, name='gallery'),
     path('gallery/upload/', views.upload_gallery_image, name='upload_gallery_image'),
+    path('resources/manage/', views.manage_resources, name='manage_resources'),
+    path('resources/delete/<int:resource_id>/', views.delete_resource, name='delete_resource'),
     path('settings/', views.school_settings_view, name='school_settings'),
     path('timetable/', views.timetable_view, name='timetable'),
 ]

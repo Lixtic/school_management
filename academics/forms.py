@@ -1,5 +1,23 @@
 from django import forms
-from .models import SchoolInfo, GalleryImage
+from .models import SchoolInfo, GalleryImage, Resource
+
+class ResourceForm(forms.ModelForm):
+    class Meta:
+        model = Resource
+        fields = ['title', 'description', 'file', 'link', 'target_audience', 'class_subject']
+        widgets = {
+            'title': forms.TextInput(attrs={'class': 'form-control'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'file': forms.FileInput(attrs={'class': 'form-control'}),
+            'link': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'https://...'}),
+            'target_audience': forms.Select(attrs={'class': 'form-select'}),
+            'class_subject': forms.Select(attrs={'class': 'form-select'}),
+        }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['class_subject'].required = False
+        self.fields['class_subject'].help_text = "Optional: Leave blank for general resources"
 
 class GalleryImageForm(forms.ModelForm):
     class Meta:

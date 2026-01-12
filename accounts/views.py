@@ -189,7 +189,10 @@ def dashboard(request):
         # Recent uploaded resources
         try:
             # Force evaluation with list() to catch DB errors here instead of in template
-            recent_resources = list(Resource.objects.filter(class_subject__teacher=teacher_profile).order_by('-uploaded_at')[:3])
+            recent_resources = list(Resource.objects.filter(
+                Q(class_subject__teacher=teacher_profile) | 
+                Q(target_audience__in=['all', 'teachers'], class_subject__isnull=True)
+            ).order_by('-uploaded_at')[:5])
         except (OperationalError, ProgrammingError):
             recent_resources = []
 

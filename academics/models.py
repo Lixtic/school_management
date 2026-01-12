@@ -133,10 +133,20 @@ class GalleryImage(models.Model):
         ordering = ['-created_at']
 
 class Resource(models.Model):
-    class_subject = models.ForeignKey(ClassSubject, on_delete=models.CASCADE, related_name='resources')
+    class_subject = models.ForeignKey(ClassSubject, on_delete=models.CASCADE, related_name='resources', null=True, blank=True)
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True)
-    file = models.FileField(upload_to='class_resources/')
+    file = models.FileField(upload_to='class_resources/', blank=True, null=True)
+    link = models.URLField(blank=True, null=True, max_length=500)
+    uploaded_by = models.ForeignKey('accounts.User', on_delete=models.SET_NULL, null=True, blank=True)
+    
+    TARGET_CHOICES = [
+        ('all', 'All Users'),
+        ('teachers', 'Teachers Only'),
+        ('students', 'Students Only'),
+    ]
+    target_audience = models.CharField(max_length=20, choices=TARGET_CHOICES, default='all', help_text="Who can see this if not linked to a class?")
+    
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

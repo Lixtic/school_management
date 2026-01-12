@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="bi bi-folder2-open"></i> Teaching Resources</h2>
+    </div>
+
+    <div class="row">
+        <!-- Upload Form -->
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-cloud-upload"></i> Upload Resource</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        {{ form|crispy }}
+                        <div class="d-grid mt-3">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-plus-lg"></i> Add Resource
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="card shadow-sm border-0 mt-4 bg-light">
+                <div class="card-body">
+                    <h6 class="fw-bold text-secondary">Tips</h6>
+                    <ul class="mid-text small text-muted ps-3 mb-0">
+                        <li>Uploaded without a Class Subject makes it available based on Target Audience (All, Teachers Only, etc).</li>
+                        <li>You can provide a File OR a Link (or both).</li>
+                        <li>Students will see these in their dashboard under "Resources".</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Resources List -->
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0 text-secondary">Library</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="ps-4">Title</th>
+                                    <th>Type</th>
+                                    <th>Target/Class</th>
+                                    <th>Uploaded By</th>
+                                    <th>Date</th>
+                                    <th class="text-end pe-4">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for res in resources %}
+                                <tr>
+                                    <td class="ps-4">
+                                        <div class="fw-bold text-dark">{{ res.title }}</div>
+                                        {% if res.description %}
+                                            <div class="text-muted small text-truncate" style="max-width: 200px;">{{ res.description }}</div>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if res.file %}
+                                            <a href="{{ res.file.url }}" class="badge bg-primary text-decoration-none" target="_blank">
+                                                <i class="bi bi-file-earmark"></i> File
+                                            </a>
+                                        {% endif %}
+                                        {% if res.link %}
+                                            <a href="{{ res.link }}" class="badge bg-info text-decoration-none" target="_blank">
+                                                <i class="bi bi-link-45deg"></i> Link
+                                            </a>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if res.class_subject %}
+                                            <span class="badge bg-light text-dark border">{{ res.class_subject }}</span>
+                                        {% else %}
+                                            {% if res.target_audience == 'all' %}
+                                                <span class="badge bg-success">Everyone</span>
+                                            {% elif res.target_audience == 'teachers' %}
+                                                <span class="badge bg-warning text-dark">Teachers</span>
+                                            {% else %}
+                                                <span class="badge bg-info">Students</span>
+                                            {% endif %}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <small>{{ res.uploaded_by.get_full_name|default:"Unknown" }}</small>
+                                    </td>
+                                    <td>
+                                        <small class="text-muted">{{ res.uploaded_at|date:"M d, Y" }}</small>
+                                    </td>
+                                    <td class="text-end pe-4">
+                                        <a href="{% url 'academics:delete_resource' res.id %}" 
+                                           class="btn btn-sm btn-outline-danger"
+                                           onclick="return confirm('Delete this resource?')">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6" class="text-center py-5 text-muted">
+                                        <i class="bi bi-folder2 fs-1 d-block mb-3 opacity-25"></i>
+                                        No resources found.
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

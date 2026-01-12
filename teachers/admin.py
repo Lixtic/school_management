@@ -18,6 +18,13 @@ class TeacherAdmin(admin.ModelAdmin):
             defaults.update(kwargs)
             return super().get_form(request, obj, **defaults)
         return super().get_form(request, obj, **kwargs)
+
+    def save_model(self, request, obj, form, change):
+        # For the quick-add form, the form handles the full save
+        if isinstance(form, TeacherQuickAddForm) and not change:
+            # Form already saved everything in form.save()
+            return
+        super().save_model(request, obj, form, change)
     
     def get_full_name(self, obj):
         return obj.user.get_full_name()

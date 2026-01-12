@@ -71,4 +71,9 @@ class StudentQuickAddForm(forms.ModelForm):
 
         if commit:
             student.save()
+        self.instance = student
         return student
+
+    def save_m2m(self):
+        # No many-to-many fields in quick add form, so this is a no-op
+        pass

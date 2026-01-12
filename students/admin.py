@@ -17,9 +17,9 @@ class StudentAdmin(admin.ModelAdmin):
         return super().get_form(request, obj, **kwargs)
 
     def save_model(self, request, obj, form, change):
-        # For the quick-add form, ensure related User is saved before the Student
-        if isinstance(form, StudentQuickAddForm):
-            form.save(commit=True)
+        # For the quick-add form, the form handles the full save
+        if isinstance(form, StudentQuickAddForm) and not change:
+            # Form already saved everything in form.save()
             return
         super().save_model(request, obj, form, change)
     

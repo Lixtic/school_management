@@ -81,7 +81,12 @@ class TeacherQuickAddForm(forms.ModelForm):
 
         if commit:
             teacher.save()
+        self.instance = teacher
         return teacher
+
+    def save_m2m(self):
+        # No many-to-many fields in quick add form, so this is a no-op
+        pass
 
 from .models import LessonPlan
 from academics.models import Subject, Class

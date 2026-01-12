@@ -30,6 +30,13 @@ class TeacherQuickAddForm(forms.Form):
     last_name = forms.CharField(max_length=150, label="Last name", widget=forms.TextInput(attrs={'class': 'vTextField'}))
     age = forms.IntegerField(min_value=18, max_value=70, label="Age", widget=forms.NumberInput(attrs={'class': 'vIntegerField'}))
 
+    def __init__(self, *args, **kwargs):
+        kwargs.pop('instance', None)
+        super().__init__(*args, **kwargs)
+
+    def save_m2m(self):
+        pass
+
     def _generate_username(self, base):
         base_slug = slugify(base).replace('-', '') or 'teacher'
         candidate = base_slug
@@ -60,8 +67,8 @@ class TeacherQuickAddForm(forms.Form):
             user_type='teacher',
         )
         user.set_unusable_password()
-        if commit:
-            user.save()
+        # Always save user
+        user.save()
 
         dob_year = max(1900, date.today().year - age)
         date_of_birth = date(dob_year, 1, 1)
@@ -75,8 +82,8 @@ class TeacherQuickAddForm(forms.Form):
             qualification='Not provided',
         )
 
-        if commit:
-            teacher.save()
+        # Always save teacher
+        teacher.save()
         self.instance = teacher
         return teacher
 

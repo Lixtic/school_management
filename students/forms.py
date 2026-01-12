@@ -14,6 +14,13 @@ class StudentQuickAddForm(forms.Form):
     age = forms.IntegerField(min_value=3, max_value=25, label="Age", widget=forms.NumberInput(attrs={'class': 'vIntegerField'}))
     current_class = forms.ModelChoiceField(queryset=Class.objects.all(), label="Class", widget=forms.Select(attrs={'class': 'vForeignKeyRawIdAdminField'}))
 
+    def __init__(self, *args, **kwargs):
+        kwargs.pop('instance', None)
+        super().__init__(*args, **kwargs)
+
+    def save_m2m(self):
+        pass
+
     def _generate_username(self, base):
         base_slug = slugify(base).replace('-', '') or 'student'
         candidate = base_slug
@@ -45,8 +52,8 @@ class StudentQuickAddForm(forms.Form):
             user_type='student',
         )
         user.set_unusable_password()
-        if commit:
-            user.save()
+        # Always save user to generate PK
+        user.save()
 
         dob_year = max(1900, date.today().year - age)
         date_of_birth = date(dob_year, 1, 1)
@@ -65,8 +72,8 @@ class StudentQuickAddForm(forms.Form):
             emergency_contact='N/A',
         )
 
-        if commit:
-            student.save()
+        # Always save student
+        student.save()
         self.instance = student
         return student
 

@@ -37,6 +37,33 @@
     [data-bs-theme="dark"] .text-muted {
         color: #94a3b8 !important;
     }
+    
+    /* ACTIONS & MODAL FIXES */
+    [data-bs-theme="dark"] .btn-light {
+        background-color: rgba(255,255,255,0.1);
+        border-color: rgba(255,255,255,0.05);
+        color: #e2e8f0;
+    }
+    [data-bs-theme="dark"] .btn-light:hover {
+        background-color: rgba(255,255,255,0.2);
+        color: #fff;
+    }
+    [data-bs-theme="dark"] .modal-content {
+        background-color: var(--surface-white);
+        border: 1px solid rgba(255,255,255,0.1);
+        color: var(--text-main);
+    }
+    [data-bs-theme="dark"] .modal-header, 
+    [data-bs-theme="dark"] .modal-footer {
+        border-color: rgba(255,255,255,0.1);
+    }
+    [data-bs-theme="dark"] .btn-close {
+        filter: invert(1) grayscale(100%) brightness(200%);
+    }
+    [data-bs-theme="dark"] .student-mobile-card {
+        background-color: var(--surface-white) !important;
+        border-color: rgba(255,255,255,0.1) !important;
+    }
 </style>
 <div class="container-fluid">
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">

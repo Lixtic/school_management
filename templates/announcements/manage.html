@@ -2,6 +2,28 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
+<style>
+    [data-bs-theme="dark"] .card:not(.bg-gradient-primary) {
+        background-color: var(--surface-white);
+        border-color: rgba(255,255,255,0.05);
+        color: var(--text-main);
+    }
+    [data-bs-theme="dark"] .dropdown-menu {
+        background-color: var(--surface-white);
+        border-color: rgba(255,255,255,0.1);
+    }
+    [data-bs-theme="dark"] .dropdown-item {
+        color: var(--text-main);
+    }
+    [data-bs-theme="dark"] .dropdown-item:hover {
+        background-color: rgba(255,255,255,0.05);
+    }
+    [data-bs-theme="dark"] .card .badge.bg-light {
+        background-color: rgba(255,255,255,0.1) !important;
+        color: var(--text-main) !important;
+        border-color: rgba(255,255,255,0.1) !important;
+    }
+</style>
 <div class="row">
     <div class="col-md-4">
         <div class="card bg-gradient-primary text-white mb-4">

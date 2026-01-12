@@ -180,10 +180,16 @@ def mark_attendance(request):
     allowed_classes = classes_qs
     teacher_profile = None
     if request.user.user_type == 'teacher':
-        teacher_profile = Teacher.objects.filter(user=request.user).first()
-        # ONLY Class Teachers can mark attendance
-        allowed_classes = classes_qs.filter(class_teacher=teacher_profile)
-        
+        try:
+            teacher_profile = Teacher.objects.filter(user=request.user).first()
+            # ONLY Class Teachers can mark attendance
+            allowed_classes = classes_qs.filter(class_teacher=teacher_profile)
+        except ProgrammingError as e:
+            if 'notification_ahead_minutes' in str(e):
+                messages.error(request, 'Database is out of date for teachers. Please run migrations for teachers app.')
+                return redirect('dashboard')
+            raise
+
         if not allowed_classes.exists():
             messages.error(request, 'You must be a Class Teacher to mark attendance')
             return redirect('dashboard')

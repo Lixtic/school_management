@@ -32,7 +32,7 @@ def manage_announcements(request):
     else:
         form = AnnouncementForm()
         
-    return render(request, 'announcements/manage_announcements.html', {
+    return render(request, 'announcements/manage.html', {
         'announcements': announcements,
         'form': form
     })

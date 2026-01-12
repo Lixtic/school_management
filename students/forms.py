@@ -8,15 +8,11 @@ from academics.models import Class
 from .models import Student
 
 
-class StudentQuickAddForm(forms.ModelForm):
-    first_name = forms.CharField(max_length=150, label="First name")
-    last_name = forms.CharField(max_length=150, label="Last name")
-    age = forms.IntegerField(min_value=3, max_value=25, label="Age")
-    current_class = forms.ModelChoiceField(queryset=Class.objects.all(), label="Class")
-
-    class Meta:
-        model = Student
-        fields = ['first_name', 'last_name', 'age', 'current_class']
+class StudentQuickAddForm(forms.Form):
+    first_name = forms.CharField(max_length=150, label="First name", widget=forms.TextInput(attrs={'class': 'vTextField'}))
+    last_name = forms.CharField(max_length=150, label="Last name", widget=forms.TextInput(attrs={'class': 'vTextField'}))
+    age = forms.IntegerField(min_value=3, max_value=25, label="Age", widget=forms.NumberInput(attrs={'class': 'vIntegerField'}))
+    current_class = forms.ModelChoiceField(queryset=Class.objects.all(), label="Class", widget=forms.Select(attrs={'class': 'vForeignKeyRawIdAdminField'}))
 
     def _generate_username(self, base):
         base_slug = slugify(base).replace('-', '') or 'student'

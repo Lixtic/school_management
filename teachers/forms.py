@@ -25,14 +25,10 @@ class ResourceForm(forms.ModelForm):
         self.fields['curriculum'].initial = 'ges_jhs_new'
 
 
-class TeacherQuickAddForm(forms.ModelForm):
-    first_name = forms.CharField(max_length=150, label="First name")
-    last_name = forms.CharField(max_length=150, label="Last name")
-    age = forms.IntegerField(min_value=18, max_value=70, label="Age")
-
-    class Meta:
-        model = Teacher
-        fields = ['first_name', 'last_name', 'age']
+class TeacherQuickAddForm(forms.Form):
+    first_name = forms.CharField(max_length=150, label="First name", widget=forms.TextInput(attrs={'class': 'vTextField'}))
+    last_name = forms.CharField(max_length=150, label="Last name", widget=forms.TextInput(attrs={'class': 'vTextField'}))
+    age = forms.IntegerField(min_value=18, max_value=70, label="Age", widget=forms.NumberInput(attrs={'class': 'vIntegerField'}))
 
     def _generate_username(self, base):
         base_slug = slugify(base).replace('-', '') or 'teacher'

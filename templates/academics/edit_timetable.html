@@ -5,6 +5,77 @@
 {% block title %}Edit Timetable - {{ school_class.name }}{% endblock %}
 
 {% block content %}
+<style>
+    /* Responsive Timetable Edit Styles */
+    @media (max-width: 768px) {
+        /* Hide table headers on mobile */
+        .mobile-responsive-table thead { 
+            display: none; 
+        }
+        
+        /* Turn rows into cards */
+        .mobile-responsive-table tbody tr {
+            display: block;
+            margin-bottom: 1.5rem;
+            background: #fff;
+            border: 1px solid #e3e6f0;
+            border-radius: 0.5rem;
+            box-shadow: 0 0.15rem 0.5rem 0 rgba(0, 0, 0, 0.05);
+        }
+
+        /* Style the Time Slot header (first cell) */
+        .mobile-responsive-table tbody td:first-child {
+            display: block;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #e3e6f0;
+            padding: 1rem;
+            border-radius: 0.5rem 0.5rem 0 0;
+            position: relative;
+        }
+        
+        /* Style day cells */
+        .mobile-responsive-table tbody td:not(:first-child) {
+            display: block;
+            padding: 1rem;
+            border-bottom: 1px solid #f0f0f0;
+            text-align: left;
+        }
+         
+        .mobile-responsive-table tbody td:last-child {
+            border-bottom: none;
+        }
+
+        /* Inject labels using data-label attribute */
+        .mobile-responsive-table tbody td:not(:first-child)::before {
+            content: attr(data-label);
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            display: block;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+        }
+        
+        /* Make form controls full width */
+        .mobile-responsive-table select.form-select {
+            width: 100%;
+        }
+        
+        /* Card Body padding tweak for mobile */
+        .card-body {
+            padding: 0.5rem;
+        }
+    }
+    
+    /* Desktop enhancements: make sure selects aren't too narrow */
+    @media (min-width: 769px) {
+        select.form-select {
+            min-width: 150px;
+        }
+    }
+</style>
+
 <div class="container-fluid py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
@@ -27,7 +98,7 @@
                 {% csrf_token %}
                 
                 <div class="table-responsive">
-                    <table class="table table-bordered table-hover">
+                    <table class="table table-bordered table-hover mobile-responsive-table">
                         <thead>
                             <tr class="table-light">
                                 <th style="width: 15%">Time Slot</th>
@@ -45,7 +116,7 @@
                                 </td>
                                 {% for day in days %}
                                 {% with idx=forloop.counter0 %}
-                                <td>
+                                <td data-label="{{ day }}">
                                     <!-- Construct field name: slot_DAYNAME_SLOTINDEX -->
                                     <select name="slot_{{ day }}_{{ forloop.parentloop.counter0 }}" class="form-select form-select-sm">
                                         <option value="">-- Free / Break --</option>

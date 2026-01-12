@@ -962,8 +962,13 @@
         // PWA Service Worker Registration
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register("{% static 'sw.js' %}")
-                  currentTheme = html.getAttribute('data-bs-theme');
+                navigator.serviceWorker.register("{% static 'sw.js' %}");
+            });
+        }
+
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-bs-theme');
             const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
             
             html.setAttribute('data-bs-theme', newTheme);
@@ -972,10 +977,10 @@
             // Update Icons
             const icons = document.querySelectorAll('[id*="themeIcon"], [id*="sidebarThemeIcon"]');
             icons.forEach(icon => {
-                icon.className = newTheme === 'dark' ? 'bi bi-sun fs-5' : 'bi bi-moon fs-5';
                 if(icon.id === 'sidebarThemeIcon') {
-                     // Remove fs-5 for sidebar icon if needed, or keep consistent
                      icon.className = newTheme === 'dark' ? 'bi bi-sun' : 'bi bi-moon';
+                } else {
+                     icon.className = newTheme === 'dark' ? 'bi bi-sun fs-5' : 'bi bi-moon fs-5';
                 }
             });
         }

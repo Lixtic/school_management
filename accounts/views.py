@@ -192,15 +192,26 @@ def dashboard(request):
         # Calculate Student Count (Restored)
         teacher_students_count = Student.objects.filter(current_class__id__in=class_ids).distinct().count()
         
-        # Recent uploaded resources
+        # Recent uploaded resources (safe when new columns may not exist yet)
+        resource_fields_available = False
         try:
-            # Force evaluation with list() to catch DB errors here instead of in template
-            recent_resources = list(Resource.objects.filter(
-                Q(class_subject__teacher=teacher_profile) | 
+            with connection.cursor() as cursor:
+                cols = [col.name for col in connection.introspection.get_table_description(cursor, Resource._meta.db_table)]
+            resource_fields_available = 'resource_type' in cols and 'curriculum' in cols
+        except Exception:
+            resource_fields_available = False
+
+        try:
+            qs = Resource.objects.filter(
+                Q(class_subject__teacher=teacher_profile) |
                 Q(target_audience__in=['all', 'teachers'], class_subject__isnull=True)
-            ).order_by('-uploaded_at')[:5])
+            ).order_by('-uploaded_at')
+            if not resource_fields_available:
+                qs = qs.only('id', 'title', 'file', 'link', 'uploaded_at', 'class_subject', 'class_subject__subject', 'class_subject__class_name')
+            recent_resources = list(qs[:5])
         except (OperationalError, ProgrammingError):
             recent_resources = []
+            resource_fields_available = False
 
         # Filter notices for teacher
         teacher_notices = base_notices.filter(target_audience__in=['all', 'staff', 'teachers'])[:5]
@@ -214,6 +225,7 @@ def dashboard(request):
             'next_duty': next_duty,
             'todays_classes': todays_classes,
             'recent_resources': recent_resources,
+            'resource_fields_available': resource_fields_available,
         }
 
         return render(request, 'dashboard/teacher_dashboard.html', teacher_context)

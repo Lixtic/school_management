@@ -311,12 +311,14 @@
                                 {% if resource.class_subject %}
                                     <small class="text-muted">{{ resource.class_subject.subject.name }} - {{ resource.class_subject.class_name.name }}</small>
                                 {% else %}
-                                    <small class="text-muted">Shared • {{ resource.get_resource_type_display }}</small>
+                                    <small class="text-muted">Shared{% if resource_fields_available %} • {{ resource.get_resource_type_display }}{% endif %}</small>
                                 {% endif %}
+                                {% if resource_fields_available %}
                                 <div class="mt-1">
                                     <span class="badge bg-primary bg-opacity-10 text-primary">{{ resource.get_resource_type_display }}</span>
                                     <span class="badge bg-secondary bg-opacity-10 text-secondary">{{ resource.get_curriculum_display }}</span>
                                 </div>
+                                {% endif %}
                             </div>
                             {% if resource.file %}
                             <a href="{{ resource.file.url }}" target="_blank" class="btn btn-sm btn-light rounded-pill" title="Download">

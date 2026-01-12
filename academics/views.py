@@ -28,14 +28,31 @@ def manage_resources(request):
     else:
         form = ResourceForm()
         
+    # Detect if new resource fields exist in DB (for deployments that haven't run latest migration)
+    resource_fields_available = False
+    try:
+        with connection.cursor() as cursor:
+            cols = [col.name for col in connection.introspection.get_table_description(cursor, Resource._meta.db_table)]
+        resource_fields_available = 'resource_type' in cols and 'curriculum' in cols
+    except Exception:
+        resource_fields_available = False
+
+    base_qs = Resource.objects.select_related('class_subject', 'uploaded_by')
+    if not resource_fields_available:
+        base_qs = base_qs.only(
+            'id', 'title', 'description', 'file', 'link',
+            'target_audience', 'class_subject', 'uploaded_by', 'uploaded_at'
+        )
+
     if request.user.user_type == 'admin':
-        resources = Resource.objects.all()
+        resources = base_qs
     else:
-        resources = Resource.objects.filter(uploaded_by=request.user)
+        resources = base_qs.filter(uploaded_by=request.user)
         
     return render(request, 'academics/manage_resources.html', {
         'form': form,
-        'resources': resources
+        'resources': resources,
+        'resource_fields_available': resource_fields_available,
     })
 
 @login_required

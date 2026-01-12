@@ -48,7 +48,11 @@
                     <ul class="mid-text small text-muted ps-3 mb-0">
                         <li>Uploaded without a Class Subject makes it available based on Target Audience (All, Teachers Only, etc).</li>
                         <li>You can provide a File OR a Link (or both).</li>
-                        <li>Tag uploads as Curriculum or Teaching Resource and pick the curriculum (default: GES New Curriculum for JHS).</li>
+                        {% if resource_fields_available %}
+                            <li>Tag uploads as Curriculum or Teaching Resource and pick the curriculum (default: GES New Curriculum for JHS).</li>
+                        {% else %}
+                            <li class="text-warning">New curriculum tags will appear after migrations run on this deployment.</li>
+                        {% endif %}
                         <li>Students will see these in their dashboard under "Resources".</li>
                     </ul>
                 </div>
@@ -67,7 +71,7 @@
                             <thead class="bg-light">
                                 <tr>
                                     <th class="ps-4">Title</th>
-                                    <th>Category</th>
+                                    {% if resource_fields_available %}<th>Category</th>{% endif %}
                                     <th>Type</th>
                                     <th>Target/Class</th>
                                     <th>Uploaded By</th>
@@ -84,12 +88,14 @@
                                             <div class="text-muted small text-truncate" style="max-width: 200px;">{{ res.description }}</div>
                                         {% endif %}
                                     </td>
+                                    {% if resource_fields_available %}
                                     <td>
                                         <div class="d-flex flex-column gap-1">
                                             <span class="badge bg-primary bg-opacity-10 text-primary">{{ res.get_resource_type_display }}</span>
                                             <span class="badge bg-secondary bg-opacity-10 text-secondary">{{ res.get_curriculum_display }}</span>
                                         </div>
                                     </td>
+                                    {% endif %}
                                     <td>
                                         {% if res.file %}
                                             <a href="{{ res.file.url }}" class="badge bg-primary text-decoration-none" target="_blank">

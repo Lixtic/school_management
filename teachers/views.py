@@ -379,6 +379,16 @@ def class_resources(request, class_subject_id):
     teacher = Teacher.objects.get(user=request.user)
     class_subject = get_object_or_404(ClassSubject, id=class_subject_id, teacher=teacher)
 
+    # Detect availability of new fields on the DB
+    resource_fields_available = False
+    try:
+        from django.db import connection
+        with connection.cursor() as cursor:
+            cols = [col.name for col in connection.introspection.get_table_description(cursor, Resource._meta.db_table)]
+        resource_fields_available = 'resource_type' in cols and 'curriculum' in cols
+    except Exception:
+        resource_fields_available = False
+
     resource_type_filter = request.GET.get('type', 'all')
     curriculum_filter = request.GET.get('curriculum', 'all')
     
@@ -402,13 +412,19 @@ def class_resources(request, class_subject_id):
         form.fields['class_subject'].widget = forms.HiddenInput()
         form.fields['class_subject'].initial = class_subject.id
 
-    resources = Resource.objects.filter(class_subject=class_subject).order_by('-uploaded_at')
-    if resource_type_filter in ['curriculum', 'teaching']:
-        resources = resources.filter(resource_type=resource_type_filter)
-    if curriculum_filter != 'all':
-        resources = resources.filter(curriculum=curriculum_filter)
-
-    curriculum_options = [('all', 'All Curricula')] + list(Resource.CURRICULUM_CHOICES)
+    base_qs = Resource.objects.filter(class_subject=class_subject).order_by('-uploaded_at')
+    if not resource_fields_available:
+        resources = base_qs.only('id', 'title', 'description', 'file', 'link', 'uploaded_at')
+        curriculum_options = [('all', 'All Curricula')]
+        resource_type_filter = 'all'
+        curriculum_filter = 'all'
+    else:
+        resources = base_qs
+        if resource_type_filter in ['curriculum', 'teaching']:
+            resources = resources.filter(resource_type=resource_type_filter)
+        if curriculum_filter != 'all':
+            resources = resources.filter(curriculum=curriculum_filter)
+        curriculum_options = [('all', 'All Curricula')] + list(Resource.CURRICULUM_CHOICES)
     
     return render(request, 'teachers/class_resources.html', {
         'class_subject': class_subject,
@@ -417,6 +433,7 @@ def class_resources(request, class_subject_id):
         'resource_type_filter': resource_type_filter,
         'curriculum_filter': curriculum_filter,
         'curriculum_options': curriculum_options,
+        'resource_fields_available': resource_fields_available,
     })
 
 @login_required

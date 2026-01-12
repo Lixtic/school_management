@@ -309,10 +309,22 @@ def student_dashboard_view(request):
         school_class=student.current_class
     ).exclude(homework='').order_by('-week_number', '-date_added')[:5]
     
-    resources = Resource.objects.filter(
+    resource_fields_available = False
+    try:
+        from django.db import connection
+        with connection.cursor() as cursor:
+            cols = [col.name for col in connection.introspection.get_table_description(cursor, Resource._meta.db_table)]
+        resource_fields_available = 'resource_type' in cols and 'curriculum' in cols
+    except Exception:
+        resource_fields_available = False
+
+    resources_qs = Resource.objects.filter(
         Q(class_subject__class_name=student.current_class) |
         Q(target_audience__in=['all', 'students'], class_subject__isnull=True)
-    ).order_by('-uploaded_at')[:8]
+    ).order_by('-uploaded_at')
+    if not resource_fields_available:
+        resources_qs = resources_qs.only('id', 'title', 'description', 'file', 'link', 'target_audience', 'class_subject', 'uploaded_by', 'uploaded_at')
+    resources = resources_qs[:8]
 
     # Get announcements
     from announcements.models import Announcement

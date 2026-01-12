@@ -16,6 +16,25 @@ import json
 from django.db.utils import OperationalError, ProgrammingError
 
 def homepage(request):
+    # Route logic for different tenants
+    is_public = False
+    if hasattr(request, 'tenant'):
+        is_public = (request.tenant.schema_name == 'public')
+    
+    # 1. Public Tenant -> Show SaaS Landing
+    if is_public:
+        return render(request, 'landing_public.html')
+
+    # 2. School Tenant -> Show School Dashboard/Home or redirect to Login
+    # If user is not logged in on school tenant, better to show login?
+    # Or show specific school landing page? For now, let's keep the activity feed home
+    # but ensure it's generic.
+    
+    # If not logged in, maybe redirect to login for school context?
+    # if not request.user.is_authenticated:
+    #     return redirect('login') 
+    
+    # ... Continue with existing logic for school home ...
     activities_qs = Activity.objects.filter(is_active=True).order_by('date')[:12]
     activities = [
         {

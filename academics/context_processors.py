@@ -7,11 +7,16 @@ def school_info(request):
         info = None
         
     if not info:
+        # Check if we are in a tenant context
+        tenant_name = "School Portal"
+        if hasattr(request, 'tenant') and request.tenant.schema_name != 'public':
+            tenant_name = request.tenant.name
+
         # Return defaults if no DB entry yet
         return {
-            'school_name': "Daboya Girls Model JHS",
-            'school_address': "P.O. Box 6, Daboya, North Gonja District",
-            'school_motto': "Success, Our Concern",
+            'school_name': tenant_name,
+            'school_address': "Address Not Set",
+            'school_motto': "Knowledge is Power",
         }
         
     return {

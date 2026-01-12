@@ -5,15 +5,16 @@ from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
 from accounts import views as account_views
 
-admin.site.site_header = "Daboya Girls Model JHS Administration"
+admin.site.site_header = "School Portal Administration"
 admin.site.site_title = "School Admin"
-admin.site.index_title = "Welcome to Girls Model JHS Management System"
+admin.site.index_title = "Welcome to School Management System"
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('home/', account_views.homepage, name='home'),
-    path('', account_views.login_view, name='login'),
+    path('', account_views.homepage, name='home'),
+    path('login/', account_views.login_view, name='login'),
+    # path('home/', account_views.homepage, name='home'), # Redirect old home
     path('logout/', account_views.logout_view, name='logout'),
     path('dashboard/', account_views.dashboard, name='dashboard'),
     path('password/change/', auth_views.PasswordChangeView.as_view(

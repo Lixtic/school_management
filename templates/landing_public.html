@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}School Portal - Manage Your School{% endblock %}
+
+{% block content %}
+<style>
+:root {
+    --primary-teal: #026e56;
+    --primary-dark: #0f3b57;
+}
+
+.hero-section {
+    background: linear-gradient(135deg, var(--primary-teal), var(--primary-dark));
+    color: white;
+    padding: 120px 0 100px;
+    text-align: center;
+}
+
+.feature-card {
+    border: none;
+    border-radius: 12px;
+    transition: transform 0.3s;
+    height: 100%;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+}
+.feature-card:hover {
+    transform: translateY(-5px);
+}
+.icon-box {
+    width: 60px; height: 60px;
+    background: rgba(2, 110, 86, 0.1);
+    color: var(--primary-teal);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+}
+</style>
+
+<!-- Hero -->
+<section class="hero-section">
+    <div class="container">
+        <h1 class="display-3 fw-bold mb-4">The Modern School OS</h1>
+        <p class="lead mb-5 opacity-75 mx-auto" style="max-width: 600px;">
+            A complete management system for schools of all sizes. 
+            Academics, Finance, Attendance, and Communicaton in one unified platform.
+        </p>
+        <div class="d-flex gap-3 justify-content-center">
+            <a href="{% url 'login' %}" class="btn btn-light btn-lg px-5 fw-bold text-primary">Sign In</a>
+            <a href="#" class="btn btn-outline-light btn-lg px-5 fw-bold">Register School</a>
+        </div>
+    </div>
+</section>
+
+<!-- Features -->
+<section class="py-5 bg-light">
+    <div class="container py-5">
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card feature-card p-4">
+                    <div class="icon-box"><i class="bi bi-mortarboard"></i></div>
+                    <h4>Academics</h4>
+                    <p class="text-muted">Comprehensive gradebooks, report cards, and transcript generation with term-based analysis.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card feature-card p-4">
+                    <div class="icon-box"><i class="bi bi-wallet2"></i></div>
+                    <h4>Finance</h4>
+                    <p class="text-muted">Track fees, manage payments, and generate financial reports easily.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card feature-card p-4">
+                    <div class="icon-box"><i class="bi bi-people"></i></div>
+                    <h4>Communication</h4>
+                    <p class="text-muted">Integrated SMS and portals for parents, students, and teachers.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="bg-dark text-white py-4 mt-auto">
+    <div class="container text-center text-muted">
+        <p class="mb-0">&copy; 2026 School Portal. All rights reserved.</p>
+    </div>
+</footer>
+{% endblock %}

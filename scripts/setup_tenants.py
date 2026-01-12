@@ -64,6 +64,7 @@ def setup_tenants():
 
     # 2. Create a Demo School Tenant
     # This will create a separate schema 'school1' in the postgres DB.
+    school_tenant = None
     if not School.objects.filter(schema_name='school1').exists():
         try:
             with transaction.atomic():
@@ -86,7 +87,34 @@ def setup_tenants():
         except Exception as e:
             print(f"ERROR: Failed to create school1 tenant: {e}")
     else:
+        school_tenant = School.objects.get(schema_name='school1')
         print("INFO: 'school1' Tenant already exists")
+
+    # 2.1 Create Admin User for School 1
+    if school_tenant:
+        from django.contrib.auth import get_user_model
+        from django.db import connection
+        
+        # Switch to tenant schema to create user
+        connection.set_tenant(school_tenant)
+        User = get_user_model()
+        
+        if not User.objects.filter(username='admin').exists():
+            try:
+                User.objects.create_superuser(
+                    username='admin',
+                    email='admin@school1.com',
+                    password='admin',
+                    user_type='admin' # Assuming custom user model needs this
+                )
+                print("SUCCESS: Created superuser 'admin' / 'admin' for school1")
+            except Exception as e:
+                print(f"ERROR: Failed to create superuser for school1: {e}")
+        else:
+             print("INFO: Superuser 'admin' already exists for school1")
+        
+        # Switch back to public for safety (though script ends here)
+        connection.set_schema_to_public()
 
 if __name__ == '__main__':
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'school_system.settings')

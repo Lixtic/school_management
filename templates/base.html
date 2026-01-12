@@ -679,8 +679,8 @@
             <div class="container-fluid px-3 px-lg-4">
                 <div class="d-flex justify-content-between align-items-center">
                     <div class="d-flex align-items-center gap-2">
-                        <!-- Mobile Toggle Inside Header -->
-                        <button class="header-action-btn d-lg-none me-2" onclick="toggleMobileMenu()">
+                        <!-- Mobile Sidebar Toggle -->
+                        <button class="header-action-btn d-lg-none me-2" onclick="toggleSidebar()">
                             <i class="bi bi-list fs-3"></i>
                         </button>
                         
@@ -774,54 +774,6 @@
                 </div>
             </div>
         </header>
-
-        <!-- Mobile Bubble Menu -->
-        <div class="mobile-bubble-menu" id="mobileBubbleMenu">
-            <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom border-secondary border-opacity-25">
-                <div class="d-flex align-items-center gap-3">
-                    <div class="user-avatar" style="width: 42px; height: 42px; border: 2px solid rgba(255,255,255,0.2);">{{ user.get_full_name|first|upper }}</div>
-                    <div class="d-flex flex-column">
-                        <span class="fw-bold fs-6 text-white">{{ user.get_full_name }}</span>
-                        <span class="small text-uppercase opacity-75" style="letter-spacing: 1px; font-size: 0.65rem;">{{ user.user_type }}</span>
-                    </div>
-                </div>
-                <button class="header-action-btn text-white" onclick="toggleMobileMenu()" style="width: 32px; height: 32px; background: rgba(255,255,255,0.1);"><i class="bi bi-x-lg"></i></button>
-            </div>
-
-            <!-- Mobile Utility Icons (Theme Only) -->
-            <div class="mb-4 pb-3 border-bottom border-secondary border-opacity-25">
-                 <button class="btn btn-outline-light w-100 d-flex align-items-center justify-content-center gap-2" onclick="toggleTheme()">
-                     <i class="bi bi-moon fs-5" id="mobileThemeIcon"></i> <span>Toggle Theme</span>
-                 </button>
-            </div>
-
-            <ul class="mobile-bubble-list">
-                <li class="mobile-bubble-item"><a href="{% url 'dashboard' %}"><i class="bi bi-speedometer2"></i>Dashboard</a></li>
-                <li class="mobile-bubble-item"><a href="{% url 'home' %}"><i class="bi bi-house"></i>Home Page</a></li>
-                {% if user.user_type == 'teacher' or user.user_type == 'admin' %}
-                    <li class="mobile-bubble-item"><a href="{% url 'students:student_list' %}"><i class="bi bi-people"></i>Students</a></li>
-                    <li class="mobile-bubble-item"><a href="{% url 'students:mark_attendance' %}"><i class="bi bi-calendar-check"></i>Attendance</a></li>
-                    <li class="mobile-bubble-item"><a href="{% url 'academics:timetable' %}"><i class="bi bi-table"></i>Timetable</a></li>
-                {% endif %}
-                {% if user.user_type == 'admin' %}
-                    <li class="mobile-bubble-item"><a href="{% url 'academics:manage_activities' %}"><i class="bi bi-calendar-event"></i>Activities</a></li>
-                    <li class="mobile-bubble-item"><a href="{% url 'finance:dashboard' %}"><i class="bi bi-wallet2"></i>Finance</a></li>
-                    <li class="mobile-bubble-item"><a href="{% url 'announcements:manage' %}"><i class="bi bi-megaphone"></i>Notices</a></li>
-                    <li class="mobile-bubble-item"><a href="{% url 'academics:school_settings' %}"><i class="bi bi-gear"></i>Settings</a></li>
-                {% endif %}
-                {% if user.user_type == 'teacher' %}
-                    <li class="mobile-bubble-item"><a href="{% url 'teachers:my_classes' %}"><i class="bi bi-book"></i>My Classes</a></li>
-                    <li class="mobile-bubble-item"><a href="{% url 'teachers:enter_grades' %}"><i class="bi bi-journal-plus"></i>Enter Grades</a></li>
-                {% endif %}
-                {% if user.user_type == 'parent' %}
-                <li class="mobile-bubble-item"><a href="{% url 'parents:my_children' %}"><i class="bi bi-person-hearts"></i>My Children</a></li>
-                {% endif %}
-                <li class="mobile-bubble-item mt-2 pt-2 border-top border-secondary opacity-75"><a href="{% url 'logout' %}"><i class="bi bi-box-arrow-right"></i>Sign Out</a></li>
-            </ul>
-        </div>
-
-        <!-- Mobile Bubble Overlay -->
-        <div class="mobile-bubble-overlay position-fixed top-0 start-0 w-100 h-100 bg-dark bg-opacity-50" id="mobileBubbleOverlay" style="display:none; z-index: 1002;" onclick="toggleMobileMenu()"></div>
 
         <!-- Sidebar -->
         <nav class="sidebar" id="sidebar">
@@ -931,6 +883,14 @@
             {% endif %}
             
             <div class="mt-auto p-3 border-top" style="border-color: rgba(255,255,255,0.1) !important;">
+                <!-- Mobile Theme Toggle -->
+                <div class="nav-item d-lg-none mb-2 m-0">
+                    <button class="nav-link w-100 text-start border-0 bg-transparent" onclick="toggleTheme()" style="cursor: pointer;">
+                        <i class="bi bi-moon" id="sidebarThemeIcon"></i>
+                        <span>Switch Theme</span>
+                    </button>
+                </div>
+
                 <a href="{% url 'logout' %}" class="nav-link" style="color: #ffa8a8 !important;" title="Sign Out">
                     <i class="bi bi-box-arrow-right"></i>
                     <span>Sign Out</span>
@@ -992,23 +952,35 @@
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register("{% static 'sw.js' %}")
-                    .then(reg => console.log('Service Worker registered'))
-                    .catch(err => console.log('Service Worker registration failed: ', err));
-            });
-        }
-
-        // Dark Mode Logic
-        function toggleTheme() {
-            const html = document.documentElement;
-            const icon = document.getElementById('themeIcon');
-            const currentTheme = html.getAttribute('data-bs-theme');
+                  currentTheme = html.getAttribute('data-bs-theme');
             const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
             
             html.setAttribute('data-bs-theme', newTheme);
             localStorage.setItem('theme', newTheme);
             
-            // Update Icon
-            icon.className = newTheme === 'dark' ? 'bi bi-sun fs-5' : 'bi bi-moon fs-5';
+            // Update Icons
+            const icons = document.querySelectorAll('[id*="themeIcon"], [id*="sidebarThemeIcon"]');
+            icons.forEach(icon => {
+                icon.className = newTheme === 'dark' ? 'bi bi-sun fs-5' : 'bi bi-moon fs-5';
+                if(icon.id === 'sidebarThemeIcon') {
+                     // Remove fs-5 for sidebar icon if needed, or keep consistent
+                     icon.className = newTheme === 'dark' ? 'bi bi-sun' : 'bi bi-moon';
+                }
+            });
+        }
+
+        // Initialize Theme
+        (function() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-bs-theme', savedTheme);
+            const icons = document.querySelectorAll('[id*="themeIcon"], [id*="sidebarThemeIcon"]');
+            icons.forEach(icon => {
+                if(icon.id === 'sidebarThemeIcon') {
+                    icon.className = savedTheme === 'dark' ? 'bi bi-sun' : 'bi bi-moon';
+                } else {
+                    icon.className = savedTheme === 'dark' ? 'bi bi-sun fs-5' : 'bi bi-moon fs-5';
+                }
+            })
         }
 
         // Initialize Theme

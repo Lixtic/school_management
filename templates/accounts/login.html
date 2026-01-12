@@ -379,12 +379,16 @@ body {
                     For security reasons, password resets must be handled by the school administration block.
                 </p>
                 <div class="d-grid gap-2">
-                    <a href="mailto:support@girlsmodeljhs.edu.gh" class="btn btn-outline-primary">
-                        <i class="bi bi-envelope me-2"></i> support@girlsmodeljhs.edu.gh
+                    {% if school_email %}
+                    <a href="mailto:{{ school_email }}" class="btn btn-outline-primary">
+                        <i class="bi bi-envelope me-2"></i> {{ school_email }}
                     </a>
-                    <a href="tel:+233123456789" class="btn btn-outline-secondary">
-                        <i class="bi bi-telephone me-2"></i> +233 123 456 789
+                    {% endif %}
+                    {% if school_phone %}
+                    <a href="tel:{{ school_phone }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-telephone me-2"></i> {{ school_phone }}
                     </a>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -410,7 +414,7 @@ body {
                 
                 <h6 class="fw-bold mb-2">I lost my password</h6>
                 <p class="text-muted small mb-0">
-                    If you have lost your login details, please contact the ICT department or send a request to <strong>parents@girlsmodeljhs.edu.gh</strong> with your child's full name and admission number.
+                    If you have lost your login details, please contact the ICT department{% if school_email %} or send a request to <strong>{{ school_email }}</strong>{% endif %} with your child's full name and admission number.
                 </p>
             </div>
             <div class="modal-footer border-top-0 pt-0">

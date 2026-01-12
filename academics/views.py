@@ -276,7 +276,15 @@ def edit_timetable(request, class_id):
                             # Fallback if announcements_notification table is missing (migration issue)
                             if 'announcements_notification' in str(e):
                                 with connection.cursor() as cursor:
-                                    cursor.execute("DELETE FROM academics_timetable WHERE id = %s", [existing.id])
+                                    try:
+                                        # Try simple delete first
+                                        cursor.execute("DELETE FROM academics_timetable WHERE id = %s", [existing.id])
+                                    except Exception as inner_e:
+                                        # If simple delete fails due to constraints, try ignoring constraints? 
+                                        # Postgres doesn't easily allow disabling constraints session-wide for a specific table without superuser.
+                                        # But if the table is missing, foreign keys from it shouldn't exist?
+                                        # The error suggests the RELATION is missing, so checking it for cascade is failing.
+                                        raise inner_e
                             else:
                                 raise e
         

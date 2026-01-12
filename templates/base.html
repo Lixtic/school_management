@@ -257,6 +257,10 @@
 
         /* Mobile Header Tweaks */
         @media (max-width: 768px) {
+            .header {
+                padding-left: 0.75rem !important;
+                padding-right: 0.75rem !important;
+            }
             .user-info {
                 padding: 0;
                 gap: 0;
@@ -275,10 +279,18 @@
             .header .navbar-brand {
                 font-size: 1rem;
                 gap: 8px;
+                margin-right: 0 !important;
             }
             .header-action-btn {
-                width: 36px;
-                height: 36px;
+                width: 34px;
+                height: 34px;
+            }
+            .header-action-btn i {
+                font-size: 1.1rem !important;
+            }
+            /* Hide theme toggle on very small screens if needed, or adjust spacing */
+            .gap-2 {
+                gap: 0.25rem !important; /* Reduce gap on mobile */
             }
         }
 

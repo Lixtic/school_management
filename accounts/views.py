@@ -178,10 +178,16 @@ def dashboard(request):
 
         # Get Today's Timetable
         today_weekday = timezone.now().weekday()
+        current_time = timezone.localtime().time()
+        
         todays_classes = Timetable.objects.filter(
             class_subject__teacher=teacher_profile,
             day=today_weekday
         ).select_related('class_subject', 'class_subject__class_name', 'class_subject__subject').order_by('start_time')
+
+        # Add 'is_ongoing' attribute to each class
+        for p in todays_classes:
+            p.is_ongoing = p.start_time <= current_time <= p.end_time
 
         # Calculate Student Count (Restored)
         teacher_students_count = Student.objects.filter(current_class__id__in=class_ids).distinct().count()

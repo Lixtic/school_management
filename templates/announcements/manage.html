@@ -23,6 +23,34 @@
         color: var(--text-main) !important;
         border-color: rgba(255,255,255,0.1) !important;
     }
+
+    /* Gradient Card Fixes for Dark/Light Mode */
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%) !important;
+        color: white !important;
+        border: none;
+    }
+    .bg-gradient-primary .form-control,
+    .bg-gradient-primary .form-select,
+    .bg-gradient-primary textarea {
+        background-color: rgba(255, 255, 255, 0.9);
+        border: none;
+        color: #000;
+    }
+    .bg-gradient-primary .form-control:focus,
+    .bg-gradient-primary .form-select:focus,
+    .bg-gradient-primary textarea:focus {
+        background-color: #ffffff;
+        box-shadow: 0 0 0 0.25rem rgba(255, 255, 255, 0.25);
+        color: #000;
+    }
+    .bg-gradient-primary label,
+    .bg-gradient-primary .form-label {
+        color: white !important;
+    }
+    .bg-gradient-primary .form-text {
+        color: rgba(255, 255, 255, 0.8) !important;
+    }
 </style>
 <div class="row">
     <div class="col-md-4">

@@ -1,7 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.db.utils import ProgrammingError
 from django.http import JsonResponse, HttpResponse
 from django.db.models import Q, Count, Avg
 from datetime import date, timedelta
@@ -181,16 +180,10 @@ def mark_attendance(request):
     allowed_classes = classes_qs
     teacher_profile = None
     if request.user.user_type == 'teacher':
-        try:
-            teacher_profile = Teacher.objects.filter(user=request.user).first()
-            # ONLY Class Teachers can mark attendance
-            allowed_classes = classes_qs.filter(class_teacher=teacher_profile)
-        except ProgrammingError as e:
-            if 'notification_ahead_minutes' in str(e):
-                messages.error(request, 'Database is out of date for teachers. Please run migrations for teachers app.')
-                return redirect('dashboard')
-            raise
-
+        teacher_profile = Teacher.objects.filter(user=request.user).first()
+        # ONLY Class Teachers can mark attendance
+        allowed_classes = classes_qs.filter(class_teacher=teacher_profile)
+        
         if not allowed_classes.exists():
             messages.error(request, 'You must be a Class Teacher to mark attendance')
             return redirect('dashboard')

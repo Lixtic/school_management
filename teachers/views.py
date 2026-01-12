@@ -546,34 +546,28 @@ def lesson_plan_create(request):
     })
 
 @login_required
-def lesson_plan_list(request):
+def lesson_plan_edit(request, pk):
     if request.user.user_type != 'teacher':
         messages.error(request, 'Access denied')
         return redirect('dashboard')
     
-    try:
-        teacher = get_object_or_404(Teacher, user=request.user)
-    except ProgrammingError as e:
-        if 'notification_ahead_minutes' in str(e):
-            messages.error(request, 'Database is out of date for teachers. Please run migrations for the teachers app.')
-            return redirect('dashboard')
-        raise
+    teacher = get_object_or_404(Teacher, user=request.user)
+    lesson_plan = get_object_or_404(LessonPlan, pk=pk, teacher=teacher)
     
-    week = request.GET.get('week')
-    try:
-        # Force evaluation to catch DB errors if table doesn't exist yet
-        lesson_plans_qs = LessonPlan.objects.filter(teacher=teacher)
-        if week:
-            lesson_plans_qs = lesson_plans_qs.filter(week_number=week)
-        lesson_plans = list(lesson_plans_qs)
-    except (OperationalError, ProgrammingError):
-        messages.error(request, 'Lesson plan table not ready. Please run migrations.')
-        return redirect('dashboard')
-
-    return render(request, 'teachers/lesson_plan_list.html', {
-        'lesson_plans': lesson_plans,
-        'week': week,
+    if request.method == 'POST':
+        form = LessonPlanForm(request.POST, instance=lesson_plan, teacher=teacher)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Lesson plan updated successfully.')
+            return redirect('teachers:lesson_plan_list')
+    else:
+        form = LessonPlanForm(instance=lesson_plan, teacher=teacher)
+        
+    return render(request, 'teachers/lesson_plan_form.html', {
+        'form': form,
+        'title': 'Edit Lesson Plan'
     })
+
 @login_required
 def lesson_plan_detail(request, pk):
     if request.user.user_type != 'teacher':

@@ -9,7 +9,6 @@ class Teacher(models.Model):
     date_of_joining = models.DateField()
     qualification = models.CharField(max_length=200)
     subjects = models.ManyToManyField('academics.Subject', blank=True)
-    notification_ahead_minutes = models.PositiveIntegerField(default=45, help_text="Minutes before lesson to be notified")
     
     def __str__(self):
         return f"{self.user.get_full_name()} ({self.employee_id})"

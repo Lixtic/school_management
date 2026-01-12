@@ -1,6 +1,5 @@
 from django import forms
 from academics.models import Resource
-from teachers.models import Teacher
 
 class ResourceForm(forms.ModelForm):
     class Meta:
@@ -18,16 +17,6 @@ class ResourceForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['curriculum'].initial = 'ges_jhs_new'
-
-
-class NotificationPreferenceForm(forms.ModelForm):
-    class Meta:
-        model = Teacher
-        fields = ['notification_ahead_minutes']
-        widgets = {
-            'notification_ahead_minutes': forms.NumberInput(attrs={'class': 'form-control', 'min': 5, 'max': 120, 'step': 5}),
-        }
-
 
 from .models import LessonPlan
 from academics.models import Subject, Class

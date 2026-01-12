@@ -392,6 +392,7 @@
                             <option value="assign_class">Assign to Class</option>
                             <option value="mark_attendance">Mark Attendance</option>
                             <option value="export">Export Data</option>
+                            <option value="print_report">Print Report Cards</option>
                         </select>
                     </div>
                     
@@ -402,6 +403,15 @@
                             {% for class in classes %}
                                 <option value="{{ class.id }}">{{ class.name }}</option>
                             {% endfor %}
+                        </select>
+                    </div>
+
+                    <div id="printReportDiv" style="display: none;">
+                        <label class="form-label">Select Term</label>
+                        <select class="form-select" id="bulkTerm">
+                            <option value="first">First Term</option>
+                            <option value="second">Second Term</option>
+                            <option value="third">Third Term</option>
                         </select>
                     </div>
                 </form>
@@ -484,11 +494,15 @@ function updateSelectedCount() {
 document.getElementById('bulkAction').addEventListener('change', function() {
     const action = this.value;
     const classDiv = document.getElementById('classSelectionDiv');
+    const printDiv = document.getElementById('printReportDiv');
+    
+    classDiv.style.display = 'none';
+    printDiv.style.display = 'none';
     
     if (action === 'assign_class') {
         classDiv.style.display = 'block';
-    } else {
-        classDiv.style.display = 'none';
+    } else if (action === 'print_report') {
+        printDiv.style.display = 'block';
     }
 });
 
@@ -531,6 +545,11 @@ function executeBulkAction() {
         });
     } else if (action === 'export') {
         exportSelected();
+    } else if (action === 'print_report') {
+        const term = document.getElementById('bulkTerm').value;
+        window.open(`{% url "students:bulk_report_cards" %}?ids=${selectedStudents.join(',')}&term=${term}`, '_blank');
+        const modal = bootstrap.Modal.getInstance(document.getElementById('bulkActionsModal'));
+        modal.hide();
     }
 }
 

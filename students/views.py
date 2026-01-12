@@ -358,46 +358,11 @@ def student_dashboard_view(request):
     
     return render(request, 'dashboard/student_dashboard.html', context)
 
-
-@login_required
-def generate_report_card(request, student_id):
-    """Generate a printable report card for a student"""
-    
-    student = get_object_or_404(Student, id=student_id)
-    
-    # Check permissions
-    if request.user.user_type == 'student':
-        try:
-            student_profile = Student.objects.get(user=request.user)
-            if student_profile.id != student_id:
-                messages.error(request, 'You can only view your own report card')
-                return redirect('dashboard')
-        except Student.DoesNotExist:
-            messages.error(request, 'Student profile not found')
-            return redirect('dashboard')
-    elif request.user.user_type == 'parent':
-        try:
-            from parents.models import Parent
-            parent = Parent.objects.get(user=request.user)
-            if student not in parent.children.all():
-                messages.error(request, 'You can only view your children\'s report cards')
-                return redirect('parents:my_children')
-        except Parent.DoesNotExist:
-            messages.error(request, 'Parent profile not found')
-            return redirect('dashboard')
-    elif request.user.user_type not in ['admin', 'teacher']:
-        messages.error(request, 'Access denied')
-        return redirect('dashboard')
-    
-    # Get current academic year
-    academic_year = AcademicYear.objects.filter(is_current=True).first()
-
-    # Normalize term value from request (accept legacy labels)
-    raw_term = request.GET.get('term', 'first')
-    term = normalize_term(raw_term)
+def _get_student_report_context(student, academic_year, term, raw_term):
+    """Helper to generate report card context for a single student"""
     term_values = term_filter_values(term)
-
-    # Get all grades for current academic year and term (canonical + legacy labels)
+    
+    # Get all grades for current academic year and term
     grades = Grade.objects.filter(
         student=student,
         academic_year=academic_year,
@@ -407,7 +372,6 @@ def generate_report_card(request, student_id):
     # Calculate statistics
     total_subjects = grades.count()
     
-    # Calculate totals
     total_class_work = 0
     total_exams = 0
     grand_total = 0
@@ -476,7 +440,7 @@ def generate_report_card(request, student_id):
     from academics.models import SchoolInfo
     school_info = SchoolInfo.objects.first()
 
-    context = {
+    return {
         'student': student,
         'academic_year': academic_year,
         'term': term,
@@ -501,8 +465,76 @@ def generate_report_card(request, student_id):
         'school_logo': school_info.logo if school_info else None,
         'term_choices': Grade.TERM_CHOICES,
     }
+
+
+@login_required
+def generate_report_card(request, student_id):
+    """Generate a printable report card for a student"""
+    
+    student = get_object_or_404(Student, id=student_id)
+    
+    # Check permissions (same as before)
+    if request.user.user_type == 'student':
+        try:
+            student_profile = Student.objects.get(user=request.user)
+            if student_profile.id != student_id:
+                messages.error(request, 'You can only view your own report card')
+                return redirect('dashboard')
+        except Student.DoesNotExist:
+            messages.error(request, 'Student profile not found')
+            return redirect('dashboard')
+    elif request.user.user_type == 'parent':
+        try:
+            from parents.models import Parent
+            parent = Parent.objects.get(user=request.user)
+            if student not in parent.children.all():
+                messages.error(request, 'You can only view your children\'s report cards')
+                return redirect('parents:my_children')
+        except Parent.DoesNotExist:
+            messages.error(request, 'Parent profile not found')
+            return redirect('dashboard')
+    elif request.user.user_type not in ['admin', 'teacher']:
+        messages.error(request, 'Access denied')
+        return redirect('dashboard')
+    
+    # Get current academic year
+    academic_year = AcademicYear.objects.filter(is_current=True).first()
+
+    # Normalize term value from request
+    raw_term = request.GET.get('term', 'first')
+    term = normalize_term(raw_term)
+
+    context = _get_student_report_context(student, academic_year, term, raw_term)
     
     return render(request, 'students/report_card.html', context)
+
+
+@login_required
+def bulk_report_cards(request):
+    """Generate bulk report cards for printing"""
+    if request.user.user_type not in ['admin', 'teacher']:
+        messages.error(request, 'Access denied')
+        return redirect('dashboard')
+        
+    student_ids = request.GET.get('ids', '').split(',')
+    student_ids = [sid for sid in student_ids if sid.strip()]
+    
+    if not student_ids:
+        messages.error(request, 'No students selected')
+        return redirect('students:student_list')
+        
+    academic_year = AcademicYear.objects.filter(is_current=True).first()
+    raw_term = request.GET.get('term', 'first')
+    term = normalize_term(raw_term)
+    
+    students = Student.objects.filter(id__in=student_ids).select_related('user', 'current_class')
+    
+    reports = []
+    for student in students:
+        report_data = _get_student_report_context(student, academic_year, term, raw_term)
+        reports.append(report_data)
+        
+    return render(request, 'students/bulk_report_cards.html', {'reports': reports})
 
 
 @login_required

@@ -15,6 +15,13 @@ class StudentAdmin(admin.ModelAdmin):
             defaults.update(kwargs)
             return super().get_form(request, obj, **defaults)
         return super().get_form(request, obj, **kwargs)
+
+    def save_model(self, request, obj, form, change):
+        # For the quick-add form, ensure related User is saved before the Student
+        if isinstance(form, StudentQuickAddForm):
+            form.save(commit=True)
+            return
+        super().save_model(request, obj, form, change)
     
     def get_full_name(self, obj):
         return obj.user.get_full_name()

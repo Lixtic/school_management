@@ -2,6 +2,69 @@
 {% load academic_tags %}
 
 {% block content %}
+<style>
+    .timetable-grid {
+        border-collapse: collapse;
+        width: 100%;
+        text-align: center;
+        font-size: 0.85rem;
+    }
+    .timetable-grid th, .timetable-grid td {
+        border: 1px solid #dee2e6;
+        padding: 8px;
+        vertical-align: middle;
+    }
+    .timetable-grid th {
+        background-color: var(--surface-light);
+        color: var(--text-main);
+        font-weight: 700;
+    }
+    .break-column {
+        background-color: #f1f5f9; /* Light gray for breaks */
+        writing-mode: vertical-rl;
+        text-orientation: mixed;
+        transform: rotate(180deg);
+        padding: 4px;
+        font-weight: 700;
+        color: var(--text-muted);
+        width: 40px;
+        letter-spacing: 2px;
+    }
+    [data-bs-theme="dark"] .break-column {
+        background-color: #334155;
+        color: #94a3b8;
+    }
+    .cleaning-column {
+        writing-mode: vertical-rl;
+        text-orientation: mixed;
+        transform: rotate(180deg);
+        background-color: #e2e8f0;
+        font-weight: bold;
+        width: 30px;
+    }
+    [data-bs-theme="dark"] .cleaning-column {
+        background-color: #1e293b;
+    }
+    .day-column {
+        background-color: #f8fafc;
+        font-weight: bold;
+        width: 100px;
+        text-transform: uppercase;
+    }
+    [data-bs-theme="dark"] .day-column {
+        background-color: #0f172a;
+    }
+    
+    .subject-cell {
+        font-weight: 700;
+        color: var(--primary-dark);
+        display: block;
+    }
+    [data-bs-theme="dark"] .subject-cell {
+        color: #fff;
+    }
+</style>
+
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2>{% if is_teacher_schedule %}My Timetable{% else %}Class Timetable{% endif %}</h2>
     
@@ -20,55 +83,102 @@
 </div>
 
 {% if selected_class or is_teacher_schedule %}
-<div class="card">
-    <div class="card-header bg-white py-3">
-        <h5 class="mb-0 text-primary fw-bold">
+<div class="card shadow-sm border-0 overflow-hidden">
+    <div class="card-header bg-white py-3 border-bottom">
+        <h5 class="mb-0 fw-bold">
             {% if is_teacher_schedule %}
                 My Weekly Schedule
             {% else %}
-                {{ selected_class.name }} Schedule
+                <i class="bi bi-grid-3x3 me-2"></i> {{ selected_class.name }} Time Table
             {% endif %}
         </h5>
     </div>
+    
     <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table table-bordered mb-0 text-center">
-                <thead class="bg-light">
+            <table class="timetable-grid">
+                <thead>
                     <tr>
-                        <th style="width: 15%;">Day</th>
-                        <th>Schedule</th>
+                        <th style="width: 80px;">DAY/TIME</th>
+                        <th class="cleaning-column" rowspan="6">CLEANING / ASSEMBLY<br><small>6:00 - 7:00</small></th>
+                        <th>07:00 - 08:40<br><span class="text-muted fw-normal">Lesson 1</span></th>
+                        <th>08:40 - 09:50<br><span class="text-muted fw-normal">Lesson 2</span></th>
+                        <th class="break-column" rowspan="6">FIRST BREAK <br><small>9:50 - 10:20</small></th>
+                        <th>10:20 - 11:30<br><span class="text-muted fw-normal">Lesson 3</span></th>
+                        <th>11:30 - 12:40<br><span class="text-muted fw-normal">Lesson 4</span></th>
+                        <th class="break-column" rowspan="6">SECOND BREAK <br><small>12:40 - 13:00</small></th>
+                        <th>13:00 - 14:00<br><span class="text-muted fw-normal">Lesson 5</span></th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for day in days %}
                     <tr>
-                        <td class="fw-bold bg-light align-middle">{{ day }}</td>
-                        <td class="text-start p-3">
-                            {% if timetable|get_item:day %}
-                                <div class="d-flex flex-wrap gap-3">
-                                    {% for entry in timetable|get_item:day %}
-                                    <div class="border rounded p-2 bg-white shadow-sm" style="min-width: 150px;">
-                                        <div class="fw-bold text-primary">{{ entry.class_subject.subject.name }}</div>
-                                        <div class="text-muted small">
-                                            <i class="bi bi-clock"></i> {{ entry.start_time|time:"H:i" }} - {{ entry.end_time|time:"H:i" }}
-                                        </div>
-                                        {% if is_teacher_schedule %}
-                                        <div class="text-dark small mt-1">
-                                            <i class="bi bi-people"></i> {{ entry.class_subject.class_name.name }}
-                                        </div>
-                                        {% else %}
-                                            {% if entry.class_subject.teacher %}
-                                            <div class="text-muted small mt-1">
-                                                <i class="bi bi-person"></i> {{ entry.class_subject.teacher.user.get_full_name }}
-                                            </div>
-                                            {% endif %}
-                                        {% endif %}
-                                    </div>
-                                    {% endfor %}
-                                </div>
-                            {% else %}
-                                <span class="text-muted fst-italic">No classes scheduled</span>
-                            {% endif %}
+                        <td class="day-column">{{ day|upper }}</td>
+                        <!-- Cleaning Column is Rowspanned in Header, effectively absent in body for visual flow or needs handling? 
+                             Actually rowspan in THEAD doesn't span into TBODY. 
+                             We can just add a cell per row or use a huge rowspan if we want it to look like the image.
+                             The image handles it as a full-height column. Let's do a cell per row for simplicity or a single rowspan if we can.
+                             For Table logic, rowspan across tbody rows is clearer. -->
+                        {% if forloop.first %}
+                        <td rowspan="5" class="cleaning-column">
+                            <div style="white-space: nowrap;">CLEANING / ASSEMBLY</div>
+                        </td>
+                        {% endif %}
+
+                        <!-- Lesson 1: 07:00 -->
+                        <td>
+                            {% with lesson=timetable|get_item:day|get_lesson_at:"07:00" %}
+                                {% if lesson %}
+                                    <span class="subject-cell">{{ lesson.class_subject.subject.name|upper }}</span>
+                                    {% if not is_teacher_schedule and lesson.class_subject.teacher %}
+                                        <small class="d-block text-muted text-truncate">{{ lesson.class_subject.teacher.user.last_name }}</small>
+                                    {% endif %}
+                                {% endif %}
+                            {% endwith %}
+                        </td>
+
+                        <!-- Lesson 2: 08:40 -->
+                        <td>
+                             {% with lesson=timetable|get_item:day|get_lesson_at:"08:40" %}
+                                {% if lesson %}
+                                    <span class="subject-cell">{{ lesson.class_subject.subject.name|upper }}</span>
+                                {% endif %}
+                            {% endwith %}
+                        </td>
+
+                        {% if forloop.first %}
+                        <td rowspan="5" class="break-column">FIRST BREAK</td>
+                        {% endif %}
+
+                        <!-- Lesson 3: 10:20 -->
+                         <td>
+                             {% with lesson=timetable|get_item:day|get_lesson_at:"10:20" %}
+                                {% if lesson %}
+                                    <span class="subject-cell">{{ lesson.class_subject.subject.name|upper }}</span>
+                                {% endif %}
+                            {% endwith %}
+                        </td>
+
+                        <!-- Lesson 4: 11:30 -->
+                         <td>
+                             {% with lesson=timetable|get_item:day|get_lesson_at:"11:30" %}
+                                {% if lesson %}
+                                    <span class="subject-cell">{{ lesson.class_subject.subject.name|upper }}</span>
+                                {% endif %}
+                            {% endwith %}
+                        </td>
+
+                        {% if forloop.first %}
+                        <td rowspan="5" class="break-column">SECOND BREAK</td>
+                        {% endif %}
+
+                        <!-- Lesson 5: 13:00 -->
+                         <td>
+                             {% with lesson=timetable|get_item:day|get_lesson_at:"13:00" %}
+                                {% if lesson %}
+                                    <span class="subject-cell">{{ lesson.class_subject.subject.name|upper }}</span>
+                                {% endif %}
+                            {% endwith %}
                         </td>
                     </tr>
                     {% endfor %}

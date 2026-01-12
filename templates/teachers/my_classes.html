@@ -97,5 +97,41 @@
     .border-top-dashed {
         border-top: 1px dashed #dee2e6 !important;
     }
+
+    [data-bs-theme="dark"] .card {
+        background-color: var(--surface-white);
+        border-color: rgba(255,255,255,0.05);
+        color: var(--text-main);
+    }
+    [data-bs-theme="dark"] .text-gray-800 {
+        color: var(--text-main) !important;
+    }
+    [data-bs-theme="dark"] .badge.bg-white {
+        background-color: rgba(255,255,255,0.1) !important;
+        color: var(--text-main) !important;
+        border-color: rgba(255,255,255,0.1) !important;
+    }
+    [data-bs-theme="dark"] .card-footer.bg-light-subtle {
+        background-color: rgba(0,0,0,0.2) !important;
+        border-color: rgba(255,255,255,0.1) !important;
+    }
+    [data-bs-theme="dark"] .text-dark {
+        color: var(--text-main) !important;
+    }
+    [data-bs-theme="dark"] .btn-light {
+        background-color: rgba(255,255,255,0.1);
+        border: none;
+        color: var(--text-main);
+    }
+    [data-bs-theme="dark"] .dropdown-menu {
+        background-color: var(--surface-white);
+        border-color: rgba(255,255,255,0.1);
+    }
+    [data-bs-theme="dark"] .dropdown-item {
+        color: var(--text-main);
+    }
+    [data-bs-theme="dark"] .dropdown-item:hover {
+        background-color: rgba(255,255,255,0.05);
+    }
 </style>
 {% endblock %}

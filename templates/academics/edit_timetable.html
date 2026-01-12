@@ -125,8 +125,9 @@
                                             {% with key=day|add:"_"|add:time_key %}
                                             <option value="{{ cs.id }}" 
                                                 {% if timetable_data|get_item:key == cs.id %}selected{% endif %}
+                                                {% if not cs.teacher %}class="text-danger fw-bold"{% endif %}
                                             >
-                                                {{ cs.subject.name }} ({{ cs.teacher }})
+                                                {{ cs.subject.name }} ({{ cs.teacher|default:"NO TEACHER" }})
                                             </option>
                                             {% endwith %}
                                             {% endwith %}

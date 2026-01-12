@@ -51,3 +51,45 @@ class TimetableAdmin(admin.ModelAdmin):
     list_display = ['class_subject', 'day', 'start_time', 'end_time', 'room']
     list_filter = ['day', 'class_subject__class_name']
     search_fields = ['class_subject__teacher__user__first_name', 'class_subject__teacher__user__last_name', 'room']
+
+    def delete_queryset(self, request, queryset):
+        """
+        Override bulk delete to handle missing announcements_notification table gracefully.
+        """
+        from django.db import connection, ProgrammingError
+        
+        try:
+            # Try standard bulk delete first
+            queryset.delete()
+        except ProgrammingError as e:
+            if 'announcements_notification' in str(e):
+                # Fallback: Raw SQL delete ignoring cascade to missing table
+                ids = list(queryset.values_list('id', flat=True))
+                if not ids:
+                    return
+
+                with connection.cursor() as cursor:
+                    # Format tuple of IDs for SQL IN clause
+                    placeholders = ', '.join(['%s'] * len(ids))
+                    sql = f"DELETE FROM academics_timetable WHERE id IN ({placeholders})"
+                    cursor.execute(sql, ids)
+                
+                self.message_user(request, f"Successfully deleted {len(ids)} timetables (Force Delete Mode)", level="WARNING")
+            else:
+                raise e
+
+    def delete_model(self, request, obj):
+        """
+        Override single instance delete to handle missing announcements_notification table gracefully.
+        """
+        from django.db import connection, ProgrammingError
+        
+        try:
+            obj.delete()
+        except ProgrammingError as e:
+            if 'announcements_notification' in str(e):
+                # Fallback: Raw SQL delete
+                with connection.cursor() as cursor:
+                    cursor.execute("DELETE FROM academics_timetable WHERE id = %s", [obj.id])
+            else:
+                raise e

@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.db import connection
 from django.http import Http404
-from django.urls import set_urlconf
+from django.urls import set_urlconf, set_script_prefix
 from django_tenants.middleware.main import TenantMainMiddleware
 from tenants.models import School
 
@@ -46,12 +46,17 @@ class TenantPathMiddleware(TenantMainMiddleware):
             
             script_prefix = f"/{possible_schema}"
             if request.path.startswith(script_prefix):
+                # Save original path info for potential restoration (if needed, though requests are one-way)
+                if not hasattr(request, '_original_script_prefix'):
+                     request._original_script_prefix = request.META.get('SCRIPT_NAME', '')
+
                 request.path_info = request.path[len(script_prefix):]
                 # If path was exactly '/school1', path_info is empty, should be '/'
                 if not request.path_info:
                     request.path_info = '/'
                 
                 request.META['SCRIPT_NAME'] = script_prefix
+                set_script_prefix(script_prefix)
             
             self.setup_url_routing(request)
             

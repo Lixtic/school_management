@@ -8,4 +8,5 @@ python3 manage.py collectstatic --noinput --clear
 echo "Running Migrations..."
 python3 manage.py makemigrations
 python3 manage.py migrate
+python3 manage.py populate_curriculum
 python3 scripts/fix_notification_table.py

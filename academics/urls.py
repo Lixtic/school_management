@@ -11,4 +11,5 @@ urlpatterns = [
     path('resources/delete/<int:resource_id>/', views.delete_resource, name='delete_resource'),
     path('settings/', views.school_settings_view, name='school_settings'),
     path('timetable/', views.timetable_view, name='timetable'),
+    path('global-search/', views.global_search, name='global_search'),
 ]

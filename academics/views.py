@@ -1,8 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.http import JsonResponse
+from django.urls import reverse
 from django.db.models import Q
 from accounts.models import User
+from announcements.models import Announcement
 from .models import Activity, GalleryImage, SchoolInfo, Class, Timetable, ClassSubject, Resource
 from .forms import SchoolInfoForm, GalleryImageForm, ResourceForm
 
@@ -224,4 +227,84 @@ def upload_gallery_image(request):
         form = GalleryImageForm()
     
     return render(request, 'academics/upload_gallery_image.html', {'form': form})
+
+
+@login_required
+def global_search(request):
+    query = request.GET.get('q', '').strip()
+    results = []
+
+    if len(query) < 2:
+        return JsonResponse({'results': []})
+
+    # 1. Search Users
+    if request.user.user_type in ['admin', 'teacher']:
+        users = User.objects.filter(
+            Q(username__icontains=query) |
+            Q(first_name__icontains=query) |
+            Q(last_name__icontains=query)
+        )[:5]
+        
+        for u in users:
+            url = '#'
+            if u.user_type == 'student':
+                 # Redirect to student list with search filter
+                 url = reverse('students:student_list') + f'?q={u.username}'
+            elif request.user.user_type == 'admin':
+                 url = reverse('accounts:manage_users') + f'?q={u.username}'
+            
+            results.append({
+                'category': f'User ({u.user_type.title()})',
+                'title': u.get_full_name(),
+                'url': url,
+                'icon': 'bi-person-circle'
+            })
+
+    # 2. Search Resources
+    resources = Resource.objects.filter(title__icontains=query)[:5]
+    for r in resources:
+        results.append({
+            'category': 'Resource',
+            'title': r.title,
+            'url': r.file.url if r.file else r.link,
+            'icon': 'bi-file-earmark-text'
+        })
+
+    # 3. Search Announcements
+    notices = Announcement.objects.filter(
+        Q(title__icontains=query) |
+        Q(content__icontains=query)
+    )[:3]
+    for n in notices:
+        results.append({
+            'category': 'Announcement',
+            'title': n.title,
+            'url': reverse('announcements:manage'),
+            'icon': 'bi-megaphone'
+        })
+
+    # 4. Search Pages (Navigation)
+    nav_items = [
+        {'title': 'Dashboard', 'url': reverse('dashboard'), 'keywords': 'home main'},
+        {'title': 'Timetable', 'url': reverse('academics:timetable'), 'keywords': 'schedule class time'},
+        {'title': 'Gallery', 'url': reverse('academics:gallery'), 'keywords': 'photos images'},
+    ]
+    
+    if request.user.user_type == 'admin':
+        nav_items.extend([
+            {'title': 'Finance', 'url': reverse('finance:dashboard'), 'keywords': 'fees payments'},
+            {'title': 'School Settings', 'url': reverse('academics:school_settings'), 'keywords': 'config setup'},
+            {'title': 'Manage Users', 'url': reverse('accounts:manage_users'), 'keywords': 'people staff'},
+        ])
+    
+    for item in nav_items:
+        if query.lower() in item['title'].lower() or query.lower() in item['keywords']:
+            results.append({
+                'category': 'Navigate',
+                'title': item['title'],
+                'url': item['url'],
+                'icon': 'bi-arrow-right-circle'
+            })
+
+    return JsonResponse({'results': results})
 

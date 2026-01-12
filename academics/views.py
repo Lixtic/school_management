@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.http import JsonResponse
 from django.urls import reverse
 import datetime
+from django.db import connection, ProgrammingError
 from django.db.models import Q
 from accounts.models import User
 from announcements.models import Announcement
@@ -269,7 +270,15 @@ def edit_timetable(request, class_id):
                 else:
                     # Remove if it exists and field is empty
                     if existing:
-                        existing.delete()
+                        try:
+                            existing.delete()
+                        except ProgrammingError as e:
+                            # Fallback if announcements_notification table is missing (migration issue)
+                            if 'announcements_notification' in str(e):
+                                with connection.cursor() as cursor:
+                                    cursor.execute("DELETE FROM academics_timetable WHERE id = %s", [existing.id])
+                            else:
+                                raise e
         
         messages.success(request, f'Timetable updated for {school_class.name}')
         return redirect('academics:timetable')

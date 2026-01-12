@@ -383,6 +383,7 @@ def class_resources(request, class_subject_id):
         if form.is_valid():
             resource = form.save(commit=False)
             resource.class_subject = class_subject
+            resource.uploaded_by = request.user
             resource.save()
             messages.success(request, 'Resource uploaded successfully.')
             return redirect('teachers:class_resources', class_subject_id=class_subject.id)

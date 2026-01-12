@@ -18,6 +18,37 @@ def manage_announcements(request):
         if 'delete' in request.POST:
             a_id = request.POST.get('delete')
             Announcement.objects.filter(id=a_id).delete()
+            messages.success(request, 'Announcement deleted successfully.')
+            return redirect('announcements:manage')
+            
+        form = AnnouncementForm(request.POST)
+        if form.is_valid():
+            announcement = form.save(commit=False)
+            announcement.created_by = request.user
+            announcement.save()
+            messages.success(request, 'Announcement posted successfully.')
+            return redirect('announcements:manage')
+            
+    else:
+        form = AnnouncementForm()
+        
+    return render(request, 'announcements/manage_announcements.html', {
+        'announcements': announcements,
+        'form': form
+    })
+
+@login_required
+def mark_notification_read(request, notification_id):
+    from .models import Notification
+    notification = get_object_or_404(Notification, id=notification_id, recipient=request.user)
+    notification.is_read = True
+    notification.save()
+    return redirect(request.META.get('HTTP_REFERER', 'dashboard'))
+
+@login_required
+def mark_all_notifications_read(request):
+    request.user.notifications.filter(is_read=False).update(is_read=True)
+    return redirect(request.META.get('HTTP_REFERER', 'dashboard'))
             messages.success(request, 'Announcement deleted')
             return redirect('announcements:manage')
             

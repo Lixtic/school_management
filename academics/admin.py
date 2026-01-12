@@ -17,9 +17,16 @@ class AcademicYearAdmin(admin.ModelAdmin):
 class SchoolInfoAdmin(admin.ModelAdmin):
     # Only allow one instance
     def has_add_permission(self, request):
-        if self.model.objects.exists():
+        try:
+            if self.model.objects.exists():
+                return False
+            return True
+        except Exception:
+            # If the DB transaction is broken, reset it and deny add to keep admin usable
+            from django.db import transaction
+            transaction.set_rollback(True)
+            transaction.set_rollback(False)
             return False
-        return True
 
 @admin.register(Class)
 class ClassAdmin(admin.ModelAdmin):
@@ -126,3 +133,30 @@ class TimetableAdmin(admin.ModelAdmin):
                         cursor.execute("DELETE FROM academics_timetable WHERE id = %s", [obj.id])
             else:
                 raise e
+
+    def delete_view(self, request, object_id, extra_context=None):
+        """
+        Override delete view to force-delete when the notifications table is missing.
+        This avoids repeated transaction aborts during the standard admin flow.
+        """
+        from django.http import HttpResponseRedirect
+        from django.urls import reverse
+        from django.db import transaction, connection, ProgrammingError
+
+        # Clear any broken transaction flag before proceeding
+        transaction.set_rollback(True)
+        transaction.set_rollback(False)
+
+        try:
+            return super().delete_view(request, object_id, extra_context=extra_context)
+        except ProgrammingError as e:
+            if 'announcements_notification' in str(e):
+                # Force delete via raw SQL
+                transaction.set_rollback(True)
+                transaction.set_rollback(False)
+                with transaction.atomic():
+                    with connection.cursor() as cursor:
+                        cursor.execute("DELETE FROM academics_timetable WHERE id = %s", [object_id])
+                self.message_user(request, f"Force-deleted timetable #{object_id}", level="WARNING")
+                return HttpResponseRedirect(reverse('admin:academics_timetable_changelist'))
+            raise e

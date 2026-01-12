@@ -56,18 +56,18 @@ class TimetableAdmin(admin.ModelAdmin):
         """
         Override to handle missing announcements_notification table during preview.
         """
-        from django.db import ProgrammingError
+        from django.db import ProgrammingError, connection, transaction
         
         try:
             return super().get_deleted_objects(objs, request)
         except ProgrammingError as e:
             if 'announcements_notification' in str(e):
-                # Return a simplified preview without checking cascade deletes
-                from django.contrib.admin.utils import NestedObjects
-                from django.utils.html import format_html
+                # Transaction is now in aborted state in Postgres, we need to rollback
+                connection.connection.rollback()
                 
-                # Create minimal response to allow delete to proceed
-                deleted_objects = [f"{obj}" for obj in objs]
+                # Return a simplified preview without checking cascade deletes
+                # Avoid calling __str__ which might trigger more queries
+                deleted_objects = [f"Timetable #{obj.id}" for obj in objs]
                 model_count = {self.model._meta.verbose_name_plural: len(objs)}
                 perms_needed = set()
                 protected = []

@@ -52,6 +52,30 @@ class TimetableAdmin(admin.ModelAdmin):
     list_filter = ['day', 'class_subject__class_name']
     search_fields = ['class_subject__teacher__user__first_name', 'class_subject__teacher__user__last_name', 'room']
 
+    def get_deleted_objects(self, objs, request):
+        """
+        Override to handle missing announcements_notification table during preview.
+        """
+        from django.db import ProgrammingError
+        
+        try:
+            return super().get_deleted_objects(objs, request)
+        except ProgrammingError as e:
+            if 'announcements_notification' in str(e):
+                # Return a simplified preview without checking cascade deletes
+                from django.contrib.admin.utils import NestedObjects
+                from django.utils.html import format_html
+                
+                # Create minimal response to allow delete to proceed
+                deleted_objects = [f"{obj}" for obj in objs]
+                model_count = {self.model._meta.verbose_name_plural: len(objs)}
+                perms_needed = set()
+                protected = []
+                
+                return (deleted_objects, model_count, perms_needed, protected)
+            else:
+                raise e
+
     def delete_queryset(self, request, queryset):
         """
         Override bulk delete to handle missing announcements_notification table gracefully.

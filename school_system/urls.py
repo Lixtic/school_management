@@ -4,6 +4,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
 from accounts import views as account_views
+from tenants import views as tenant_views
 
 admin.site.site_header = "School Portal Administration"
 admin.site.site_title = "School Admin"
@@ -13,6 +14,7 @@ admin.site.index_title = "Welcome to School Management System"
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', account_views.homepage, name='home'),
+    path('signup/', tenant_views.school_signup, name='signup'),
     path('login/', account_views.login_view, name='login'),
     # path('home/', account_views.homepage, name='home'), # Redirect old home
     path('logout/', account_views.logout_view, name='logout'),

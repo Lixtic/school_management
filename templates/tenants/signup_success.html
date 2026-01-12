@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block title %}School Created!{% endblock %}
+
+{% block content %}
+<div class="container py-5 text-center">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg border-0 rounded-4 p-5">
+                <div class="mb-4">
+                    <i class="bi bi-check-circle-fill text-success" style="font-size: 5rem;"></i>
+                </div>
+                <h1 class="display-5 fw-bold mb-3">You're All Set!</h1>
+                <p class="lead text-muted mb-5">
+                    Your school portal has been successfully created. You can now log in using the default admin credentials.
+                </p>
+                
+                <div class="alert alert-info d-inline-block text-start px-5 py-4 mb-4">
+                    <h5 class="fw-bold"><i class="bi bi-key me-2"></i> Default Credentials</h5>
+                    <div class="mt-2">
+                        <strong>Username:</strong> admin<br>
+                        <strong>Password:</strong> admin
+                    </div>
+                </div>
+                
+                <div class="d-grid gap-3 col-md-6 mx-auto">
+                    <a href="/{{ schema_name }}/login/" class="btn btn-primary btn-lg fw-bold">
+                        Go to School Login <i class="bi bi-arrow-right ms-2"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

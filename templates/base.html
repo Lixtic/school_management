@@ -201,6 +201,33 @@
             font-size: 0.9rem;
         }
 
+        /* Mobile Header Tweaks */
+        @media (max-width: 768px) {
+            .user-info {
+                padding: 0;
+                gap: 0;
+                border: none;
+                margin-left: 0.5rem !important;
+            }
+            .user-info:hover {
+                background: transparent;
+                box-shadow: none;
+            }
+            .header-brand-icon {
+                width: 32px;
+                height: 32px;
+                border-radius: 8px;
+            }
+            .header .navbar-brand {
+                font-size: 1rem;
+                gap: 8px;
+            }
+            .header-action-btn {
+                width: 36px;
+                height: 36px;
+            }
+        }
+
         /* Sidebar */
         .sidebar {
             width: var(--sidebar-width);
@@ -605,7 +632,7 @@
                                 {% endif %}
                             </div>
                             <span class="d-none d-sm-block">{{ school_name|default:"Girls Model JHS" }}</span>
-                            <span class="d-block d-sm-none text-truncate" style="max-width: 200px; font-size: 1.1rem;">{{ school_name|default:"Girls Model JHS" }}</span>
+                            <span class="d-block d-sm-none text-truncate" style="max-width: 140px; font-size: 1rem;">{{ school_name|default:"Girls Model JHS" }}</span>
                         </div>
                     </div>
 

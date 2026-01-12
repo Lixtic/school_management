@@ -108,8 +108,12 @@ class Timetable(models.Model):
         verbose_name_plural = "Timetables"
 
     def __str__(self):
-        day_name = self.get_day_display()
-        return f"{self.class_subject} on {day_name} ({self.start_time.strftime('%H:%M')} - {self.end_time.strftime('%H:%M')})"
+        try:
+            day_name = self.get_day_display()
+            return f"{self.class_subject} on {day_name} ({self.start_time.strftime('%H:%M')} - {self.end_time.strftime('%H:%M')})"
+        except Exception:
+            # Fallback if database access fails (e.g., broken transaction)
+            return f"Timetable #{self.id}"
 
 class GalleryImage(models.Model):
     CATEGORY_CHOICES = [

@@ -56,14 +56,15 @@ class TimetableAdmin(admin.ModelAdmin):
         """
         Override to handle missing announcements_notification table during preview.
         """
-        from django.db import ProgrammingError, connection
+        from django.db import ProgrammingError, connection, transaction
         
         try:
             return super().get_deleted_objects(objs, request)
         except ProgrammingError as e:
             if 'announcements_notification' in str(e):
-                # Clear the broken transaction flag so Django can continue
-                connection.needs_rollback = False
+                # Rollback the broken transaction in Postgres
+                transaction.set_rollback(True)
+                transaction.set_rollback(False)
                 
                 # Return a simplified preview without checking cascade deletes
                 deleted_objects = [f"Timetable #{obj.id}" for obj in objs]
@@ -79,7 +80,7 @@ class TimetableAdmin(admin.ModelAdmin):
         """
         Override bulk delete to handle missing announcements_notification table gracefully.
         """
-        from django.db import connection, ProgrammingError
+        from django.db import connection, ProgrammingError, transaction
         
         try:
             # Try standard bulk delete first
@@ -87,7 +88,8 @@ class TimetableAdmin(admin.ModelAdmin):
         except ProgrammingError as e:
             if 'announcements_notification' in str(e):
                 # Clear broken transaction state
-                connection.needs_rollback = False
+                transaction.set_rollback(True)
+                transaction.set_rollback(False)
                 
                 # Fallback: Raw SQL delete ignoring cascade to missing table
                 ids = list(queryset.values_list('id', flat=True))
@@ -115,7 +117,8 @@ class TimetableAdmin(admin.ModelAdmin):
         except ProgrammingError as e:
             if 'announcements_notification' in str(e):
                 # Clear broken transaction state
-                connection.needs_rollback = False
+                transaction.set_rollback(True)
+                transaction.set_rollback(False)
                 
                 # Fallback: Raw SQL delete within a new savepoint
                 with transaction.atomic():

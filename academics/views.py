@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse
 from django.urls import reverse
+import datetime
 from django.db.models import Q
 from accounts.models import User
 from announcements.models import Announcement
@@ -204,6 +205,91 @@ def timetable_view(request):
         'is_teacher_schedule': is_teacher_schedule,
     }
     return render(request, 'academics/timetable.html', context)
+
+@login_required
+def edit_timetable(request, class_id):
+    if request.user.user_type != 'admin':
+        messages.error(request, 'Access denied. Admins only.')
+        return redirect('academics:timetable')
+    
+    school_class = get_object_or_404(Class, id=class_id)
+    class_subjects = ClassSubject.objects.filter(class_name=school_class).select_related('subject')
+    
+    # Define standard time slots
+    slots = [
+        {'start': '07:00:00', 'end': '08:40:00', 'label': 'Lesson 1'},
+        {'start': '08:40:00', 'end': '09:50:00', 'label': 'Lesson 2'},
+        {'start': '10:20:00', 'end': '11:30:00', 'label': 'Lesson 3'},
+        {'start': '11:30:00', 'end': '12:40:00', 'label': 'Lesson 4'},
+        {'start': '13:00:00', 'end': '14:00:00', 'label': 'Lesson 5'},
+    ]
+    days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
+    day_map = {day: idx for idx, day in enumerate(days)}
+
+    if request.method == 'POST':
+        # Clear existing timetable for standard slots to avoid complex updates
+        # But maybe we should be more granular. 
+        # Strategy: Iterate through POST data, update/create.
+        
+        updated_count = 0
+        for day in days:
+            day_idx = day_map[day]
+            for slot_idx, slot in enumerate(slots):
+                field_name = f"slot_{day}_{slot_idx}"
+                subject_id = request.POST.get(field_name)
+                
+                start_time = datetime.datetime.strptime(slot['start'], "%H:%M:%S").time()
+                end_time = datetime.datetime.strptime(slot['end'], "%H:%M:%S").time()
+
+                # Find existing entry
+                existing = Timetable.objects.filter(
+                    class_subject__class_name=school_class,
+                    day=day_idx,
+                    start_time=start_time
+                ).first()
+
+                if subject_id:
+                    # Update or Create
+                    try:
+                        cs = ClassSubject.objects.get(id=subject_id)
+                        if existing:
+                            existing.class_subject = cs
+                            existing.end_time = end_time # Ensure end time matches slot
+                            existing.save()
+                        else:
+                            Timetable.objects.create(
+                                class_subject=cs,
+                                day=day_idx,
+                                start_time=start_time,
+                                end_time=end_time
+                            )
+                        updated_count += 1
+                    except ClassSubject.DoesNotExist:
+                        pass
+                else:
+                    # Remove if it exists and field is empty
+                    if existing:
+                        existing.delete()
+        
+        messages.success(request, f'Timetable updated for {school_class.name}')
+        return redirect('academics:timetable')
+
+    # Prepare current data for form pre-fill
+    timetable_data = {}
+    entries = Timetable.objects.filter(class_subject__class_name=school_class)
+    for entry in entries:
+        day_name = entry.get_day_display()
+        time_key = entry.start_time.strftime("%H:%M:%S")
+        timetable_data[f"{day_name}_{time_key}"] = entry.class_subject.id
+
+    context = {
+        'school_class': school_class,
+        'class_subjects': class_subjects,
+        'slots': slots,
+        'days': days,
+        'timetable_data': timetable_data,
+    }
+    return render(request, 'academics/edit_timetable.html', context)
 
 
 @login_required

@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load academic_tags %}
+
+{% block title %}Edit Timetable - {{ school_class.name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0 text-gray-800">Edit Timetable: {{ school_class.name }}</h1>
+            <p class="text-muted small">Update the schedule for this class</p>
+        </div>
+        <div>
+            <a href="{% url 'academics:timetable' %}?class_id={{ school_class.id }}" class="btn btn-secondary me-2">
+                <i class="fas fa-times me-1"></i> Cancel
+            </a>
+            <button type="submit" form="timetableForm" class="btn btn-primary">
+                <i class="fas fa-save me-1"></i> Save Changes
+            </button>
+        </div>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-body">
+            <form method="post" id="timetableForm">
+                {% csrf_token %}
+                
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover">
+                        <thead>
+                            <tr class="table-light">
+                                <th style="width: 15%">Time Slot</th>
+                                {% for day in days %}
+                                <th class="text-center" style="width: 17%">{{ day }}</th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for slot in slots %}
+                            <tr>
+                                <td class="align-middle bg-light">
+                                    <strong>{{ slot.label }}</strong><br>
+                                    <small class="text-muted">{{ slot.start|slice:":5" }} - {{ slot.end|slice:":5" }}</small>
+                                </td>
+                                {% for day in days %}
+                                {% with idx=forloop.counter0 %}
+                                <td>
+                                    <!-- Construct field name: slot_DAYNAME_SLOTINDEX -->
+                                    <select name="slot_{{ day }}_{{ forloop.parentloop.counter0 }}" class="form-select form-select-sm">
+                                        <option value="">-- Free / Break --</option>
+                                        {% for cs in class_subjects %}
+                                            {% with time_key=slot.start|slice:":8" %}
+                                            {% with key=day|add:"_"|add:time_key %}
+                                            <option value="{{ cs.id }}" 
+                                                {% if timetable_data|get_item:key == cs.id %}selected{% endif %}
+                                            >
+                                                {{ cs.subject.name }} ({{ cs.teacher }})
+                                            </option>
+                                            {% endwith %}
+                                            {% endwith %}
+                                        {% endfor %}
+                                    </select>
+                                </td>
+                                {% endwith %}
+                                {% endfor %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

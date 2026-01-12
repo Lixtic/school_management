@@ -33,7 +33,11 @@ def enter_grades(request):
         messages.error(request, 'Access denied')
         return redirect('dashboard')
     
-    teacher = Teacher.objects.get(user=request.user)
+    try:
+        teacher = Teacher.objects.get(user=request.user)
+    except ProgrammingError:
+        # If new columns aren't migrated on this DB yet, fetch minimal fields
+        teacher = Teacher.objects.only('id', 'user').get(user=request.user)
     class_subjects = ClassSubject.objects.filter(teacher=teacher).select_related('class_name', 'subject')
     selected_cs_id = request.GET.get('class_subject_id')
     

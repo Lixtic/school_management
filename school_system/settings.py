@@ -29,7 +29,11 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 
 # Application definition
-INSTALLED_APPS = [
+
+SHARED_APPS = [
+    'django_tenants',
+    'tenants',
+    
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -38,13 +42,15 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.humanize',
     
-    # Third party
+    # Third party shared
     'cloudinary_storage',
     'cloudinary',
     'crispy_forms',
     'crispy_bootstrap5',
-    
-    # Local apps
+]
+
+TENANT_APPS = [
+    # Local apps that need to be isolated per tenant
     'accounts',
     'students',
     'teachers',
@@ -54,9 +60,19 @@ INSTALLED_APPS = [
     'finance',
 ]
 
+INSTALLED_APPS = list(SHARED_APPS) + [app for app in TENANT_APPS if app not in SHARED_APPS]
+
+TENANT_MODEL = "tenants.School"
+TENANT_DOMAIN_MODEL = "tenants.Domain"
+
+DATABASE_ROUTERS = (
+    'django_tenants.routers.TenantSyncRouter',
+)
+
 MIDDLEWARE = [
+    'django_tenants.middleware.main.TenantMainMiddleware',  # Must be first
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # WhiteNoise for static files
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -99,14 +115,20 @@ if DATABASE_URL:
         'default': dj_database_url.parse(
             DATABASE_URL,
             conn_max_age=600,
+            engine='django_tenants.postgresql_backend',
         )
     }
 else:
-    # Local development: Use SQLite
+    # Local development: Must use PostgreSQL for django-tenants
+    # SQLite is NOT supported
     DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
+            'ENGINE': 'django_tenants.postgresql_backend',
+            'NAME': 'school_db_local',
+            'USER': 'postgres',
+            'PASSWORD': 'password',
+            'HOST': 'localhost',
+            'PORT': '5432',
         }
     }
 

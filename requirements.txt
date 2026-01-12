@@ -8,3 +8,4 @@ crispy-bootstrap5==2025.6
 Pillow
 django-cloudinary-storage
 cloudinary
+django-tenants==3.6.1

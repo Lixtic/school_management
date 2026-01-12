@@ -11,7 +11,7 @@ from teachers.models import Teacher, DutyWeek, LessonPlan
 from academics.models import ClassSubject, AcademicYear, Timetable, SchoolInfo, Resource
 from students.models import Student, Grade, ClassExercise, StudentExerciseScore
 from students.utils import normalize_term
-from .forms import ResourceForm, LessonPlanForm, NotificationPreferenceForm
+from .forms import ResourceForm, LessonPlanForm
 
 @login_required
 def teacher_classes(request):
@@ -33,11 +33,7 @@ def enter_grades(request):
         messages.error(request, 'Access denied')
         return redirect('dashboard')
     
-    try:
-        teacher = Teacher.objects.get(user=request.user)
-    except ProgrammingError:
-        # If new columns aren't migrated on this DB yet, fetch minimal fields
-        teacher = Teacher.objects.only('id', 'user').get(user=request.user)
+    teacher = Teacher.objects.get(user=request.user)
     class_subjects = ClassSubject.objects.filter(teacher=teacher).select_related('class_name', 'subject')
     selected_cs_id = request.GET.get('class_subject_id')
     
@@ -175,37 +171,6 @@ def teacher_schedule(request):
         })
             
     return render(request, 'teachers/schedule.html', {'days': days_data})
-
-
-@login_required
-def notification_settings(request):
-    if request.user.user_type != 'teacher':
-        messages.error(request, 'Access denied')
-        return redirect('dashboard')
-
-    missing_field = False
-    try:
-        teacher = get_object_or_404(Teacher, user=request.user)
-    except ProgrammingError:
-        # DB missing notification_ahead_minutes column; fetch minimal fields
-        missing_field = True
-        teacher = get_object_or_404(Teacher.objects.only('id', 'user'), user=request.user)
-        setattr(teacher, 'notification_ahead_minutes', 45)
-    if missing_field:
-        form = None
-    elif request.method == 'POST':
-        form = NotificationPreferenceForm(request.POST, instance=teacher)
-        if form.is_valid():
-            pref = form.save()
-            messages.success(request, f"You'll now get alerts {pref.notification_ahead_minutes} minutes before lessons.")
-            return redirect('teachers:notification_settings')
-    else:
-        form = NotificationPreferenceForm(instance=teacher)
-
-    return render(request, 'teachers/notification_settings.html', {
-        'form': form,
-        'missing_field': missing_field,
-    })
 
 @login_required
 def print_duty_roster(request):
@@ -411,15 +376,7 @@ def curriculum_library(request):
         messages.error(request, 'Access denied')
         return redirect('dashboard')
 
-    # Column-safe fetch: production may not have latest teacher fields yet
-    teacher_field_available = True
-    try:
-        teacher = Teacher.objects.get(user=request.user)
-    except ProgrammingError:
-        teacher_field_available = False
-        teacher = Teacher.objects.only('id', 'user').get(user=request.user)
-        # Provide a default to avoid attribute errors downstream
-        setattr(teacher, 'notification_ahead_minutes', 45)
+    teacher = Teacher.objects.get(user=request.user)
 
     resource_fields_available = False
     try:
@@ -589,28 +546,34 @@ def lesson_plan_create(request):
     })
 
 @login_required
-def lesson_plan_edit(request, pk):
+def lesson_plan_list(request):
     if request.user.user_type != 'teacher':
         messages.error(request, 'Access denied')
         return redirect('dashboard')
     
-    teacher = get_object_or_404(Teacher, user=request.user)
-    lesson_plan = get_object_or_404(LessonPlan, pk=pk, teacher=teacher)
+    try:
+        teacher = get_object_or_404(Teacher, user=request.user)
+    except ProgrammingError as e:
+        if 'notification_ahead_minutes' in str(e):
+            messages.error(request, 'Database is out of date for teachers. Please run migrations for the teachers app.')
+            return redirect('dashboard')
+        raise
     
-    if request.method == 'POST':
-        form = LessonPlanForm(request.POST, instance=lesson_plan, teacher=teacher)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Lesson plan updated successfully.')
-            return redirect('teachers:lesson_plan_list')
-    else:
-        form = LessonPlanForm(instance=lesson_plan, teacher=teacher)
-        
-    return render(request, 'teachers/lesson_plan_form.html', {
-        'form': form,
-        'title': 'Edit Lesson Plan'
-    })
+    week = request.GET.get('week')
+    try:
+        # Force evaluation to catch DB errors if table doesn't exist yet
+        lesson_plans_qs = LessonPlan.objects.filter(teacher=teacher)
+        if week:
+            lesson_plans_qs = lesson_plans_qs.filter(week_number=week)
+        lesson_plans = list(lesson_plans_qs)
+    except (OperationalError, ProgrammingError):
+        messages.error(request, 'Lesson plan table not ready. Please run migrations.')
+        return redirect('dashboard')
 
+    return render(request, 'teachers/lesson_plan_list.html', {
+        'lesson_plans': lesson_plans,
+        'week': week,
+    })
 @login_required
 def lesson_plan_detail(request, pk):
     if request.user.user_type != 'teacher':

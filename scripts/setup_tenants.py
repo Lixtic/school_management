@@ -1,16 +1,15 @@
 import os
 import sys
 import django
+from django.db import transaction
 
 # Add project root to path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'school_system.settings')
-django.setup()
-
-from tenants.models import School, Domain
-from django.db import transaction
 
 def setup_tenants():
+    # Lazy import to avoid loading apps before django.setup() if imported
+    from tenants.models import School, Domain
+    
     print("Starting tenant setup...")
 
     # 1. Create Public Tenant
@@ -67,4 +66,6 @@ def setup_tenants():
         print("INFO: 'school1' Tenant already exists")
 
 if __name__ == '__main__':
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'school_system.settings')
+    django.setup()
     setup_tenants()

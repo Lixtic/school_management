@@ -3,6 +3,42 @@
 {% block title %}Lesson Plan Detail{% endblock %}
 
 {% block content %}
+<style>
+    [data-bs-theme="dark"] .card {
+        background-color: var(--surface-white);
+        border-color: rgba(255,255,255,0.1) !important;
+        color: var(--text-main);
+    }
+    [data-bs-theme="dark"] .bg-light {
+        background-color: #0f172a !important; /* Slightly darker than card */
+        border: 1px solid rgba(255,255,255,0.05);
+    }
+    [data-bs-theme="dark"] .text-secondary {
+        color: #94a3b8 !important;
+    }
+    [data-bs-theme="dark"] hr {
+        border-color: rgba(255,255,255,0.1);
+    }
+    [data-bs-theme="dark"] .print-hide .btn-outline-secondary {
+        color: #e2e8f0;
+        border-color: rgba(255,255,255,0.2);
+    }
+    [data-bs-theme="dark"] .print-hide .btn-outline-secondary:hover {
+        background-color: rgba(255,255,255,0.1);
+    }
+    
+    @media print {
+        [data-bs-theme="dark"] {
+             --text-main: #000;
+             --surface-white: #fff;
+        }
+        [data-bs-theme="dark"] .card {
+            background-color: #fff !important;
+            color: #000 !important;
+            border: 1px solid #ccc !important;
+        }
+    }
+</style>
 <div class="container py-4">
     <div class="row justify-content-center">
         <div class="col-lg-10">

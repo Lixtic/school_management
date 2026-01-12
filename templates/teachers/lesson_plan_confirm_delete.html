@@ -3,6 +3,16 @@
 {% block title %}Confirm Delete{% endblock %}
 
 {% block content %}
+<style>
+    [data-bs-theme="dark"] .card {
+        background-color: var(--surface-white);
+        border-color: rgba(255,255,255,0.05);
+        color: var(--text-main);
+    }
+    [data-bs-theme="dark"] .text-dark {
+        color: var(--text-main) !important;
+    }
+</style>
 <div class="container d-flex flex-column justify-content-center align-items-center" style="min-height: 50vh;">
     <div class="card shadow-lg border-0 rounded-4" style="max-width: 500px;">
         <div class="card-body text-center p-5">

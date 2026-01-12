@@ -225,15 +225,25 @@
                 <div class="list-group-item p-3 border-0 border-bottom">
                     <div class="d-flex align-items-center gap-3">
                         <div class="bg-info bg-opacity-10 p-2 rounded-circle text-info">
+                            {% if resource.link %}
+                            <i class="bi bi-link-45deg mb-0"></i>
+                            {% else %}
                             <i class="bi bi-file-earmark-text mb-0"></i>
+                            {% endif %}
                         </div>
                         <div class="flex-grow-1">
                             <h6 class="mb-0 fw-bold">{{ resource.title }}</h6>
                             <small class="text-muted">{{ resource.class_subject.subject.name }} - {{ resource.class_subject.class_name.name }}</small>
                         </div>
-                        <a href="{{ resource.file.url }}" target="_blank" class="btn btn-sm btn-light rounded-pill">
+                        {% if resource.file %}
+                        <a href="{{ resource.file.url }}" target="_blank" class="btn btn-sm btn-light rounded-pill" title="Download">
                             <i class="bi bi-download"></i>
                         </a>
+                        {% elif resource.link %}
+                        <a href="{{ resource.link }}" target="_blank" class="btn btn-sm btn-light rounded-pill" title="Open Link">
+                            <i class="bi bi-box-arrow-up-right"></i>
+                        </a>
+                        {% endif %}
                     </div>
                 </div>
                 {% empty %}

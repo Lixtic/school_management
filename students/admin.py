@@ -1,11 +1,20 @@
 from django.contrib import admin
 from .models import Student, Attendance, Grade
+from .forms import StudentQuickAddForm
 
 @admin.register(Student)
 class StudentAdmin(admin.ModelAdmin):
     list_display = ['admission_number', 'get_full_name', 'gender', 'current_class', 'roll_number']
     search_fields = ['admission_number', 'user__first_name', 'user__last_name']
     list_filter = ['current_class', 'date_of_admission', 'gender']
+
+    def get_form(self, request, obj=None, **kwargs):
+        # For new students, present a minimal quick-add form
+        if obj is None:
+            defaults = {'form': StudentQuickAddForm}
+            defaults.update(kwargs)
+            return super().get_form(request, obj, **defaults)
+        return super().get_form(request, obj, **kwargs)
     
     def get_full_name(self, obj):
         return obj.user.get_full_name()

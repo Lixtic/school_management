@@ -1,5 +1,11 @@
 from django import forms
+from datetime import date
+import random
+import string
+from django.utils.text import slugify
+from accounts.models import User
 from academics.models import Resource
+from .models import Teacher
 
 class ResourceForm(forms.ModelForm):
     class Meta:
@@ -17,6 +23,65 @@ class ResourceForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['curriculum'].initial = 'ges_jhs_new'
+
+
+class TeacherQuickAddForm(forms.ModelForm):
+    first_name = forms.CharField(max_length=150, label="First name")
+    last_name = forms.CharField(max_length=150, label="Last name")
+    age = forms.IntegerField(min_value=18, max_value=70, label="Age")
+
+    class Meta:
+        model = Teacher
+        fields = ['first_name', 'last_name', 'age']
+
+    def _generate_username(self, base):
+        base_slug = slugify(base).replace('-', '') or 'teacher'
+        candidate = base_slug
+        while User.objects.filter(username=candidate).exists():
+            candidate = f"{base_slug}{random.randint(1000, 9999)}"
+        return candidate
+
+    def _generate_employee_id(self):
+        prefix = 'TCHR'
+        while True:
+            suffix = ''.join(random.choices(string.digits, k=4))
+            emp_id = f"{prefix}{suffix}"
+            if not Teacher.objects.filter(employee_id=emp_id).exists():
+                return emp_id
+
+    def save(self, commit=True):
+        first_name = self.cleaned_data['first_name'].strip()
+        last_name = self.cleaned_data['last_name'].strip()
+        age = self.cleaned_data['age']
+
+        username = self._generate_username(f"{first_name}.{last_name}")
+        email = f"{username}@school.local"
+        user = User(
+            username=username,
+            first_name=first_name,
+            last_name=last_name,
+            email=email,
+            user_type='teacher',
+        )
+        user.set_unusable_password()
+        if commit:
+            user.save()
+
+        dob_year = max(1900, date.today().year - age)
+        date_of_birth = date(dob_year, 1, 1)
+        employee_id = self._generate_employee_id()
+
+        teacher = Teacher(
+            user=user,
+            employee_id=employee_id,
+            date_of_birth=date_of_birth,
+            date_of_joining=date.today(),
+            qualification='Not provided',
+        )
+
+        if commit:
+            teacher.save()
+        return teacher
 
 from .models import LessonPlan
 from academics.models import Subject, Class

@@ -2,6 +2,7 @@
 from django.contrib import admin, messages
 import secrets
 from .models import Teacher, DutyWeek, DutyAssignment
+from .forms import TeacherQuickAddForm
 
 @admin.register(Teacher)
 class TeacherAdmin(admin.ModelAdmin):
@@ -10,6 +11,13 @@ class TeacherAdmin(admin.ModelAdmin):
     list_filter = ['date_of_joining']
     filter_horizontal = ['subjects']
     actions = ['reset_teacher_passwords']
+
+    def get_form(self, request, obj=None, **kwargs):
+        if obj is None:
+            defaults = {'form': TeacherQuickAddForm}
+            defaults.update(kwargs)
+            return super().get_form(request, obj, **defaults)
+        return super().get_form(request, obj, **kwargs)
     
     def get_full_name(self, obj):
         return obj.user.get_full_name()

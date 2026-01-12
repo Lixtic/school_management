@@ -1064,16 +1064,8 @@
         });
 
         function toggleMobileMenu() {
-            const menu = document.getElementById('mobileBubbleMenu');
-            const overlay = document.getElementById('mobileBubbleOverlay');
-            if (menu.style.display === 'block') {
-                menu.style.display = 'none';
-                overlay.style.display = 'none';
-            } else {
-                menu.style.display = 'block';
-                overlay.style.display = 'block';
-                menu.classList.add('show');
-            }
+            // Function deprecated/removed as we now use standard sidebar
+            toggleSidebar();
         }
 
         function toggleSidebar() {
@@ -1086,7 +1078,9 @@
                     window.dispatchEvent(new Event('resize'));
                 }, 305);
             } else {
-                document.getElementById('sidebar').classList.toggle('show');
+                const sidebar = document.getElementById('sidebar');
+                if (sidebar) sidebar.classList.toggle('show');
+                
                 const overlay = document.getElementById('sidebarOverlay');
                 if (overlay) overlay.classList.toggle('d-none');
             }

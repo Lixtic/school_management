@@ -138,7 +138,9 @@
                             {% with lesson=timetable|get_item:day|get_lesson_at:"07:00" %}
                                 {% if lesson %}
                                     <span class="subject-cell">{{ lesson.class_subject.subject.name|upper }}</span>
-                                    {% if not is_teacher_schedule and lesson.class_subject.teacher %}
+                                    {% if is_teacher_schedule %}
+                                        <small class="d-block text-primary fw-bold">{{ lesson.class_subject.class_name.name }}</small>
+                                    {% elif lesson.class_subject.teacher %}
                                         <small class="d-block text-muted text-truncate">{{ lesson.class_subject.teacher.user.last_name }}</small>
                                     {% endif %}
                                 {% endif %}
@@ -150,6 +152,11 @@
                              {% with lesson=timetable|get_item:day|get_lesson_at:"08:40" %}
                                 {% if lesson %}
                                     <span class="subject-cell">{{ lesson.class_subject.subject.name|upper }}</span>
+                                    {% if is_teacher_schedule %}
+                                        <small class="d-block text-primary fw-bold">{{ lesson.class_subject.class_name.name }}</small>
+                                    {% elif lesson.class_subject.teacher %}
+                                        <small class="d-block text-muted text-truncate">{{ lesson.class_subject.teacher.user.last_name }}</small>
+                                    {% endif %}
                                 {% endif %}
                             {% endwith %}
                         </td>
@@ -163,6 +170,11 @@
                              {% with lesson=timetable|get_item:day|get_lesson_at:"10:20" %}
                                 {% if lesson %}
                                     <span class="subject-cell">{{ lesson.class_subject.subject.name|upper }}</span>
+                                    {% if is_teacher_schedule %}
+                                        <small class="d-block text-primary fw-bold">{{ lesson.class_subject.class_name.name }}</small>
+                                    {% elif lesson.class_subject.teacher %}
+                                        <small class="d-block text-muted text-truncate">{{ lesson.class_subject.teacher.user.last_name }}</small>
+                                    {% endif %}
                                 {% endif %}
                             {% endwith %}
                         </td>
@@ -172,6 +184,11 @@
                              {% with lesson=timetable|get_item:day|get_lesson_at:"11:30" %}
                                 {% if lesson %}
                                     <span class="subject-cell">{{ lesson.class_subject.subject.name|upper }}</span>
+                                    {% if is_teacher_schedule %}
+                                        <small class="d-block text-primary fw-bold">{{ lesson.class_subject.class_name.name }}</small>
+                                    {% elif lesson.class_subject.teacher %}
+                                        <small class="d-block text-muted text-truncate">{{ lesson.class_subject.teacher.user.last_name }}</small>
+                                    {% endif %}
                                 {% endif %}
                             {% endwith %}
                         </td>
@@ -185,6 +202,11 @@
                              {% with lesson=timetable|get_item:day|get_lesson_at:"13:00" %}
                                 {% if lesson %}
                                     <span class="subject-cell">{{ lesson.class_subject.subject.name|upper }}</span>
+                                    {% if is_teacher_schedule %}
+                                        <small class="d-block text-primary fw-bold">{{ lesson.class_subject.class_name.name }}</small>
+                                    {% elif lesson.class_subject.teacher %}
+                                        <small class="d-block text-muted text-truncate">{{ lesson.class_subject.teacher.user.last_name }}</small>
+                                    {% endif %}
                                 {% endif %}
                             {% endwith %}
                         </td>

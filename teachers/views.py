@@ -1,5 +1,6 @@
 from django import forms
 from django.shortcuts import render, redirect, get_object_or_404
+from django.db import models
 from django.db.models import Q
 from django.db.utils import OperationalError, ProgrammingError
 import django

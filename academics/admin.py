@@ -56,17 +56,16 @@ class TimetableAdmin(admin.ModelAdmin):
         """
         Override to handle missing announcements_notification table during preview.
         """
-        from django.db import ProgrammingError, connection, transaction
+        from django.db import ProgrammingError, connection
         
         try:
             return super().get_deleted_objects(objs, request)
         except ProgrammingError as e:
             if 'announcements_notification' in str(e):
-                # Transaction is now in aborted state in Postgres, we need to rollback
-                connection.connection.rollback()
+                # Clear the broken transaction flag so Django can continue
+                connection.needs_rollback = False
                 
                 # Return a simplified preview without checking cascade deletes
-                # Avoid calling __str__ which might trigger more queries
                 deleted_objects = [f"Timetable #{obj.id}" for obj in objs]
                 model_count = {self.model._meta.verbose_name_plural: len(objs)}
                 perms_needed = set()
@@ -87,6 +86,9 @@ class TimetableAdmin(admin.ModelAdmin):
             queryset.delete()
         except ProgrammingError as e:
             if 'announcements_notification' in str(e):
+                # Clear broken transaction state
+                connection.needs_rollback = False
+                
                 # Fallback: Raw SQL delete ignoring cascade to missing table
                 ids = list(queryset.values_list('id', flat=True))
                 if not ids:
@@ -106,14 +108,18 @@ class TimetableAdmin(admin.ModelAdmin):
         """
         Override single instance delete to handle missing announcements_notification table gracefully.
         """
-        from django.db import connection, ProgrammingError
+        from django.db import connection, ProgrammingError, transaction
         
         try:
             obj.delete()
         except ProgrammingError as e:
             if 'announcements_notification' in str(e):
-                # Fallback: Raw SQL delete
-                with connection.cursor() as cursor:
-                    cursor.execute("DELETE FROM academics_timetable WHERE id = %s", [obj.id])
+                # Clear broken transaction state
+                connection.needs_rollback = False
+                
+                # Fallback: Raw SQL delete within a new savepoint
+                with transaction.atomic():
+                    with connection.cursor() as cursor:
+                        cursor.execute("DELETE FROM academics_timetable WHERE id = %s", [obj.id])
             else:
                 raise e

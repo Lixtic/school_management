@@ -39,6 +39,8 @@ def setup_tenants():
             '127.0.0.1',
             'school-portal-jhominuy0-lixtics-projects.vercel.app', # User's current URL
             'school-portal-git-feature-multi-tenant-0e3ec0-lixtics-projects.vercel.app', # Branch URL
+            'portalsgh.vercel.app', # Custom Domain
+            'www.portalsgh.vercel.app',
         ]
         
         # Add VERCEL_URL if present

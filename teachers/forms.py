@@ -31,7 +31,7 @@ class TeacherQuickAddForm(forms.Form):
     age = forms.IntegerField(min_value=18, max_value=70, label="Age", widget=forms.NumberInput(attrs={'class': 'vIntegerField'}))
 
     def __init__(self, *args, **kwargs):
-        kwargs.pop('instance', None)
+        self.instance = kwargs.pop('instance', None)
         super().__init__(*args, **kwargs)
 
     def save_m2m(self):

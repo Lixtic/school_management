@@ -15,7 +15,7 @@ class StudentQuickAddForm(forms.Form):
     current_class = forms.ModelChoiceField(queryset=Class.objects.all(), label="Class", widget=forms.Select(attrs={'class': 'vForeignKeyRawIdAdminField'}))
 
     def __init__(self, *args, **kwargs):
-        kwargs.pop('instance', None)
+        self.instance = kwargs.pop('instance', None)
         super().__init__(*args, **kwargs)
 
     def save_m2m(self):

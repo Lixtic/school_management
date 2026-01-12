@@ -34,6 +34,7 @@ SHARED_APPS = [
     'django_tenants',
     'tenants',
     
+    # Shared administrative + auth apps (Needed for Public Schema Admin)
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -47,9 +48,25 @@ SHARED_APPS = [
     'cloudinary',
     'crispy_forms',
     'crispy_bootstrap5',
+    
+    # Local apps that need to exist in public schema (e.g. for superuser)
+    'accounts', 
 ]
 
 TENANT_APPS = [
+    # Django apps that need to be isolated per tenant
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'django.contrib.humanize',
+
+    # Third party apps in tenant context
+    'crispy_forms',
+    'crispy_bootstrap5',
+
     # Local apps that need to be isolated per tenant
     'accounts',
     'students',

@@ -15,6 +15,13 @@
     --text-muted: #4b5565;
 }
 
+[data-bs-theme="dark"] {
+    --primary-dark: #0f172a;
+    --surface-light: #1e293b;
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+}
+
 body {
     font-family: 'Manrope', sans-serif;
     background: var(--primary-dark);
@@ -56,6 +63,11 @@ body {
     display: flex;
     position: relative;
     z-index: 10;
+}
+
+[data-bs-theme="dark"] .login-container {
+    background: var(--surface-light);
+    border: 1px solid rgba(255,255,255,0.1);
 }
 
 .login-side {
@@ -162,12 +174,19 @@ body {
     border: 1px solid #e2e8f0;
     padding: 1rem 0.75rem;
     color: var(--text-main);
+    background-color: transparent;
+}
+
+[data-bs-theme="dark"] .form-floating .form-control {
+    border-color: rgba(255,255,255,0.2);
 }
 
 .form-floating .form-control:focus {
     border-color: var(--primary-teal);
     box-shadow: 0 0 0 4px rgba(2, 110, 86, 0.1);
     outline: none;
+    background-color: transparent;
+    color: var(--text-main);
 }
 
 .form-floating label {
@@ -317,7 +336,7 @@ body {
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow">
             <div class="modal-header border-bottom-0 pb-0">
-                <h5 class="modal-title fw-bold text-dark">Contact Administration</h5>
+                <h5 class="modal-title fw-bold">Contact Administration</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body pt-2 text-center pb-4">
@@ -345,7 +364,7 @@ body {
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow">
             <div class="modal-header border-bottom-0 pb-0">
-                <h5 class="modal-title fw-bold text-dark">Parent Portal Access</h5>
+                <h5 class="modal-title fw-bold">Parent Portal Access</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body pt-2 pb-4">

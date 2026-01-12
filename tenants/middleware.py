@@ -59,7 +59,7 @@ class TenantPathMiddleware(TenantMainMiddleware):
             # === PUBLIC CONTEXT ===
             # No tenant found in path -> Serve Public Site
             try:
-                public_schema = settings.PUBLIC_SCHEMA_NAME
+                public_schema = getattr(settings, 'PUBLIC_SCHEMA_NAME', 'public')
                 request.tenant = School.objects.get(schema_name=public_schema)
             except School.DoesNotExist:
                 # Fallback if DB is empty

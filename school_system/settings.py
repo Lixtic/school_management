@@ -81,6 +81,7 @@ INSTALLED_APPS = list(SHARED_APPS) + [app for app in TENANT_APPS if app not in S
 
 TENANT_MODEL = "tenants.School"
 TENANT_DOMAIN_MODEL = "tenants.Domain"
+PUBLIC_SCHEMA_NAME = "public"
 
 DATABASE_ROUTERS = (
     'django_tenants.routers.TenantSyncRouter',

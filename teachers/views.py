@@ -371,6 +371,53 @@ def search_students(request):
 
 
 @login_required
+def curriculum_library(request):
+    if request.user.user_type != 'teacher':
+        messages.error(request, 'Access denied')
+        return redirect('dashboard')
+
+    teacher = Teacher.objects.get(user=request.user)
+
+    resource_fields_available = False
+    try:
+        from django.db import connection
+        with connection.cursor() as cursor:
+            cols = [col.name for col in connection.introspection.get_table_description(cursor, Resource._meta.db_table)]
+        resource_fields_available = 'resource_type' in cols and 'curriculum' in cols
+    except Exception:
+        resource_fields_available = False
+
+    try:
+        qs = Resource.objects.filter(
+            Q(target_audience__in=['teachers', 'all']) | Q(class_subject__teacher=teacher)
+        ).order_by('-uploaded_at')
+        if resource_fields_available:
+            qs = qs.filter(resource_type='curriculum')
+        else:
+            qs = qs.filter(class_subject__isnull=True)
+            qs = qs.only('id', 'title', 'description', 'file', 'link', 'uploaded_at')
+        resources = list(qs)
+    except (OperationalError, ProgrammingError):
+        resources = []
+        resource_fields_available = False
+
+    curriculum_options = [('all', 'All Curricula')]
+    if resource_fields_available:
+        curriculum_options = [('all', 'All Curricula')] + list(Resource.CURRICULUM_CHOICES)
+
+    selected_curriculum = request.GET.get('curriculum', 'all')
+    if resource_fields_available and selected_curriculum != 'all':
+        resources = [r for r in resources if getattr(r, 'curriculum', None) == selected_curriculum]
+
+    return render(request, 'teachers/curriculum_library.html', {
+        'resources': resources,
+        'resource_fields_available': resource_fields_available,
+        'curriculum_options': curriculum_options,
+        'selected_curriculum': selected_curriculum,
+    })
+
+
+@login_required
 def class_resources(request, class_subject_id):
     if request.user.user_type != 'teacher':
         messages.error(request, 'Access denied')

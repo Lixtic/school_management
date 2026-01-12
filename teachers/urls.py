@@ -15,6 +15,7 @@ urlpatterns = [
     # Search
     path('search/', views.search_students, name='search_students'),
     # Resources
+    path('curriculum/library/', views.curriculum_library, name='curriculum_library'),
     path('resources/<int:class_subject_id>/', views.class_resources, name='class_resources'),
     path('resources/delete/<int:resource_id>/', views.delete_resource, name='delete_resource'),
     # Lesson Plans

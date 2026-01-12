@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% block title %}Curriculum Library{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">Curriculum Library</h2>
+        <p class="text-muted mb-0">Standard GES curriculum resources for all teachers.</p>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-sm-6 col-md-4">
+                <label class="form-label small text-muted mb-1">Curriculum</label>
+                <select name="curriculum" class="form-select" onchange="this.form.submit()" {% if not resource_fields_available %}disabled{% endif %}>
+                    {% for value,label in curriculum_options %}
+                        <option value="{{ value }}" {% if selected_curriculum == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+                {% if not resource_fields_available %}
+                    <small class="text-warning">Full tagging appears after latest migrations.</small>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="row">
+    {% for res in resources %}
+    <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card h-100 shadow-sm border-0">
+            <div class="card-body">
+                <div class="d-flex justify-content-between mb-3">
+                    <div class="bg-primary bg-opacity-10 p-3 rounded-circle text-primary">
+                        <i class="bi bi-journal-bookmark fs-4"></i>
+                    </div>
+                </div>
+                <h5 class="card-title fw-bold mb-2">{{ res.title }}</h5>
+                <p class="card-text text-muted small mb-3">{{ res.description|default:"No description provided."|truncatewords:24 }}</p>
+                {% if resource_fields_available %}
+                <div class="d-flex flex-wrap gap-2 mb-2">
+                    <span class="badge bg-primary bg-opacity-10 text-primary">Curriculum</span>
+                    <span class="badge bg-secondary bg-opacity-10 text-secondary">{{ res.get_curriculum_display }}</span>
+                </div>
+                {% endif %}
+                <div class="text-muted small">
+                    <i class="bi bi-clock me-1"></i> {{ res.uploaded_at|date:"M d, Y" }}
+                </div>
+            </div>
+            <div class="card-footer bg-transparent border-top-0 pt-0 pb-3">
+                {% if res.file %}
+                    <a href="{{ res.file.url }}" target="_blank" class="btn btn-outline-primary w-100">
+                        Open PDF
+                    </a>
+                {% elif res.link %}
+                    <a href="{{ res.link }}" target="_blank" class="btn btn-outline-primary w-100">
+                        Open Link
+                    </a>
+                {% else %}
+                    <button class="btn btn-outline-secondary w-100" type="button" disabled>No attachment</button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12 text-center py-5">
+        <div class="mb-3 text-muted">
+            <i class="bi bi-folder2-open fs-1"></i>
+        </div>
+        <h4>No curriculum resources yet</h4>
+        <p class="text-muted">Run the populate_curriculum command to load the GES curriculum pack.</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

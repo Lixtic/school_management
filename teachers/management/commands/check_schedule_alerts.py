@@ -24,6 +24,9 @@ class Command(BaseCommand):
             if not teacher or not teacher.email:
                 continue
 
+            # Teacher-specific notification window (defaults to 45 if not set)
+            notify_ahead = getattr(teacher, 'notification_ahead_minutes', 45) or 45
+
             # Calculate start datetime for this slot today
             start_dt = datetime.combine(current_date, slot.start_time)
             
@@ -36,13 +39,12 @@ class Command(BaseCommand):
             diff = start_dt - now
             minutes_diff = diff.total_seconds() / 60
 
-            # Logic for 45 minute warning (allow window of 40-50 mins)
-            # This assumes the script runs at least every 10 minutes
-            if 40 <= minutes_diff <= 50:
-                self.send_notification(teacher, slot, '45_min', 
-                    f"Reminder: You have {slot.class_subject.subject.name} with {slot.class_subject.class_name.name} in 45 minutes ({slot.start_time.strftime('%H:%M')}).")
+            # Primary alert at custom lead time (window +/-5 minutes)
+            if (notify_ahead - 5) <= minutes_diff <= (notify_ahead + 5):
+                self.send_notification(teacher, slot, f"{notify_ahead}_min", 
+                    f"Reminder: You have {slot.class_subject.subject.name} with {slot.class_subject.class_name.name} in {notify_ahead} minutes ({slot.start_time.strftime('%H:%M')}).")
             
-            # Logic for 10 minute warning (allow window of 5-15 mins)
+            # Secondary 10-minute heads-up stays fixed
             elif 5 <= minutes_diff <= 15:
                 self.send_notification(teacher, slot, '10_min', 
                     f"Hurry up! Your class {slot.class_subject.subject.name} with {slot.class_subject.class_name.name} starts in 10 minutes ({slot.start_time.strftime('%H:%M')}).")

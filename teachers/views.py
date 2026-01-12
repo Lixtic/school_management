@@ -11,7 +11,7 @@ from teachers.models import Teacher, DutyWeek, LessonPlan
 from academics.models import ClassSubject, AcademicYear, Timetable, SchoolInfo, Resource
 from students.models import Student, Grade, ClassExercise, StudentExerciseScore
 from students.utils import normalize_term
-from .forms import ResourceForm, LessonPlanForm
+from .forms import ResourceForm, LessonPlanForm, NotificationPreferenceForm
 
 @login_required
 def teacher_classes(request):
@@ -171,6 +171,27 @@ def teacher_schedule(request):
         })
             
     return render(request, 'teachers/schedule.html', {'days': days_data})
+
+
+@login_required
+def notification_settings(request):
+    if request.user.user_type != 'teacher':
+        messages.error(request, 'Access denied')
+        return redirect('dashboard')
+
+    teacher = get_object_or_404(Teacher, user=request.user)
+    if request.method == 'POST':
+        form = NotificationPreferenceForm(request.POST, instance=teacher)
+        if form.is_valid():
+            pref = form.save()
+            messages.success(request, f"You'll now get alerts {pref.notification_ahead_minutes} minutes before lessons.")
+            return redirect('teachers:notification_settings')
+    else:
+        form = NotificationPreferenceForm(instance=teacher)
+
+    return render(request, 'teachers/notification_settings.html', {
+        'form': form,
+    })
 
 @login_required
 def print_duty_roster(request):

@@ -244,7 +244,7 @@ body {
                      {% if school_logo %}
                         <img src="{{ school_logo.url }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 10px;">
                      {% else %}
-                        GM
+                        {{ school_name|slice:":2"|upper }}
                      {% endif %}
                 </div>
                 <div class="fw-bold fs-5 text-dark">{{ school_name }}</div>
@@ -343,10 +343,10 @@ body {
                      {% if school_logo %}
                         <img src="{{ school_logo.url }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 16px;">
                      {% else %}
-                        GM
+                        {{ school_name|slice:":2"|upper }}
                      {% endif %}
                 </div>
-                <h2 class="showcase-title">{% if school_motto %}{{ school_motto }}{% else %}Empowering Young Minds to Lead & Excel.{% endif %}</h2>
+                <h2 class="showcase-title">{% if school_motto %}{{ school_motto }}{% else %}Manage your school with ease and efficiency.{% endif %}</h2>
                 <p class="showcase-text">Access your personalized portal to track attendance, grades, and upcoming school activities in real-time.</p>
                 
                 <div class="feature-pill">
@@ -357,7 +357,7 @@ body {
             <div class="d-flex gap-3 align-items-center opacity-75">
                 <small>&copy; {{ school_name }}</small>
                 <small class="mx-2">•</small>
-                <small>{% if school_motto %}{{ school_motto }}{% else %}Excellence & Integrity{% endif %}</small>
+                <small>{% if school_motto %}{{ school_motto }}{% else %}Education Management System{% endif %}</small>
             </div>
         </div>
     </div>

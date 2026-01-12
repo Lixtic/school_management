@@ -1,3 +1,4 @@
+from django import forms
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Q
 from django.db.utils import OperationalError, ProgrammingError
@@ -377,6 +378,9 @@ def class_resources(request, class_subject_id):
     
     teacher = Teacher.objects.get(user=request.user)
     class_subject = get_object_or_404(ClassSubject, id=class_subject_id, teacher=teacher)
+
+    resource_type_filter = request.GET.get('type', 'all')
+    curriculum_filter = request.GET.get('curriculum', 'all')
     
     if request.method == 'POST':
         form = ResourceForm(request.POST, request.FILES)
@@ -388,14 +392,31 @@ def class_resources(request, class_subject_id):
             messages.success(request, 'Resource uploaded successfully.')
             return redirect('teachers:class_resources', class_subject_id=class_subject.id)
     else:
-        form = ResourceForm()
-        
+        form = ResourceForm(initial={
+            'class_subject': class_subject.id,
+            'resource_type': 'teaching',
+            'curriculum': 'ges_jhs_new',
+        })
+
+    if 'class_subject' in form.fields:
+        form.fields['class_subject'].widget = forms.HiddenInput()
+        form.fields['class_subject'].initial = class_subject.id
+
     resources = Resource.objects.filter(class_subject=class_subject).order_by('-uploaded_at')
+    if resource_type_filter in ['curriculum', 'teaching']:
+        resources = resources.filter(resource_type=resource_type_filter)
+    if curriculum_filter != 'all':
+        resources = resources.filter(curriculum=curriculum_filter)
+
+    curriculum_options = [('all', 'All Curricula')] + list(Resource.CURRICULUM_CHOICES)
     
     return render(request, 'teachers/class_resources.html', {
         'class_subject': class_subject,
         'resources': resources,
         'form': form,
+        'resource_type_filter': resource_type_filter,
+        'curriculum_filter': curriculum_filter,
+        'curriculum_options': curriculum_options,
     })
 
 @login_required

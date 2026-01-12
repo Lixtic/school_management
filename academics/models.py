@@ -137,9 +137,24 @@ class GalleryImage(models.Model):
         ordering = ['-created_at']
 
 class Resource(models.Model):
+    RESOURCE_TYPE_CHOICES = [
+        ('curriculum', 'Curriculum'),
+        ('teaching', 'Teaching Resource'),
+    ]
+
+    CURRICULUM_CHOICES = [
+        ('ges_jhs_new', 'GES New Curriculum (JHS)'),
+        ('ges_basic', 'GES Basic School'),
+        ('waec_legacy', 'WAEC/Legacy'),
+        ('cambridge_lower', 'Cambridge Lower Secondary'),
+        ('other', 'Other/General'),
+    ]
+
     class_subject = models.ForeignKey(ClassSubject, on_delete=models.CASCADE, related_name='resources', null=True, blank=True)
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True)
+    resource_type = models.CharField(max_length=20, choices=RESOURCE_TYPE_CHOICES, default='teaching')
+    curriculum = models.CharField(max_length=50, choices=CURRICULUM_CHOICES, default='ges_jhs_new')
     file = models.FileField(upload_to='class_resources/', blank=True, null=True)
     link = models.URLField(blank=True, null=True, max_length=500)
     uploaded_by = models.ForeignKey('accounts.User', on_delete=models.SET_NULL, null=True, blank=True)

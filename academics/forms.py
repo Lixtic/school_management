@@ -4,12 +4,14 @@ from .models import SchoolInfo, GalleryImage, Resource
 class ResourceForm(forms.ModelForm):
     class Meta:
         model = Resource
-        fields = ['title', 'description', 'file', 'link', 'target_audience', 'class_subject']
+        fields = ['title', 'description', 'file', 'link', 'resource_type', 'curriculum', 'target_audience', 'class_subject']
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'file': forms.FileInput(attrs={'class': 'form-control'}),
             'link': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'https://...'}),
+            'resource_type': forms.Select(attrs={'class': 'form-select'}),
+            'curriculum': forms.Select(attrs={'class': 'form-select'}),
             'target_audience': forms.Select(attrs={'class': 'form-select'}),
             'class_subject': forms.Select(attrs={'class': 'form-select'}),
         }
@@ -18,6 +20,7 @@ class ResourceForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['class_subject'].required = False
         self.fields['class_subject'].help_text = "Optional: Leave blank for general resources"
+        self.fields['curriculum'].initial = 'ges_jhs_new'
 
 class GalleryImageForm(forms.ModelForm):
     class Meta:

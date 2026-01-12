@@ -48,6 +48,7 @@
                     <ul class="mid-text small text-muted ps-3 mb-0">
                         <li>Uploaded without a Class Subject makes it available based on Target Audience (All, Teachers Only, etc).</li>
                         <li>You can provide a File OR a Link (or both).</li>
+                        <li>Tag uploads as Curriculum or Teaching Resource and pick the curriculum (default: GES New Curriculum for JHS).</li>
                         <li>Students will see these in their dashboard under "Resources".</li>
                     </ul>
                 </div>
@@ -66,6 +67,7 @@
                             <thead class="bg-light">
                                 <tr>
                                     <th class="ps-4">Title</th>
+                                    <th>Category</th>
                                     <th>Type</th>
                                     <th>Target/Class</th>
                                     <th>Uploaded By</th>
@@ -81,6 +83,12 @@
                                         {% if res.description %}
                                             <div class="text-muted small text-truncate" style="max-width: 200px;">{{ res.description }}</div>
                                         {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="d-flex flex-column gap-1">
+                                            <span class="badge bg-primary bg-opacity-10 text-primary">{{ res.get_resource_type_display }}</span>
+                                            <span class="badge bg-secondary bg-opacity-10 text-secondary">{{ res.get_curriculum_display }}</span>
+                                        </div>
                                     </td>
                                     <td>
                                         {% if res.file %}

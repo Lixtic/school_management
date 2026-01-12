@@ -4,10 +4,19 @@ from academics.models import Resource
 class ResourceForm(forms.ModelForm):
     class Meta:
         model = Resource
-        fields = ['title', 'description', 'file']
+        fields = ['title', 'description', 'file', 'link', 'resource_type', 'curriculum']
         widgets = {
-            'description': forms.Textarea(attrs={'rows': 3}),
+            'title': forms.TextInput(attrs={'class': 'form-control'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'file': forms.FileInput(attrs={'class': 'form-control'}),
+            'link': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'https://...'}),
+            'resource_type': forms.Select(attrs={'class': 'form-select'}),
+            'curriculum': forms.Select(attrs={'class': 'form-select'}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['curriculum'].initial = 'ges_jhs_new'
 
 from .models import LessonPlan
 from academics.models import Subject, Class

@@ -308,7 +308,15 @@
                             </div>
                             <div class="flex-grow-1">
                                 <h6 class="mb-0 fw-bold">{{ resource.title }}</h6>
-                                <small class="text-muted">{{ resource.class_subject.subject.name }} - {{ resource.class_subject.class_name.name }}</small>
+                                {% if resource.class_subject %}
+                                    <small class="text-muted">{{ resource.class_subject.subject.name }} - {{ resource.class_subject.class_name.name }}</small>
+                                {% else %}
+                                    <small class="text-muted">Shared • {{ resource.get_resource_type_display }}</small>
+                                {% endif %}
+                                <div class="mt-1">
+                                    <span class="badge bg-primary bg-opacity-10 text-primary">{{ resource.get_resource_type_display }}</span>
+                                    <span class="badge bg-secondary bg-opacity-10 text-secondary">{{ resource.get_curriculum_display }}</span>
+                                </div>
                             </div>
                             {% if resource.file %}
                             <a href="{{ resource.file.url }}" target="_blank" class="btn btn-sm btn-light rounded-pill" title="Download">
@@ -406,8 +414,8 @@
                         <div class="action-icon bg-info bg-opacity-10 text-info">
                             <i class="bi bi-folder2-open"></i>
                         </div>
-                        <div class="fw-bold">Resources</div>
-                        <div class="small text-muted mt-1">Teaching materials</div>
+                        <div class="fw-bold">Browse Resources</div>
+                        <div class="small text-muted mt-1">Curriculum & teaching packs</div>
                     </a>
                 </div>
                 

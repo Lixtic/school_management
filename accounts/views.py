@@ -143,7 +143,11 @@ def dashboard(request):
 
         return render(request, 'dashboard/admin_dashboard.html', context)
     elif user.user_type == 'teacher':
-        teacher_profile = Teacher.objects.filter(user=user).first()
+        # Safely fetch teacher profile in case new columns aren't migrated yet
+        try:
+            teacher_profile = Teacher.objects.filter(user=user).first()
+        except ProgrammingError:
+            teacher_profile = Teacher.objects.only('id', 'user').filter(user=user).first()
         current_year = AcademicYear.objects.filter(is_current=True).first()
         if not current_year:
             # Fallback to the latest academic year if none is marked current

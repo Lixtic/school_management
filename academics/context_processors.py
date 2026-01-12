@@ -15,8 +15,10 @@ def school_info(request):
         # Return defaults if no DB entry yet
         return {
             'school_name': tenant_name,
-            'school_address': "Address Not Set",
-            'school_motto': "Knowledge is Power",
+            'school_address': None,
+            'school_motto': None,
+            'school_email': None,
+            'school_phone': None,
         }
         
     return {

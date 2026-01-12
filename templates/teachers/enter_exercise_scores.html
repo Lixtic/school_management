@@ -17,6 +17,51 @@
         border-color: #86b7fe;
         box-shadow: 0 0 0 .25rem rgba(13, 110, 253, .25);
     }
+    
+    /* DARK MODE FIXES */
+    [data-bs-theme="dark"] .sticky-header th {
+        background-color: #2c3344;
+        color: #e2e8f0;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    [data-bs-theme="dark"] .table {
+        color: var(--text-main);
+    }
+    [data-bs-theme="dark"] .table-hover tbody tr:hover,
+    [data-bs-theme="dark"] tbody tr.active-row {
+        background-color: rgba(255,255,255,0.05) !important;
+        color: #fff;
+    }
+    [data-bs-theme="dark"] .bg-light {
+        background-color: #0f172a !important; /* Slightly darker than card */
+        border-color: rgba(255,255,255,0.1) !important;
+    }
+    [data-bs-theme="dark"] .alert-primary {
+        background-color: rgba(13, 110, 253, 0.2);
+        border-color: rgba(13, 110, 253, 0.3);
+        color: #6ea8fe;
+    }
+    [data-bs-theme="dark"] .form-control {
+        background-color: var(--surface-white);
+        border-color: rgba(255,255,255,0.1);
+        color: var(--text-main);
+    }
+    [data-bs-theme="dark"] .form-control:focus {
+        background-color: rgba(255,255,255,0.1);
+        color: #fff;
+    }
+    [data-bs-theme="dark"] .card-footer.bg-white {
+        background-color: var(--surface-white) !important;
+        border-top-color: rgba(255,255,255,0.1) !important;
+    }
+    [data-bs-theme="dark"] .text-muted {
+        color: #94a3b8 !important;
+    }
+    [data-bs-theme="dark"] .btn-light {
+        background-color: rgba(255,255,255,0.1);
+        color: #fff;
+        border: 1px solid rgba(255,255,255,0.1);
+    }
 </style>
 
 <div class="d-flex justify-content-between align-items-center mb-4">

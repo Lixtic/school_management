@@ -22,8 +22,15 @@ try:
     from django.db import connection, OperationalError, ProgrammingError
     from django.core.management import call_command
     
-    # Simple check query
-    cursor = connection.cursor()
+    # Run setup tenants ALMOST always on this branch to ensure domain is added
+    # In a real heavy traffic prod, we wouldn't do this every request, but for this stage it's safe-ish.
+    # Actually, let's keep the table check, but ALSO run setup_tenants if table exists, just to ensure domains.
+    try:
+        from scripts.setup_tenants import setup_tenants
+        setup_tenants()
+    except Exception as e:
+        print(f">>> WSGI SETUP TENANTS ERROR: {e}")
+
     try:
         cursor.execute("SELECT 1 FROM tenants_school LIMIT 1;")
         cursor.close()
@@ -40,9 +47,8 @@ try:
             call_command('migrate_schemas', shared=True, interactive=False)
             print(">>> WSGI: Migration successful.")
             
-            # Run Tenant Setup
-            print(">>> WSGI: Running setup_tenants...")
-            from scripts.setup_tenants import setup_tenants
+            # Run Tenant Setup (Redundant call but ensures strictly after migration if migration logic runs)
+            # from scripts.setup_tenants import setup_tenants
             setup_tenants()
             print(">>> WSGI: Setup complete.")
         except Exception as e:

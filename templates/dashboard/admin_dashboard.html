@@ -68,7 +68,46 @@
         <h2 class="fw-bold mb-1">Dashboard</h2>
         <p class="text-muted mb-0">Welcome back, {{ user.first_name }}! Here's what's happening today.</p>
     </div>
-    <div class="d-none d-md-block">
+    <div class="d-none d-md-block d-flex gap-2">
+        <div class="dropdown d-inline-block">
+            <button class="btn btn-outline-secondary rounded-pill px-3" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-layout-wtf me-2"></i>Customize
+            </button>
+            <ul class="dropdown-menu p-3 shadow-lg border-0" style="width: 250px;" onclick="event.stopPropagation()">
+                <li><h6 class="dropdown-header text-uppercase small fw-bold">Visible Widgets</h6></li>
+                <li><hr class="dropdown-divider"></li>
+                <li class="form-check form-switch mb-2">
+                    <input class="form-check-input widget-toggle" type="checkbox" role="switch" id="toggle-stat-students" data-target="widget-stat-students" checked>
+                    <label class="form-check-label" for="toggle-stat-students">Student Stats</label>
+                </li>
+                <li class="form-check form-switch mb-2">
+                    <input class="form-check-input widget-toggle" type="checkbox" role="switch" id="toggle-stat-teachers" data-target="widget-stat-teachers" checked>
+                    <label class="form-check-label" for="toggle-stat-teachers">Teacher Stats</label>
+                </li>
+                <li class="form-check form-switch mb-2">
+                    <input class="form-check-input widget-toggle" type="checkbox" role="switch" id="toggle-stat-notices" data-target="widget-stat-notices" checked>
+                    <label class="form-check-label" for="toggle-stat-notices">Notice Stats</label>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li class="form-check form-switch mb-2">
+                    <input class="form-check-input widget-toggle" type="checkbox" role="switch" id="toggle-quick-actions" data-target="widget-quick-actions" checked>
+                    <label class="form-check-label" for="toggle-quick-actions">Quick Actions</label>
+                </li>
+                <li class="form-check form-switch mb-2">
+                    <input class="form-check-input widget-toggle" type="checkbox" role="switch" id="toggle-announcements" data-target="widget-announcements" checked>
+                    <label class="form-check-label" for="toggle-announcements">Announcements</label>
+                </li>
+                 <li><hr class="dropdown-divider"></li>
+                <li class="form-check form-switch mb-2">
+                    <input class="form-check-input widget-toggle" type="checkbox" role="switch" id="toggle-chart-attendance" data-target="widget-chart-attendance" checked>
+                    <label class="form-check-label" for="toggle-chart-attendance">Attendance Trend</label>
+                </li>
+                <li class="form-check form-switch mb-2">
+                    <input class="form-check-input widget-toggle" type="checkbox" role="switch" id="toggle-chart-classes" data-target="widget-chart-classes" checked>
+                    <label class="form-check-label" for="toggle-chart-classes">Class Distribution</label>
+                </li>
+            </ul>
+        </div>
         <button class="btn btn-primary rounded-pill px-4" onclick="window.print()">
             <i class="bi bi-printer me-2"></i>Print Report
         </button>
@@ -78,7 +117,7 @@
 <!-- Key Metrics -->
 <div class="row g-4 mb-5">
     <!-- Students -->
-    <div class="col-md-4">
+    <div class="col-md-4" id="widget-stat-students">
         <div class="stat-card bg-gradient-primary p-4 h-100">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
@@ -95,7 +134,7 @@
         </div>
     </div>
     <!-- Teachers -->
-    <div class="col-md-4">
+    <div class="col-md-4" id="widget-stat-teachers">
         <div class="stat-card bg-gradient-success p-4 h-100">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
@@ -112,7 +151,7 @@
         </div>
     </div>
     <!-- Notices/Alerts -->
-    <div class="col-md-4">
+    <div class="col-md-4" id="widget-stat-notices">
         <div class="stat-card bg-gradient-info p-4 h-100">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
@@ -134,92 +173,96 @@
     <!-- Main Column -->
     <div class="col-lg-8">
         <!-- Quick Actions -->
-        <h5 class="fw-bold mb-3">Quick Actions</h5>
-        <div class="row g-3 mb-5">
-            <div class="col-6 col-sm-4 col-md-3">
-                <a href="{% url 'accounts:manage_users' %}" class="action-card text-center p-3">
-                    <i class="bi bi-people text-primary"></i>
-                    <span class="fw-bold small">Users</span>
-                </a>
-            </div>
-            <div class="col-6 col-sm-4 col-md-3">
-                <a href="{% url 'finance:dashboard' %}" class="action-card text-center p-3">
-                    <i class="bi bi-wallet2 text-success"></i>
-                    <span class="fw-bold small">Finance</span>
-                </a>
-            </div>
-            <div class="col-6 col-sm-4 col-md-3">
-                <a href="{% url 'academics:timetable' %}" class="action-card text-center p-3">
-                    <i class="bi bi-calendar-week text-info"></i>
-                    <span class="fw-bold small">Timetable</span>
-                </a>
-            </div>
-            <div class="col-6 col-sm-4 col-md-3">
-                <a href="{% url 'teachers:duty_roster' %}" class="action-card text-center p-3">
-                    <i class="bi bi-clipboard-check text-danger"></i>
-                    <span class="fw-bold small">Duty Roster</span>
-                </a>
-            </div>
-            <div class="col-6 col-sm-4 col-md-3">
-                <a href="{% url 'announcements:manage' %}" class="action-card text-center p-3">
-                    <i class="bi bi-megaphone text-warning"></i>
-                    <span class="fw-bold small">Notices</span>
-                </a>
-            </div>
-            <div class="col-6 col-sm-4 col-md-3">
-                <a href="{% url 'academics:gallery' %}" class="action-card text-center p-3">
-                    <i class="bi bi-images text-secondary"></i>
-                    <span class="fw-bold small">Gallery</span>
-                </a>
-            </div>
-             <div class="col-6 col-sm-4 col-md-3">
-                <a href="{% url 'academics:manage_resources' %}" class="action-card text-center p-3">
-                    <i class="bi bi-folder-plus text-primary"></i>
-                    <span class="fw-bold small">Resources</span>
-                </a>
-            </div>
-            <div class="col-6 col-sm-4 col-md-3">
-                <a href="{% url 'academics:school_settings' %}" class="action-card text-center p-3">
-                    <i class="bi bi-gear text-secondary"></i>
-                    <span class="fw-bold small">Settings</span>
-                </a>
-            </div>
-            <div class="col-6 col-sm-4 col-md-3">
-                <a href="/admin/" class="action-card text-center p-3 bg-light">
-                    <i class="bi bi-shield-lock text-dark"></i>
-                    <span class="fw-bold small">Django Admin</span>
-                </a>
+        <div id="widget-quick-actions">
+            <h5 class="fw-bold mb-3">Quick Actions</h5>
+            <div class="row g-3 mb-5">
+                <div class="col-6 col-sm-4 col-md-3">
+                    <a href="{% url 'accounts:manage_users' %}" class="action-card text-center p-3">
+                        <i class="bi bi-people text-primary"></i>
+                        <span class="fw-bold small">Users</span>
+                    </a>
+                </div>
+                <div class="col-6 col-sm-4 col-md-3">
+                    <a href="{% url 'finance:dashboard' %}" class="action-card text-center p-3">
+                        <i class="bi bi-wallet2 text-success"></i>
+                        <span class="fw-bold small">Finance</span>
+                    </a>
+                </div>
+                <div class="col-6 col-sm-4 col-md-3">
+                    <a href="{% url 'academics:timetable' %}" class="action-card text-center p-3">
+                        <i class="bi bi-calendar-week text-info"></i>
+                        <span class="fw-bold small">Timetable</span>
+                    </a>
+                </div>
+                <div class="col-6 col-sm-4 col-md-3">
+                    <a href="{% url 'teachers:duty_roster' %}" class="action-card text-center p-3">
+                        <i class="bi bi-clipboard-check text-danger"></i>
+                        <span class="fw-bold small">Duty Roster</span>
+                    </a>
+                </div>
+                <div class="col-6 col-sm-4 col-md-3">
+                    <a href="{% url 'announcements:manage' %}" class="action-card text-center p-3">
+                        <i class="bi bi-megaphone text-warning"></i>
+                        <span class="fw-bold small">Notices</span>
+                    </a>
+                </div>
+                <div class="col-6 col-sm-4 col-md-3">
+                    <a href="{% url 'academics:gallery' %}" class="action-card text-center p-3">
+                        <i class="bi bi-images text-secondary"></i>
+                        <span class="fw-bold small">Gallery</span>
+                    </a>
+                </div>
+                <div class="col-6 col-sm-4 col-md-3">
+                    <a href="{% url 'academics:manage_resources' %}" class="action-card text-center p-3">
+                        <i class="bi bi-folder-plus text-primary"></i>
+                        <span class="fw-bold small">Resources</span>
+                    </a>
+                </div>
+                <div class="col-6 col-sm-4 col-md-3">
+                    <a href="{% url 'academics:school_settings' %}" class="action-card text-center p-3">
+                        <i class="bi bi-gear text-secondary"></i>
+                        <span class="fw-bold small">Settings</span>
+                    </a>
+                </div>
+                <div class="col-6 col-sm-4 col-md-3">
+                    <a href="/admin/" class="action-card text-center p-3 bg-light">
+                        <i class="bi bi-shield-lock text-dark"></i>
+                        <span class="fw-bold small">Django Admin</span>
+                    </a>
+                </div>
             </div>
         </div>
 
         <!-- Recent Announcements -->
-        <h5 class="fw-bold mb-3 d-flex justify-content-between align-items-center">
-            Recent Announcements
-            <a href="{% url 'announcements:manage' %}" class="btn btn-link btn-sm text-decoration-none">View All</a>
-        </h5>
-        <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
-            <div class="list-group list-group-flush">
-                {% for notice in notices %}
-                <div class="list-group-item p-3 border-0 border-bottom">
-                    <div class="d-flex align-items-start gap-3">
-                        <div class="bg-primary bg-opacity-10 text-primary rounded-3 p-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-                            <i class="bi bi-info-circle-fill"></i>
-                        </div>
-                        <div class="flex-grow-1">
-                            <div class="d-flex justify-content-between align-items-center mb-1">
-                                <h6 class="mb-0 fw-bold text-dark">{{ notice.title }}</h6>
-                                <small class="text-muted" style="font-size: 0.75rem;">{{ notice.created_at|date:"M d, H:i" }}</small>
+        <div id="widget-announcements">
+            <h5 class="fw-bold mb-3 d-flex justify-content-between align-items-center">
+                Recent Announcements
+                <a href="{% url 'announcements:manage' %}" class="btn btn-link btn-sm text-decoration-none">View All</a>
+            </h5>
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                <div class="list-group list-group-flush">
+                    {% for notice in notices %}
+                    <div class="list-group-item p-3 border-0 border-bottom">
+                        <div class="d-flex align-items-start gap-3">
+                            <div class="bg-primary bg-opacity-10 text-primary rounded-3 p-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                <i class="bi bi-info-circle-fill"></i>
                             </div>
-                            <p class="text-muted small mb-0">{{ notice.content|truncatechars:120 }}</p>
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <h6 class="mb-0 fw-bold text-dark">{{ notice.title }}</h6>
+                                    <small class="text-muted" style="font-size: 0.75rem;">{{ notice.created_at|date:"M d, H:i" }}</small>
+                                </div>
+                                <p class="text-muted small mb-0">{{ notice.content|truncatechars:120 }}</p>
+                            </div>
                         </div>
                     </div>
+                    {% empty %}
+                    <div class="p-4 text-center text-muted">
+                        <i class="bi bi-inbox fs-3 d-block mb-2"></i>
+                        No active announcements found.
+                    </div>
+                    {% endfor %}
                 </div>
-                {% empty %}
-                <div class="p-4 text-center text-muted">
-                    <i class="bi bi-inbox fs-3 d-block mb-2"></i>
-                    No active announcements found.
-                </div>
-                {% endfor %}
             </div>
         </div>
     </div>
@@ -227,7 +270,7 @@
     <!-- Right Column: Charts -->
     <div class="col-lg-4">
         <!-- Attendance Chart -->
-        <div class="mb-4">
+        <div class="mb-4" id="widget-chart-attendance">
             <h5 class="fw-bold mb-3">Attendance Trend</h5>
             <div class="chart-container">
                 <canvas id="attendanceChart" height="220"></canvas>
@@ -235,7 +278,7 @@
         </div>
 
         <!-- Class Distribution -->
-        <div class="mb-4">
+        <div class="mb-4" id="widget-chart-classes">
             <h5 class="fw-bold mb-3">Class Distribution</h5>
             <div class="chart-container">
                 <canvas id="classChart" height="220"></canvas>
@@ -247,6 +290,37 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Widget Visibility Logic
+        const STORAGE_KEY = 'dashboard_widgets_admin_{{ user.id }}';
+        const toggles = document.querySelectorAll('.widget-toggle');
+        
+        // Load saved preferences
+        let preferences = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+        
+        toggles.forEach(toggle => {
+            const targetId = toggle.dataset.target;
+            const targetEl = document.getElementById(targetId);
+            
+            // Apply initial state
+            if (preferences[targetId] === false) {
+                toggle.checked = false;
+                if (targetEl) targetEl.style.display = 'none';
+            }
+            
+            // Add listener
+            toggle.addEventListener('change', (e) => {
+                const isVisible = e.target.checked;
+                if (targetEl) {
+                    targetEl.style.display = isVisible ? '' : 'none'; // 'none' to hide which works even with flex/grid classes usually (might break layout if col is hidden, handled by col-md-4 wrapping)
+                }
+                
+                // Save state
+                preferences[targetId] = isVisible;
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(preferences));
+            });
+        });
+
+
         // Attendance Chart
         const ctxAtt = document.getElementById('attendanceChart').getContext('2d');
         

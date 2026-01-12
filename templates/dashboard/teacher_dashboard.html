@@ -95,7 +95,46 @@
         <h2 class="fw-bold mb-1">Teacher Dashboard</h2>
         <p class="text-muted mb-0">Welcome back, {{ user.get_full_name }}! Manage your classes and students.</p>
     </div>
-    <div class="d-none d-md-block">
+    <div class="d-none d-md-block d-flex gap-2 align-items-center">
+        <div class="dropdown d-inline-block">
+            <button class="btn btn-outline-secondary rounded-pill px-3" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-layout-wtf me-2"></i>Customize
+            </button>
+            <ul class="dropdown-menu p-3 shadow-lg border-0" style="width: 250px;" onclick="event.stopPropagation()">
+                <li><h6 class="dropdown-header text-uppercase small fw-bold">Visible Widgets</h6></li>
+                <li><hr class="dropdown-divider"></li>
+                <li class="form-check form-switch mb-2">
+                    <input class="form-check-input widget-toggle" type="checkbox" role="switch" id="toggle-stat-classes" data-target="widget-stat-classes" checked>
+                    <label class="form-check-label" for="toggle-stat-classes">Class Count</label>
+                </li>
+                <li class="form-check form-switch mb-2">
+                    <input class="form-check-input widget-toggle" type="checkbox" role="switch" id="toggle-stat-students" data-target="widget-stat-students" checked>
+                    <label class="form-check-label" for="toggle-stat-students">Total Students</label>
+                </li>
+                <li class="form-check form-switch mb-2">
+                    <input class="form-check-input widget-toggle" type="checkbox" role="switch" id="toggle-stat-today" data-target="widget-stat-today" checked>
+                    <label class="form-check-label" for="toggle-stat-today">Remaining Classes</label>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li class="form-check form-switch mb-2">
+                    <input class="form-check-input widget-toggle" type="checkbox" role="switch" id="toggle-schedule" data-target="widget-schedule" checked>
+                    <label class="form-check-label" for="toggle-schedule">Today's Schedule</label>
+                </li>
+                <li class="form-check form-switch mb-2">
+                    <input class="form-check-input widget-toggle" type="checkbox" role="switch" id="toggle-recent-uploads" data-target="widget-recent-uploads" checked>
+                    <label class="form-check-label" for="toggle-recent-uploads">Recent Uploads</label>
+                </li>
+                 <li class="form-check form-switch mb-2">
+                    <input class="form-check-input widget-toggle" type="checkbox" role="switch" id="toggle-school-board" data-target="widget-school-board" checked>
+                    <label class="form-check-label" for="toggle-school-board">School Board</label>
+                </li>
+                 <li><hr class="dropdown-divider"></li>
+                <li class="form-check form-switch mb-2">
+                    <input class="form-check-input widget-toggle" type="checkbox" role="switch" id="toggle-teaching-tools" data-target="widget-teaching-tools" checked>
+                    <label class="form-check-label" for="toggle-teaching-tools">Teaching Tools</label>
+                </li>
+            </ul>
+        </div>
         <span class="badge bg-light text-dark border px-3 py-2 rounded-pill">
             <i class="bi bi-clock me-1"></i> {% now "l, F j, Y" %}
         </span>
@@ -128,7 +167,7 @@
 
 <div class="row g-4 mb-4">
     <!-- Stats Cards -->
-    <div class="col-md-4">
+    <div class="col-md-4" id="widget-stat-classes">
         <div class="stat-card bg-gradient-primary p-4 h-100 slide-in delay-1">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
@@ -144,7 +183,7 @@
             </div>
         </div>
     </div>
-    <div class="col-md-4">
+    <div class="col-md-4" id="widget-stat-students">
         <div class="stat-card bg-gradient-success p-4 h-100 slide-in delay-2">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
@@ -160,7 +199,7 @@
             </div>
         </div>
     </div>
-    <div class="col-md-4">
+    <div class="col-md-4" id="widget-stat-today">
         <div class="stat-card bg-gradient-info p-4 h-100 slide-in delay-3">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
@@ -183,7 +222,7 @@
     <div class="col-lg-8">
         
         <!-- Today's Schedule -->
-        <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden">
+        <div id="widget-schedule" class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden">
             <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
                 <h5 class="fw-bold mb-0 text-primary"><i class="bi bi-clock-history me-2"></i>Today's Schedule</h5>
                 <a href="{% url 'academics:timetable' %}" class="btn btn-outline-primary btn-sm rounded-pill">View Weekly</a>
@@ -235,134 +274,168 @@
         </div>
         
         <!-- Recent Resources Section -->
-        <h5 class="fw-bold mb-3 d-flex justify-content-between align-items-center">
-            Recent Uploads
-            <a href="{% url 'teachers:my_classes' %}" class="btn btn-sm btn-link text-decoration-none">View All</a>
-        </h5>
-        <div class="card border-0 shadow-sm rounded-4 mb-4">
-            <div class="list-group list-group-flush rounded-4">
-                {% for resource in recent_resources %}
-                <div class="list-group-item p-3 border-0 border-bottom">
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="bg-info bg-opacity-10 p-2 rounded-circle text-info">
-                            {% if resource.link %}
-                            <i class="bi bi-link-45deg mb-0"></i>
-                            {% else %}
-                            <i class="bi bi-file-earmark-text mb-0"></i>
+        <div id="widget-recent-uploads">
+            <h5 class="fw-bold mb-3 d-flex justify-content-between align-items-center">
+                Recent Uploads
+                <a href="{% url 'teachers:my_classes' %}" class="btn btn-sm btn-link text-decoration-none">View All</a>
+            </h5>
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="list-group list-group-flush rounded-4">
+                    {% for resource in recent_resources %}
+                    <div class="list-group-item p-3 border-0 border-bottom">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="bg-info bg-opacity-10 p-2 rounded-circle text-info">
+                                {% if resource.link %}
+                                <i class="bi bi-link-45deg mb-0"></i>
+                                {% else %}
+                                <i class="bi bi-file-earmark-text mb-0"></i>
+                                {% endif %}
+                            </div>
+                            <div class="flex-grow-1">
+                                <h6 class="mb-0 fw-bold">{{ resource.title }}</h6>
+                                <small class="text-muted">{{ resource.class_subject.subject.name }} - {{ resource.class_subject.class_name.name }}</small>
+                            </div>
+                            {% if resource.file %}
+                            <a href="{{ resource.file.url }}" target="_blank" class="btn btn-sm btn-light rounded-pill" title="Download">
+                                <i class="bi bi-download"></i>
+                            </a>
+                            {% elif resource.link %}
+                            <a href="{{ resource.link }}" target="_blank" class="btn btn-sm btn-light rounded-pill" title="Open Link">
+                                <i class="bi bi-box-arrow-up-right"></i>
+                            </a>
                             {% endif %}
                         </div>
-                        <div class="flex-grow-1">
-                            <h6 class="mb-0 fw-bold">{{ resource.title }}</h6>
-                            <small class="text-muted">{{ resource.class_subject.subject.name }} - {{ resource.class_subject.class_name.name }}</small>
-                        </div>
-                        {% if resource.file %}
-                        <a href="{{ resource.file.url }}" target="_blank" class="btn btn-sm btn-light rounded-pill" title="Download">
-                            <i class="bi bi-download"></i>
-                        </a>
-                        {% elif resource.link %}
-                        <a href="{{ resource.link }}" target="_blank" class="btn btn-sm btn-light rounded-pill" title="Open Link">
-                            <i class="bi bi-box-arrow-up-right"></i>
-                        </a>
-                        {% endif %}
                     </div>
+                    {% empty %}
+                    <div class="p-4 text-center text-muted">No resources uploaded recently.</div>
+                    {% endfor %}
                 </div>
-                {% empty %}
-                <div class="p-4 text-center text-muted">No resources uploaded recently.</div>
-                {% endfor %}
             </div>
         </div>
 
         <!-- Recent Notices -->
-        <h5 class="fw-bold mb-3 d-flex justify-content-between align-items-center">
-            School Board
-        </h5>
-        <div class="card border-0 shadow-sm rounded-4">
-            <div class="list-group list-group-flush rounded-4">
-                {% for notice in notices %}
-                <div class="list-group-item p-3 border-0 border-bottom">
-                    <div class="d-flex gap-3">
-                        <div class="flex-shrink-0">
-                            <div class="bg-primary bg-opacity-10 text-primary rounded-3 p-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-                                <i class="bi bi-info-circle-fill"></i>
+        <div id="widget-school-board">
+            <h5 class="fw-bold mb-3 d-flex justify-content-between align-items-center">
+                School Board
+            </h5>
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="list-group list-group-flush rounded-4">
+                    {% for notice in notices %}
+                    <div class="list-group-item p-3 border-0 border-bottom">
+                        <div class="d-flex gap-3">
+                            <div class="flex-shrink-0">
+                                <div class="bg-primary bg-opacity-10 text-primary rounded-3 p-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                    <i class="bi bi-info-circle-fill"></i>
+                                </div>
                             </div>
-                        </div>
-                        <div class="flex-grow-1">
-                            <div class="d-flex justify-content-between align-items-center mb-1">
-                                <h6 class="mb-0 fw-bold">{{ notice.title }}</h6>
-                                <small class="text-muted">{{ notice.created_at|date:"M d" }}</small>
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <h6 class="mb-0 fw-bold">{{ notice.title }}</h6>
+                                    <small class="text-muted">{{ notice.created_at|date:"M d" }}</small>
+                                </div>
+                                <p class="text-muted small mb-0">{{ notice.content|truncatechars:100 }}</p>
                             </div>
-                            <p class="text-muted small mb-0">{{ notice.content|truncatechars:100 }}</p>
                         </div>
                     </div>
+                    {% empty %}
+                    <div class="p-4 text-center text-muted">No new notices.</div>
+                    {% endfor %}
                 </div>
-                {% empty %}
-                <div class="p-4 text-center text-muted">No new notices.</div>
-                {% endfor %}
             </div>
         </div>
-
     </div>
 
     <!-- Right Sidebar: Actions -->
     <div class="col-lg-4">
-        <h5 class="fw-bold mb-3">Teaching Tools</h5>
-        <div class="row g-3">
-            <div class="col-6 col-md-12">
-                <a href="{% url 'teachers:my_classes' %}" class="action-card">
-                    <div class="action-icon bg-primary bg-opacity-10 text-primary">
-                        <i class="bi bi-journal-bookmark-fill"></i>
-                    </div>
-                    <div class="fw-bold">My Classes</div>
-                    <div class="small text-muted mt-1">View subjects & students</div>
-                </a>
-            </div>
-            <div class="col-6 col-md-12">
-                 <a href="{% url 'teachers:enter_grades' %}" class="action-card">
-                    <div class="action-icon bg-success bg-opacity-10 text-success">
-                        <i class="bi bi-pencil-square"></i>
-                    </div>
-                    <div class="fw-bold">Record Grades</div>
-                    <div class="small text-muted mt-1">Enter scores & remarks</div>
-                </a>
-            </div>
-            <div class="col-6 col-md-12">
-                <a href="{% url 'students:mark_attendance' %}" class="action-card">
-                    <div class="action-icon bg-info bg-opacity-10 text-info">
-                        <i class="bi bi-check2-square"></i>
-                    </div>
-                    <div class="fw-bold">Attendance</div>
-                    <div class="small text-muted mt-1">Mark daily registry</div>
-                </a>
-            </div>
-            <div class="col-6 col-md-12">
-                <a href="{% url 'teachers:lesson_plan_list' %}" class="action-card">
-                    <div class="action-icon bg-danger bg-opacity-10 text-danger">
-                        <i class="bi bi-file-earmark-easel"></i>
-                    </div>
-                    <div class="fw-bold">Lesson Plans</div>
-                    <div class="small text-muted mt-1">Manage weekly plans</div>
-                </a>
-            </div>
-            <div class="col-6 col-md-12">
-                <a href="{% url 'academics:manage_resources' %}" class="action-card">
-                    <div class="action-icon bg-info bg-opacity-10 text-info">
-                        <i class="bi bi-folder2-open"></i>
-                    </div>
-                    <div class="fw-bold">Resources</div>
-                    <div class="small text-muted mt-1">Teaching materials</div>
-                </a>
-            </div>
-            
-            <div class="col-6 col-md-12">
-                <a href="{% url 'teachers:duty_roster' %}" class="action-card">
-                    <div class="action-icon bg-warning bg-opacity-10 text-warning">
-                        <i class="bi bi-calendar3"></i>
-                    </div>
-                    <div class="fw-bold">Duty Roster</div>
-                    <div class="small text-muted mt-1">Check staff duties</div>
-                </a>
+        <div id="widget-teaching-tools">
+            <h5 class="fw-bold mb-3">Teaching Tools</h5>
+            <div class="row g-3">
+                <div class="col-6 col-md-12">
+                    <a href="{% url 'teachers:my_classes' %}" class="action-card">
+                        <div class="action-icon bg-primary bg-opacity-10 text-primary">
+                            <i class="bi bi-journal-bookmark-fill"></i>
+                        </div>
+                        <div class="fw-bold">My Classes</div>
+                        <div class="small text-muted mt-1">View subjects & students</div>
+                    </a>
+                </div>
+                <div class="col-6 col-md-12">
+                     <a href="{% url 'teachers:enter_grades' %}" class="action-card">
+                        <div class="action-icon bg-success bg-opacity-10 text-success">
+                            <i class="bi bi-pencil-square"></i>
+                        </div>
+                        <div class="fw-bold">Record Grades</div>
+                        <div class="small text-muted mt-1">Enter scores & remarks</div>
+                    </a>
+                </div>
+                <div class="col-6 col-md-12">
+                    <a href="{% url 'students:mark_attendance' %}" class="action-card">
+                        <div class="action-icon bg-info bg-opacity-10 text-info">
+                            <i class="bi bi-check2-square"></i>
+                        </div>
+                        <div class="fw-bold">Attendance</div>
+                        <div class="small text-muted mt-1">Mark daily registry</div>
+                    </a>
+                </div>
+                <div class="col-6 col-md-12">
+                    <a href="{% url 'teachers:lesson_plan_list' %}" class="action-card">
+                        <div class="action-icon bg-danger bg-opacity-10 text-danger">
+                            <i class="bi bi-file-earmark-easel"></i>
+                        </div>
+                        <div class="fw-bold">Lesson Plans</div>
+                        <div class="small text-muted mt-1">Manage weekly plans</div>
+                    </a>
+                </div>
+                <div class="col-6 col-md-12">
+                    <a href="{% url 'academics:manage_resources' %}" class="action-card">
+                        <div class="action-icon bg-info bg-opacity-10 text-info">
+                            <i class="bi bi-folder2-open"></i>
+                        </div>
+                        <div class="fw-bold">Resources</div>
+                        <div class="small text-muted mt-1">Teaching materials</div>
+                    </a>
+                </div>
+                
+                <div class="col-6 col-md-12">
+                    <a href="{% url 'teachers:duty_roster' %}" class="action-card">
+                        <div class="action-icon bg-warning bg-opacity-10 text-warning">
+                            <i class="bi bi-calendar3"></i>
+                        </div>
+                        <div class="fw-bold">Duty Roster</div>
+                        <div class="small text-muted mt-1">Check staff duties</div>
+                    </a>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Widget Visibility Logic
+        const STORAGE_KEY = 'dashboard_widgets_teacher_{{ user.id }}';
+        const toggles = document.querySelectorAll('.widget-toggle');
+        
+        let preferences = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+        
+        toggles.forEach(toggle => {
+            const targetId = toggle.dataset.target;
+            const targetEl = document.getElementById(targetId);
+            
+            if (preferences[targetId] === false) {
+                toggle.checked = false;
+                if (targetEl) targetEl.style.display = 'none';
+            }
+            
+            toggle.addEventListener('change', (e) => {
+                const isVisible = e.target.checked;
+                if (targetEl) {
+                    targetEl.style.display = isVisible ? '' : 'none';
+                }
+                preferences[targetId] = isVisible;
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(preferences));
+            });
+        });
+    });
+</script>
 {% endblock %}

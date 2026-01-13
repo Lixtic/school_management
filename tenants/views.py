@@ -40,12 +40,18 @@ def school_signup(request):
                     # 3. Create Admin User (Switch to new schema)
                     connection.set_tenant(tenant)
                     User = get_user_model()
-                    user = User.objects.create_superuser(
-                        username='admin',
-                        email=email,
-                        password='admin', # Hardcoded for now, user should change
-                        user_type='admin'
-                    )
+                    
+                    # Check if user already exists
+                    if not User.objects.filter(username='admin').exists():
+                        user = User.objects.create_superuser(
+                            username='admin',
+                            email=email,
+                            password='admin', # Hardcoded for now, user should change
+                            user_type='admin'
+                        )
+                        print(f"DEBUG: Created admin user for {schema_name}")
+                    else:
+                        print(f"DEBUG: Admin user already exists for {schema_name}")
                     
                     # Auto-populate sample data
                     _create_sample_data(tenant)

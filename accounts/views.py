@@ -90,7 +90,10 @@ def login_view(request):
 
     if request.user.is_authenticated:
         print("DEBUG: User already authenticated. Redirecting to dashboard.")
-        return redirect('dashboard')
+        # Build proper redirect URL with tenant prefix
+        dashboard_url = request.META.get('SCRIPT_NAME', '') + '/dashboard/'
+        print(f"DEBUG: Redirecting to: {dashboard_url}")
+        return redirect(dashboard_url)
     
     if request.method == 'POST':
         username = request.POST.get('username')
@@ -103,7 +106,10 @@ def login_view(request):
             print(f"DEBUG: User authenticated successfully: {user}")
             login(request, user)
             print("DEBUG: Login function called. Session should be set.")
-            return redirect('dashboard')
+            # Build proper redirect URL with tenant prefix
+            dashboard_url = request.META.get('SCRIPT_NAME', '') + '/dashboard/'
+            print(f"DEBUG: Redirecting to: {dashboard_url}")
+            return redirect(dashboard_url)
         else:
             print("DEBUG: Authentication failed.")
             messages.error(request, 'Invalid credentials')
@@ -114,7 +120,9 @@ def login_view(request):
 @login_required
 def logout_view(request):
     logout(request)
-    return redirect('login')
+    # Build proper redirect URL with tenant prefix
+    login_url = request.META.get('SCRIPT_NAME', '') + '/login/'
+    return redirect(login_url)
 
 
 @login_required

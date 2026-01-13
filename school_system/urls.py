@@ -50,6 +50,7 @@ urlpatterns = [
     path('academics/', include('academics.urls')),
     path('announcements/', include('announcements.urls')),
     path('finance/', include('finance.urls')),
+    path('tenants/', include('tenants.urls')),
     path('debug/migrate/', account_views.debug_migrate, name='debug_migrate'),
 ]
 

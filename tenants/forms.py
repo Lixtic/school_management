@@ -2,6 +2,7 @@ import re
 from django import forms
 from django.core.exceptions import ValidationError
 from .models import School, Domain
+from academics.models import SchoolInfo
 
 class SchoolSignupForm(forms.Form):
     school_name = forms.CharField(label="School Name", max_length=100, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Kings College'}))
@@ -23,3 +24,30 @@ class SchoolSignupForm(forms.Form):
             raise ValidationError(f"The School ID '{data}' is already taken.")
             
         return data
+
+
+class SchoolSetupForm(forms.ModelForm):
+    primary_color = forms.CharField(
+        label="Primary Color",
+        max_length=7,
+        required=False,
+        widget=forms.TextInput(attrs={
+            'type': 'color',
+            'class': 'form-control form-control-color',
+            'value': '#026e56'
+        }),
+        help_text="Main brand color for your school"
+    )
+    
+    class Meta:
+        model = SchoolInfo
+        fields = ['name', 'address', 'phone', 'email', 'motto', 'logo']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Kings College'}),
+            'address': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'P.O. Box 123, City'}),
+            'phone': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '+233 24 123 4567'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'info@school.edu'}),
+            'motto': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Excellence and Integrity'}),
+            'logo': forms.FileInput(attrs={'class': 'form-control'}),
+        }
+

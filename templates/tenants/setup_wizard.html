@@ -1,0 +1,235 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}School Setup Wizard{% endblock %}
+
+{% block content %}
+<style>
+.setup-wizard {
+    max-width: 900px;
+    margin: 60px auto;
+}
+
+.wizard-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    overflow: hidden;
+}
+
+.wizard-header {
+    background: linear-gradient(135deg, var(--primary-teal), var(--primary-dark));
+    color: white;
+    padding: 40px;
+    text-align: center;
+}
+
+.wizard-body {
+    padding: 40px;
+}
+
+.progress-steps {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 40px;
+    position: relative;
+}
+
+.progress-steps::before {
+    content: '';
+    position: absolute;
+    top: 20px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: #e2e8f0;
+    z-index: 0;
+}
+
+.step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+}
+
+.step-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: white;
+    border: 3px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.step.active .step-circle {
+    background: var(--primary-teal);
+    border-color: var(--primary-teal);
+    color: white;
+}
+
+.step-label {
+    font-size: 0.85rem;
+    color: #64748b;
+    font-weight: 600;
+}
+
+.form-section {
+    margin-bottom: 30px;
+}
+
+.form-section h5 {
+    font-weight: 700;
+    color: var(--primary-dark);
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.color-preview {
+    width: 100%;
+    height: 60px;
+    border-radius: 8px;
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    transition: all 0.3s;
+}
+
+.logo-preview {
+    max-width: 200px;
+    max-height: 200px;
+    margin-top: 15px;
+    border-radius: 12px;
+    display: none;
+}
+
+.skip-link {
+    text-align: center;
+    margin-top: 20px;
+}
+</style>
+
+<div class="setup-wizard">
+    <div class="wizard-card">
+        <div class="wizard-header">
+            <i class="bi bi-magic fs-1 mb-3"></i>
+            <h2 class="mb-2">Welcome to Your School Portal!</h2>
+            <p class="mb-0 opacity-75">Let's set up your school's basic information</p>
+        </div>
+
+        <div class="wizard-body">
+            <div class="progress-steps">
+                <div class="step active">
+                    <div class="step-circle">1</div>
+                    <span class="step-label">Basic Info</span>
+                </div>
+                <div class="step">
+                    <div class="step-circle">2</div>
+                    <span class="step-label">Branding</span>
+                </div>
+                <div class="step">
+                    <div class="step-circle">3</div>
+                    <span class="step-label">Complete</span>
+                </div>
+            </div>
+
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <div class="form-section">
+                    <h5><i class="bi bi-building me-2"></i>School Information</h5>
+                    <div class="row g-3">
+                        <div class="col-md-12">
+                            <label class="form-label fw-bold">School Name *</label>
+                            {{ form.name }}
+                            {% if form.name.errors %}
+                                <div class="text-danger small mt-1">{{ form.name.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Phone</label>
+                            {{ form.phone }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Email</label>
+                            {{ form.email }}
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label fw-bold">Address</label>
+                            {{ form.address }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h5><i class="bi bi-palette me-2"></i>Branding & Identity</h5>
+                    <div class="row g-3">
+                        <div class="col-md-12">
+                            <label class="form-label fw-bold">School Motto</label>
+                            {{ form.motto }}
+                            <small class="text-muted d-block mt-1">A short phrase that represents your school's values</small>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Primary Color</label>
+                            {{ form.primary_color }}
+                            <div id="colorPreview" class="color-preview" style="background: #026e56;">
+                                Preview Color
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">School Logo</label>
+                            {{ form.logo }}
+                            <img id="logoPreview" class="logo-preview" alt="Logo Preview">
+                            <small class="text-muted d-block mt-1">Recommended: Square image, 500x500px</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center">
+                    <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">
+                        Skip for Now
+                    </a>
+                    <button type="submit" class="btn btn-primary btn-lg px-5">
+                        <i class="bi bi-check-circle me-2"></i>Complete Setup
+                    </button>
+                </div>
+            </form>
+
+            <div class="skip-link">
+                <small class="text-muted">You can always update these settings later from the dashboard</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Color preview
+document.getElementById('id_primary_color')?.addEventListener('input', function(e) {
+    document.getElementById('colorPreview').style.background = e.target.value;
+});
+
+// Logo preview
+document.getElementById('id_logo')?.addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    const preview = document.getElementById('logoPreview');
+    
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            preview.src = event.target.result;
+            preview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    }
+});
+</script>
+{% endblock %}

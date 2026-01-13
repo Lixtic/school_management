@@ -133,15 +133,18 @@ def school_setup_wizard(request):
     # Check if already configured
     school_info = SchoolInfo.objects.first()
     if school_info and school_info.address != "To be configured":
-        # Already setup, redirect to dashboard
-        return redirect('dashboard')
+        # Already setup, redirect to dashboard with proper tenant prefix
+        dashboard_url = request.META.get('SCRIPT_NAME', '') + '/dashboard/'
+        return redirect(dashboard_url)
     
     if request.method == 'POST':
         form = SchoolSetupForm(request.POST, request.FILES, instance=school_info)
         if form.is_valid():
             school_info = form.save()
             messages.success(request, "School setup completed successfully!")
-            return redirect('dashboard')
+            # Redirect with tenant prefix
+            dashboard_url = request.META.get('SCRIPT_NAME', '') + '/dashboard/'
+            return redirect(dashboard_url)
     else:
         form = SchoolSetupForm(instance=school_info)
     
